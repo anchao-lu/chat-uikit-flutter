@@ -1464,31 +1464,9 @@ class _TIMUIKItHistoryMessageListItemState
                                     widget.onSecondaryTapForOthersPortrait!(
                                         message.sender ?? "", details);
                                   } else {
-                                    TUIKitWidePopup.showPopupWindow(
-                                      operationKey: TUIKitWideModalOperationKey
-                                          .chatAvatarSecondaryMenu,
-                                      isDarkBackground: false,
-                                      borderRadius: const BorderRadius.all(
-                                        Radius.circular(4),
-                                      ),
-                                      context: context,
-                                      offset: Offset(
-                                        min(
-                                            details.globalPosition.dx,
-                                            MediaQuery.of(context).size.width -
-                                                80),
-                                        min(
-                                            details.globalPosition.dy,
-                                            MediaQuery.of(context).size.height -
-                                                130),
-                                      ),
-                                      child: (onClose) => InkWell(
-                                        onTap: () {
-                                          debugPrint('@ user');
-                                          onClose();
-                                        },
-                                        child: const Text('@ dddd'),
-                                      ),
+                                    _defaultDesktopSecondaryTap(
+                                      details,
+                                      message,
                                     );
                                   }
                                 }
@@ -1714,6 +1692,83 @@ class _TIMUIKItHistoryMessageListItemState
                               ),
                     ],
                   ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+extension _CustomLogic on _TIMUIKItHistoryMessageListItemState {
+  Future<void> _defaultDesktopSecondaryTap(
+    TapDownDetails details,
+    V2TimMessage message,
+  ) async {
+    final senderId = message.sender ?? '';
+    // String firstActionTitle = '';
+    // if (senderId.isNotEmpty) {
+    //   final friendshipService = serviceLocator<FriendshipServices>();
+    //   final friendInfo = await friendshipService.checkFriend(
+    //     userIDList: [senderId],
+    //     checkType: FriendTypeEnum.V2TIM_FRIEND_TYPE_BOTH,
+    //   );
+    //   if (friendInfo?.isNotEmpty == true) {
+    //     final friendResult = friendInfo?.first;
+    //     switch (friendResult?.resultType) {
+    //       case 0: // 不是好友
+    //       case 2: // 我在对方好友列表：不确定是否支持发送消息
+    //         firstActionTitle = '添加到通讯录';
+    //       case 1: // 对方在我好友列表
+    //       case 3: // 互为好友
+    //         firstActionTitle = '发消息';
+    //     }
+    //   }
+    // }
+    TUIKitWidePopup.showPopupWindow(
+      operationKey: TUIKitWideModalOperationKey.chatAvatarSecondaryMenu,
+      isDarkBackground: false,
+      borderRadius: const BorderRadius.all(
+        Radius.circular(4),
+      ),
+      context: context,
+      offset: Offset(
+        min(details.globalPosition.dx, MediaQuery.of(context).size.width - 80),
+        min(details.globalPosition.dy,
+            MediaQuery.of(context).size.height - 130),
+      ),
+      child: (onClose) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // if (firstActionTitle.isNotEmpty)
+            //   InkWell(
+            //     onTap: () {
+            //       debugPrint('@ user');
+            //       onClose();
+            //     },
+            //     child: Container(
+            //       constraints: const BoxConstraints(minWidth: 100),
+            //       padding: const EdgeInsets.all(8.0),
+            //       child: Text(firstActionTitle),
+            //     ),
+            //   ),
+            InkWell(
+              onTap: () {
+                widget.textFieldController?.longPressToAt(
+                  MessageUtils.getDisplayName(message),
+                  senderId,
+                );
+                onClose();
+              },
+              child: Container(
+                constraints: const BoxConstraints(minWidth: 100),
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  '@ ' + MessageUtils.getDisplayName(message),
                 ),
               ),
             ),
