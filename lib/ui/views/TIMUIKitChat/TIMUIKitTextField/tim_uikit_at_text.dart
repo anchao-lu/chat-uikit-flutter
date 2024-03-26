@@ -1,6 +1,5 @@
 import 'package:azlistview_all_platforms/azlistview_all_platforms.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:lpinyin/lpinyin.dart';
 import 'package:provider/provider.dart';
@@ -55,8 +54,6 @@ class _AtTextState extends TIMUIKitState<AtText> {
           ? _searchMemberList
           : _groupMemberList ?? [];
 
-  late EasyRefreshController _refreshController;
-  late ScrollController _scrollController;
   String _nextSeq = '';
 
   Future<void> _getMemberList() async {
@@ -83,19 +80,10 @@ class _AtTextState extends TIMUIKitState<AtText> {
 
   @override
   void initState() {
-    _refreshController = EasyRefreshController();
-    _scrollController = ScrollController();
     _groupMemberList = widget.groupMemberList;
     _searchMemberList = _groupMemberList;
     _getMemberList();
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    _refreshController.dispose();
-    _scrollController.dispose();
-    super.dispose();
   }
 
   _onTapMemberItem(

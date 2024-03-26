@@ -659,11 +659,17 @@ class _TUIChatState extends TIMUIKitState<TIMUIKitChat> {
                         TIMUIKitSendFile(
                           conversation: widget.conversation,
                         ),
-                      AtMemberPanel(
-                        atMemberPanelScroll: atMemberPanelScroll,
-                        onSelectMember: (member) =>
-                            textFieldController.handleAtMember(member),
-                      )
+                      if (context
+                              .watch<TUIChatSeparateViewModel>()
+                              .activeAtIndex !=
+                          -1)
+                        AtMemberPanel(
+                          atMemberPanelScroll: atMemberPanelScroll,
+                          chatModel:
+                              Provider.of<TUIChatSeparateViewModel>(context),
+                          onSelectMember: (member) =>
+                              textFieldController.handleAtMember(member),
+                        )
                     ],
                   ),
                 )),
