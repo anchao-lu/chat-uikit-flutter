@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_global_model.dart';
+import 'package:tencent_cloud_chat_uikit/data_services/message/message_services.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
 import 'package:tencent_cloud_chat_uikit/ui/constants/history_message_constant.dart';
@@ -21,7 +22,7 @@ class MediaDownloadUtil {
 
   final CoreServicesImpl _coreServices = serviceLocator<CoreServicesImpl>();
   final TUIChatGlobalModel _model = serviceLocator<TUIChatGlobalModel>();
-
+  final MessageService _messageService = serviceLocator<MessageService>();
   Future<void> saveImg(
     BuildContext context,
     TUITheme theme, {
@@ -125,6 +126,30 @@ class MediaDownloadUtil {
       message: message,
       showSuccessTip: showSuccessTip,
     );
+  }
+
+  // 下载桌面版视频资源视频
+  Future<void> downloadVideo({required V2TimMessage message}) async {
+    if (TencentUtils.checkString(message.msgID) != null) {
+      if (TencentUtils.checkString(message.videoElem!.videoUrl) == null) {
+        final response =
+            await _messageService.getMessageOnlineUrl(msgID: message.msgID!);
+        if (response.data != null) {
+          message.videoElem = response.data!.videoElem;
+        }
+      }
+      if (!PlatformUtils().isWeb) {
+        if (TencentUtils.checkString(message.videoElem!.localVideoUrl) ==
+                null ||
+            !File(message.videoElem!.localVideoUrl!).existsSync()) {
+          _messageService.downloadMessage(
+              msgID: message.msgID!,
+              messageType: 5,
+              imageType: 0,
+              isSnapshot: false);
+        }
+      }
+    }
   }
 }
 

@@ -254,6 +254,9 @@ class TIMUIKitChatConfig {
 
   //////////////// 图片、视频消息连续浏览 ////////////////
   final bool useMediaBrowser;
+
+  //  控制文件，或者视频是否自动下载
+  final bool fileAutoDownload;
   //////////////// 图片、视频消息连续浏览 ////////////////
 
   const TIMUIKitChatConfig({
@@ -310,6 +313,7 @@ class TIMUIKitChatConfig {
     this.useKangXunVideo = false,
     //////////////// 图片、视频消息连续浏览 ////////////////
     this.useMediaBrowser = false,
+    this.fileAutoDownload = true,
     //////////////// 图片、视频消息连续浏览 ////////////////
   });
 }

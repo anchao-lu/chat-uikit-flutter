@@ -25,6 +25,8 @@ import 'package:tencent_cloud_chat_uikit/ui/widgets/forward_message_screen.dart'
 import 'package:url_launcher/url_launcher.dart';
 import 'package:path/path.dart' as path;
 
+import '../../../utils/media_download_util.dart';
+
 class TIMUIKitMessageTooltip extends StatefulWidget {
   /// tool tips panel configuration, long press message will show tool tips panel
   final ToolTipsConfig? toolTipsConfig;
@@ -213,6 +215,11 @@ class TIMUIKitMessageTooltipState
             widget.message.elemType == MessageElemType.V2TIM_ELEM_TYPE_IMAGE &&
             fileBeenDownloaded);
 
+    final showDownload = (widget.message.elemType ==
+                MessageElemType.V2TIM_ELEM_TYPE_FILE ||
+            widget.message.elemType == MessageElemType.V2TIM_ELEM_TYPE_VIDEO) &&
+        !fileBeenDownloaded;
+
     final List<MessageToolTipItem> defaultTipsList = [
       if (fileBeenDownloaded)
         MessageToolTipItem(
@@ -226,6 +233,14 @@ class TIMUIKitMessageTooltipState
             id: "finder",
             iconImageAsset: "images/folder_open.png",
             onClick: () => _onTap("finder", model)),
+      if (showDownload)
+        MessageToolTipItem(
+            label: TIM_t("下载"),
+            id: "download",
+            iconImageAsset: "images/folder_open.png",
+            onClick: () {
+              MediaDownloadUtil.of.downloadVideo(message: message);
+            }),
       if (messageCanCopy)
         MessageToolTipItem(
             label: TIM_t("复制"),
@@ -502,7 +517,7 @@ class TIMUIKitMessageTooltipState
         } else if (widget.message.elemType ==
             MessageElemType.V2TIM_ELEM_TYPE_IMAGE) {
           final savePath = (TencentUtils.checkString(
-              widget.message.imageElem!.imageList?[0]?.localUrl) ??
+                  widget.message.imageElem!.imageList?[0]?.localUrl) ??
               TencentUtils.checkString(widget.message.imageElem?.path) ??
               "");
           copyImageToClipboard(savePath);

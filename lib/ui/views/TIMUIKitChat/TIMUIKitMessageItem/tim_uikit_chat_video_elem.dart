@@ -202,15 +202,19 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
         }
       }
       if (!PlatformUtils().isWeb) {
-        if (TencentUtils.checkString(widget.message.videoElem!.localVideoUrl) ==
-                null ||
-            !File(widget.message.videoElem!.localVideoUrl!).existsSync()) {
+        if ((TencentUtils.checkString(
+                        widget.message.videoElem!.localVideoUrl) ==
+                    null ||
+                !File(widget.message.videoElem!.localVideoUrl!).existsSync()) &&
+            widget.chatModel.chatConfig.fileAutoDownload) {
           _messageService.downloadMessage(
               msgID: widget.message.msgID!,
               messageType: 5,
               imageType: 0,
               isSnapshot: false);
         }
+
+        // 下载封面图
         if (TencentUtils.checkString(
                     widget.message.videoElem!.localSnapshotUrl) ==
                 null ||
@@ -272,14 +276,14 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
               // todo
               // TUIKitWidePopup.showMedia(
               //     context: context,
-              //     mediaPath: localVideoUrl,
+              //     mediaLocalPath: localVideoUrl,
               //     onClickOrigin: () => launchDesktopFile(localVideoUrl));
             } else if (videoPath != null) {
               launchDesktopFile(videoPath);
               // todo
               // TUIKitWidePopup.showMedia(
               //     context: context,
-              //     mediaPath: videoPath,
+              //     mediaURL: videoPath,
               //     onClickOrigin: () => launchDesktopFile(videoPath));
             } else if (TencentUtils.isTextNotEmpty(videoUrl)) {
               onTIMCallback(TIMCallback(
