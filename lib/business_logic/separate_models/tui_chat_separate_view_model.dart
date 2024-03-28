@@ -1747,10 +1747,6 @@ extension TUIChatSeparateViewModelAudioPlay on TUIChatSeparateViewModel {
       return;
     }
 
-    if (!SoundPlayer.isInit) {
-      SoundPlayer.initSoundPlayer();
-    }
-
     if (isPlaying && msgID == currentPlayedMsgId) {
       debugPrint(
           'playSound play url: $playUrl isLocal: $playLocal isPlaying: $isPlaying');
@@ -1763,20 +1759,20 @@ extension TUIChatSeparateViewModelAudioPlay on TUIChatSeparateViewModel {
       try {
         debugPrint('playSound play url: $playUrl isLocal: $playLocal');
         if (playLocal) {
-          _coreServices.callOnCallback(
-            TIMCallback(
-                type: TIMCallbackType.API_ERROR,
-                errorMsg: '播放本地音频',
-                errorCode: 1),
-          );
+          // _coreServices.callOnCallback(
+          //   TIMCallback(
+          //       type: TIMCallbackType.API_ERROR,
+          //       errorMsg: '播放本地音频',
+          //       errorCode: 1),
+          // );
           SoundPlayer.playWith(source: AudioSource.file(playUrl));
         } else {
-          _coreServices.callOnCallback(
-            TIMCallback(
-                type: TIMCallbackType.API_ERROR,
-                errorMsg: '播放网络音频',
-                errorCode: 2),
-          );
+          // _coreServices.callOnCallback(
+          //   TIMCallback(
+          //       type: TIMCallbackType.API_ERROR,
+          //       errorMsg: '播放网络音频',
+          //       errorCode: 2),
+          // );
           SoundPlayer.play(url: playUrl);
         }
       } catch (e) {
