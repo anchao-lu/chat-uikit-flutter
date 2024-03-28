@@ -1610,68 +1610,71 @@ extension TUIChatSeparateViewModelAudioPlay on TUIChatSeparateViewModel {
       globalModel.getSoundMessageList(conversationID);
 
   void _setSoundSubscription() {
-    subscription = SoundPlayer.playStateListener(listener: (PlayerState state) {
-      if (state.processingState == ProcessingState.completed) {
-        if (!findNext) {
-          stopAndResetAudio();
-          return;
-        }
-
-        isPlaying = false;
-        final int index =
-            soundMessageList.indexWhere((e) => e.msgID == currentPlayedMsgId);
-        if (index == -1) {
-          stopAndResetAudio();
-          return;
-        }
-
-        if (index < soundMessageList.length - 1) {
-          final currentMessage = soundMessageList[index + 1];
-
-          // 遇到的音频已读，直接返回，不再往下进行
-          if (currentMessage.localCustomInt ==
-              HistoryMessageDartConstant.read) {
+    subscription = SoundPlayer.playStateListener(
+      listener: (PlayerState state) {
+        if (state.processingState == ProcessingState.completed) {
+          if (!findNext) {
             stopAndResetAudio();
             return;
           }
 
-          if (currentMessage.msgID != null) {
-            _currentPlayedMsgId = currentMessage.msgID!;
+          isPlaying = false;
+          final int index =
+              soundMessageList.indexWhere((e) => e.msgID == currentPlayedMsgId);
+          if (index == -1) {
+            stopAndResetAudio();
+            return;
+          }
 
-            // 标记已读
-            globalModel.setLocalCustomInt(
-              currentPlayedMsgId,
-              HistoryMessageDartConstant.read,
-              conversationID,
-            );
+          if (index < soundMessageList.length - 1) {
+            final currentMessage = soundMessageList[index + 1];
 
-            // 直接使用 localUrl
-            bool isLocal = false;
-            String url = currentMessage.soundElem?.localUrl ?? '';
-            isLocal = url.isNotEmpty;
+            // 遇到的音频已读，直接返回，不再往下进行
+            if (currentMessage.localCustomInt ==
+                HistoryMessageDartConstant.read) {
+              stopAndResetAudio();
+              return;
+            }
 
-            playSound(
-              msgID: currentMessage.msgID!,
-              url: url,
-              isLocal: isLocal,
-            );
+            if (currentMessage.msgID != null) {
+              _currentPlayedMsgId = currentMessage.msgID!;
+
+              // 标记已读
+              globalModel.setLocalCustomInt(
+                currentPlayedMsgId,
+                HistoryMessageDartConstant.read,
+                conversationID,
+              );
+
+              // 直接使用 localUrl
+              bool isLocal = false;
+              String url = currentMessage.soundElem?.localUrl ?? '';
+              isLocal = url.isNotEmpty;
+
+              playSound(
+                msgID: currentMessage.msgID!,
+                url: url,
+                isLocal: isLocal,
+              );
+            } else {
+              _currentPlayedMsgId = "";
+            }
           } else {
             _currentPlayedMsgId = "";
           }
-        } else {
-          _currentPlayedMsgId = "";
-        }
 
-        cusNotifyListeners();
-      }
-      _coreServices.callOnCallback(
-        TIMCallback(
-            type: TIMCallbackType.API_ERROR,
-            errorMsg:
-                'audio ${state.processingState.name} --msgId ${_currentPlayedMsgId}',
-            errorCode: 3),
-      );
-    });
+          cusNotifyListeners();
+        }
+        // _coreServices.callOnCallback(
+        //   TIMCallback(
+        //     type: TIMCallbackType.API_ERROR,
+        //     errorMsg:
+        //         'audio ${state.processingState.name} --msgId $_currentPlayedMsgId',
+        //     errorCode: 3,
+        //   ),
+        // );
+      },
+    );
   }
 
   void cancelSoundSubscription() {
