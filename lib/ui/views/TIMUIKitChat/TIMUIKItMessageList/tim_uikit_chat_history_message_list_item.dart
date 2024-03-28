@@ -746,7 +746,7 @@ class _TIMUIKItHistoryMessageListItemState
       child: Text(
         model.chatConfig.timeDividerConfig?.timestampParser != null
             ? (model.chatConfig.timeDividerConfig?.timestampParser!(timeStamp))!
-            : TimeAgo().getTimeForMessage(1709740800),
+            : TimeAgo().getTimeForMessage(timeStamp),
         style: widget.themeData?.timelineTextStyle ??
             TextStyle(
               fontSize: 12,

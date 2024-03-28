@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
@@ -44,9 +45,38 @@ class _AtMemberPanelState extends TIMUIKitState<AtMemberPanel> {
   late TUIChatSeparateViewModel _chatModel;
 
   List<V2TimGroupMemberFullInfo?> _groupMemberList = [];
+  List<V2TimGroupMemberFullInfo?> _searchMemberList = [];
+  List<V2TimGroupMemberFullInfo?> get _realMemberList {
+    final list = _keywords.isNotEmpty ? _searchMemberList : _groupMemberList;
+    list.sort(
+        (V2TimGroupMemberFullInfo? userA, V2TimGroupMemberFullInfo? userB) {
+      final isUserAIsGroupAdmin = userA?.role == 300;
+      final isUserAIsGroupOwner = userA?.role == 400;
+
+      final isUserBIsGroupAdmin = userB?.role == 300;
+      final isUserBIsGroupOwner = userB?.role == 400;
+
+      final String userAName = _getShowName(userA);
+      final String userBName = _getShowName(userB);
+
+      if (isUserAIsGroupOwner != isUserBIsGroupOwner) {
+        return isUserAIsGroupOwner ? -1 : 1;
+      }
+
+      if (isUserAIsGroupAdmin != isUserBIsGroupAdmin) {
+        return isUserAIsGroupAdmin ? -1 : 1;
+      }
+
+      return userAName.compareTo(userBName);
+    });
+    return list;
+  }
+
   String _nextSeq = '';
 
   bool _isLoading = false;
+
+  String _keywords = '';
 
   Future<void> _getMemberList() async {
     if (_nextSeq == '0') return;
@@ -67,27 +97,6 @@ class _AtMemberPanelState extends TIMUIKitState<AtMemberPanel> {
       if (res.code == 0 && groupMemberListRes != null) {
         final groupMemberListTemp = groupMemberListRes.memberInfoList ?? [];
         _groupMemberList = [..._groupMemberList, ...groupMemberListTemp];
-        _groupMemberList.sort(
-            (V2TimGroupMemberFullInfo? userA, V2TimGroupMemberFullInfo? userB) {
-          final isUserAIsGroupAdmin = userA?.role == 300;
-          final isUserAIsGroupOwner = userA?.role == 400;
-
-          final isUserBIsGroupAdmin = userB?.role == 300;
-          final isUserBIsGroupOwner = userB?.role == 400;
-
-          final String userAName = _getShowName(userA);
-          final String userBName = _getShowName(userB);
-
-          if (isUserAIsGroupOwner != isUserBIsGroupOwner) {
-            return isUserAIsGroupOwner ? -1 : 1;
-          }
-
-          if (isUserAIsGroupAdmin != isUserBIsGroupAdmin) {
-            return isUserAIsGroupAdmin ? -1 : 1;
-          }
-
-          return userAName.compareTo(userBName);
-        });
         _nextSeq = groupMemberListRes.nextSeq ?? '0';
         if (mounted) setState(() {});
       }
@@ -98,18 +107,62 @@ class _AtMemberPanelState extends TIMUIKitState<AtMemberPanel> {
     }
   }
 
+  Future<V2TimValueCallback<V2GroupMemberInfoSearchResult>> _searchGroupMember(
+      V2TimGroupMemberSearchParam searchParam) async {
+    final res =
+        await _groupServices.searchGroupMembers(searchParam: searchParam);
+
+    return res;
+  }
+
+  _handleSearchGroupMembers() async {
+    final groupID = _chatModel.groupInfo?.groupID ?? '';
+    if (groupID.isEmpty) return;
+
+    final res = await _searchGroupMember(V2TimGroupMemberSearchParam(
+      keywordList: [_keywords],
+      groupIDList: [groupID],
+    ));
+
+    List<V2TimGroupMemberFullInfo?> list = [];
+    if (res.code == 0) {
+      final searchResult = res.data!.groupMemberSearchResultItems!;
+      searchResult.forEach((key, value) {
+        if (value is List) {
+          for (V2TimGroupMemberFullInfo item in value) {
+            list.add(item);
+          }
+        }
+      });
+      _searchMemberList = list;
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   @override
   void initState() {
     _chatModel = widget.chatModel;
-    _getMemberList();
+    if (_keywords.isNotEmpty) {
+      _handleSearchGroupMembers();
+    } else {
+      _getMemberList();
+    }
     super.initState();
   }
 
   @override
   void didUpdateWidget(covariant AtMemberPanel oldWidget) {
     if (oldWidget.chatModel.groupInfo?.groupID !=
-        widget.chatModel.groupInfo?.groupID) {
-      _getMemberList();
+            widget.chatModel.groupInfo?.groupID ||
+        _keywords != _keywords) {
+      if (_keywords.isNotEmpty) {
+        _handleSearchGroupMembers();
+      } else {
+        _getMemberList();
+      }
     }
     super.didUpdateWidget(oldWidget);
   }
@@ -122,7 +175,14 @@ class _AtMemberPanelState extends TIMUIKitState<AtMemberPanel> {
     final double positionY = _chatModel.atPositionY;
     final int activeIndex = _chatModel.activeAtIndex;
 
-    if (activeIndex == -1 || _groupMemberList.isEmpty) {
+    final keywords =
+        context.watch<TUIChatSeparateViewModel>().desktopAtKeywords;
+    if (_keywords != keywords) {
+      _keywords = keywords;
+      _handleSearchGroupMembers();
+    }
+
+    if (activeIndex == -1 || _realMemberList.isEmpty) {
       return Container();
     }
 
@@ -158,10 +218,10 @@ class _AtMemberPanelState extends TIMUIKitState<AtMemberPanel> {
             controller: widget.atMemberPanelScroll,
             child: ListView.builder(
               shrinkWrap: true,
-              itemCount: _groupMemberList.length,
+              itemCount: _realMemberList.length,
               controller: widget.atMemberPanelScroll,
               itemBuilder: ((context, index) {
-                final memberItem = _groupMemberList[index];
+                final memberItem = _realMemberList[index];
                 if (memberItem == null) {
                   return AutoScrollTag(
                     key: ValueKey(index),
