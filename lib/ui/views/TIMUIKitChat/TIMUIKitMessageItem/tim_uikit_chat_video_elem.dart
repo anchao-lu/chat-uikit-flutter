@@ -8,6 +8,7 @@ import 'package:open_file/open_file.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
+import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_global_model.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/message/message_services.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
@@ -286,10 +287,10 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
               //     mediaURL: videoPath,
               //     onClickOrigin: () => launchDesktopFile(videoPath));
             } else if (TencentUtils.isTextNotEmpty(videoUrl)) {
-              onTIMCallback(TIMCallback(
-                  infoCode: 6660414,
-                  infoRecommendText: TIM_t("正在下载中"),
-                  type: TIMCallbackType.INFO));
+              // onTIMCallback(TIMCallback(
+              //     infoCode: 6660414,
+              //     infoRecommendText: TIM_t("正在下载中"),
+              //     type: TIMCallbackType.INFO));
             }
           }
         } else {
@@ -397,9 +398,11 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
                         Positioned.fill(
                           // alignment: Alignment.center,
                           child: Center(
-                              child: Image.asset('images/play.png',
-                                  package: 'tencent_cloud_chat_uikit',
-                                  height: 64)),
+                              child: Platform.isWindows
+                                  ? _getWindowView()
+                                  : Image.asset('images/play.png',
+                                      package: 'tencent_cloud_chat_uikit',
+                                      height: 64)),
                         ),
                       if (widget.message.videoElem?.duration != null &&
                           widget.message.videoElem!.duration! > 0)
@@ -438,6 +441,135 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
               ))),
     );
   }
+
+//  新添加  Windows 视图 start
+
+  int downloadProgress = 0;
+
+  ///  是否存在该文件
+  bool _hasFile() {
+    if (PlatformUtils().isWeb) {
+      return true;
+    }
+    // String savePath = widget.chatModel.globalModel
+    //     .getFileMessageLocation(widget.message.msgID ?? "");
+
+    String savePath = TencentUtils.checkString(widget.chatModel.globalModel
+            .getFileMessageLocation(widget.message.msgID)) ??
+        TencentUtils.checkString(widget.message.videoElem!.localVideoUrl) ??
+        widget.message.videoElem?.videoPath ??
+        '';
+
+    File f = File(savePath);
+    if (f.existsSync() && widget.message.msgID != null) {
+      if (widget.chatModel.globalModel
+              .getMessageProgress(widget.message.msgID) !=
+          100) {
+        widget.chatModel.globalModel
+            .setMessageProgress(widget.message.msgID!, 100);
+      }
+      widget.message.videoElem?.localVideoUrl = savePath;
+      return true;
+    }
+    return false;
+  }
+
+  Widget _getWindowView() {
+    //  判断视频是否下载完成
+    if (_hasFile()) {
+      return Image.asset('images/play.png',
+          package: 'tencent_cloud_chat_uikit', height: 64);
+    }
+    switch (downloadProgress) {
+      case -1:
+        //  下载失败
+        return Image.asset('images/play.png',
+            package: 'tencent_cloud_chat_uikit', height: 64);
+      case 100:
+        // 下载成功
+        String savePath = TencentUtils.checkString(widget.chatModel.globalModel
+                .getFileMessageLocation(widget.message.msgID)) ??
+            TencentUtils.checkString(widget.message.videoElem!.localVideoUrl) ??
+            widget.message.videoElem?.videoPath ??
+            '';
+        widget.message.videoElem?.localVideoUrl = savePath;
+        return Image.asset('images/play.png',
+            package: 'tencent_cloud_chat_uikit', height: 64);
+
+      case 0:
+        // 尚未下载
+        print("MediaDownloadProgressUtil===>尚未下载: 当前下载进度$downloadProgress");
+
+        return IconButton(
+          icon: Image.asset(
+            'images/download.png',
+            package: 'tencent_cloud_chat_uikit',
+          ),
+          iconSize: 48,
+          onPressed: () async {
+            addStartListener();
+            MediaDownloadProgressUtil.of.downloadVideo(message: widget.message);
+          },
+        );
+      default:
+        // 下载中
+        return CircularProgressIndicator(
+          backgroundColor: Colors.grey[200],
+          valueColor: const AlwaysStoppedAnimation(Colors.blue),
+          value: downloadProgress / 100,
+        );
+    }
+  }
+
+  void addStartListener() {
+    MediaDownloadProgressUtil.of.addDownloadListener(
+        message: widget.message,
+        downloadKey: (widget.message.msgID ?? "-1") + "video",
+        downloadListener: (
+          downloadKey,
+          messageProgress,
+        ) {
+          //  因为 此处只监听  视频的下载进度  所以需要过滤
+          if ((downloadKey == (widget.message.msgID ?? "-1") + "video") &&
+              !messageProgress.isSnapshot) {
+            if (mounted) {
+              if (messageProgress.isError || messageProgress.errorCode != 0) {
+                print("MediaDownloadProgressUtil===>$downloadKey下载任务失败");
+
+                MediaDownloadProgressUtil.of
+                    .removeListenerByKey(removeKey: downloadKey);
+                setState(() {
+                  downloadProgress = -1;
+                });
+
+                return;
+              }
+              if (messageProgress.isFinish) {
+                print("MediaDownloadProgressUtil===>$downloadKey下载任务成功");
+
+                MediaDownloadProgressUtil.of
+                    .removeListenerByKey(removeKey: downloadKey);
+
+                setState(() {
+                  downloadProgress = 100;
+                });
+              } else {
+                final currentProgress = (messageProgress.currentSize /
+                        messageProgress.totalSize *
+                        100)
+                    .floor();
+                print(
+                    "MediaDownloadProgressUtil===>$downloadKey: 当前下载进度$currentProgress");
+
+                setState(() {
+                  downloadProgress = currentProgress;
+                });
+              }
+            }
+          }
+        });
+  }
+//  新添加  Windows 视图 end
 }
 
 extension _TIMUIKitVideoElemStateCustom on _TIMUIKitVideoElemState {

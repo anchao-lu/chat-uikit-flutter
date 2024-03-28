@@ -215,11 +215,6 @@ class TIMUIKitMessageTooltipState
             widget.message.elemType == MessageElemType.V2TIM_ELEM_TYPE_IMAGE &&
             fileBeenDownloaded);
 
-    final showDownload = (widget.message.elemType ==
-                MessageElemType.V2TIM_ELEM_TYPE_FILE ||
-            widget.message.elemType == MessageElemType.V2TIM_ELEM_TYPE_VIDEO) &&
-        !fileBeenDownloaded;
-
     final List<MessageToolTipItem> defaultTipsList = [
       if (fileBeenDownloaded)
         MessageToolTipItem(
@@ -233,14 +228,6 @@ class TIMUIKitMessageTooltipState
             id: "finder",
             iconImageAsset: "images/folder_open.png",
             onClick: () => _onTap("finder", model)),
-      if (showDownload)
-        MessageToolTipItem(
-            label: TIM_t("下载"),
-            id: "download",
-            iconImageAsset: "images/folder_open.png",
-            onClick: () {
-              MediaDownloadUtil.of.downloadVideo(message: message);
-            }),
       if (messageCanCopy)
         MessageToolTipItem(
             label: TIM_t("复制"),

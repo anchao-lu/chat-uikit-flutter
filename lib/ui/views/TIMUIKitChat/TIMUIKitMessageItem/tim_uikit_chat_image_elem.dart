@@ -467,14 +467,18 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
           widget.message.imageElem = elem.imageElem;
         }
       }
-      if (oneImageLocal == null || !File(oneImageLocal).existsSync()) {
+      if ((oneImageLocal == null || !File(oneImageLocal).existsSync()) &&
+          widget.chatModel.chatConfig.fileAutoDownload) {
+        // thumb 缩略图
         _messageService.downloadMessage(
             msgID: widget.message.msgID!,
             messageType: 3,
             imageType: 1,
             isSnapshot: false);
       }
-      if (twoImageLocal == null || !File(twoImageLocal).existsSync()) {
+      if ((twoImageLocal == null || !File(twoImageLocal).existsSync()) &&
+          widget.chatModel.chatConfig.fileAutoDownload) {
+        // large
         _messageService.downloadMessage(
             msgID: widget.message.msgID!,
             messageType: 3,
@@ -482,6 +486,7 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
             isSnapshot: false);
       }
       if (zeroImageLocal == null || !File(zeroImageLocal).existsSync()) {
+        // origin
         _messageService.downloadMessage(
             msgID: widget.message.msgID!,
             messageType: 3,

@@ -52,6 +52,7 @@ export 'package:permission_handler/permission_handler.dart';
 
 // Utils
 export 'package:tencent_cloud_chat_uikit/ui/utils/common_utils.dart';
+export 'package:tencent_cloud_chat_uikit/ui/utils/media_download_progress_util.dart';
 export 'package:tencent_cloud_uikit_core/tencent_cloud_uikit_core.dart';
 
 class TIMUIKitCore {
