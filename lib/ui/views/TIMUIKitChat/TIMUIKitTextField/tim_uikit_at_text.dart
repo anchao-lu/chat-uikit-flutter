@@ -1,7 +1,5 @@
-import 'package:azlistview_all_platforms/azlistview_all_platforms.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:lpinyin/lpinyin.dart';
 import 'package:provider/provider.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
@@ -11,7 +9,6 @@ import 'package:tencent_cloud_chat_uikit/ui/utils/optimize_utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitGroupProfile/widgets/tim_ui_group_member_search.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/avatar.dart';
-import 'package:tencent_cloud_chat_uikit/ui/widgets/az_list_view.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/radio_button.dart';
 import 'package:tencent_im_base/tencent_im_base.dart';
 
@@ -46,18 +43,20 @@ class AtText extends StatefulWidget {
 class _AtTextState extends TIMUIKitState<AtText> {
   final GroupServices _groupServices = serviceLocator<GroupServices>();
 
-  List<V2TimGroupMemberFullInfo?>? _groupMemberList;
-  List<V2TimGroupMemberFullInfo?>? _searchMemberList;
+  String _keywords = '';
 
-  List<V2TimGroupMemberFullInfo?>? get _realMemberList =>
-      _searchMemberList?.isNotEmpty == true
-          ? _searchMemberList
-          : _groupMemberList ?? [];
+  List<V2TimGroupMemberFullInfo?> _groupMemberList = [];
+  List<V2TimGroupMemberFullInfo?> _searchMemberList = [];
+  List<V2TimGroupMemberFullInfo?> get _realMemberList =>
+      _keywords.isNotEmpty ? _searchMemberList : _groupMemberList;
 
   String _nextSeq = '';
 
   Future<void> _getMemberList() async {
     if (_nextSeq == '0') return;
+    final groupID = widget.groupID ?? '';
+    if (groupID.isEmpty) return;
+
     try {
       final res = await _groupServices.getGroupMemberList(
         groupID: widget.groupID ?? '',
@@ -69,7 +68,7 @@ class _AtTextState extends TIMUIKitState<AtText> {
 
       if (res.code == 0 && groupMemberListRes != null) {
         final groupMemberListTemp = groupMemberListRes.memberInfoList ?? [];
-        _groupMemberList = [...?_groupMemberList, ...groupMemberListTemp];
+        _groupMemberList = [..._groupMemberList, ...groupMemberListTemp];
         _nextSeq = groupMemberListRes.nextSeq ?? '0';
         if (mounted) setState(() {});
       }
@@ -78,16 +77,10 @@ class _AtTextState extends TIMUIKitState<AtText> {
     }
   }
 
-  @override
-  void initState() {
-    _groupMemberList = widget.groupMemberList;
-    _searchMemberList = _groupMemberList;
-    _getMemberList();
-    super.initState();
-  }
-
   _onTapMemberItem(
-      V2TimGroupMemberFullInfo memberInfo, TapDownDetails? tapDetails) {
+    V2TimGroupMemberFullInfo memberInfo,
+    TapDownDetails? tapDetails,
+  ) {
     if (widget.closeFunc != null) {
       widget.closeFunc!();
     }
@@ -100,22 +93,24 @@ class _AtTextState extends TIMUIKitState<AtText> {
   }
 
   Future<V2TimValueCallback<V2GroupMemberInfoSearchResult>> _searchGroupMember(
-      V2TimGroupMemberSearchParam searchParam) async {
+    V2TimGroupMemberSearchParam searchParam,
+  ) async {
     final res =
         await _groupServices.searchGroupMembers(searchParam: searchParam);
 
-    if (res.code == 0) {}
     return res;
   }
 
-  _handleSearchGroupMembers(String searchText, context) async {
+  _handleSearchGroupMembers(String keywords) async {
+    if (_keywords == keywords) return;
+    _keywords = keywords;
     final res = await _searchGroupMember(V2TimGroupMemberSearchParam(
-      keywordList: [searchText],
+      keywordList: [_keywords],
       groupIDList: [widget.groupID!],
     ));
 
+    List<V2TimGroupMemberFullInfo?> list = [];
     if (res.code == 0) {
-      List<V2TimGroupMemberFullInfo?> list = [];
       final searchResult = res.data!.groupMemberSearchResultItems!;
       searchResult.forEach((key, value) {
         if (value is List) {
@@ -124,20 +119,20 @@ class _AtTextState extends TIMUIKitState<AtText> {
           }
         }
       });
-      _searchMemberList = list;
     }
+    _searchMemberList = list;
 
     if (mounted) {
-      setState(() {
-        _searchMemberList = _isSearchTextExist(searchText)
-            ? _searchMemberList
-            : _groupMemberList;
-      });
+      setState(() {});
     }
   }
 
-  bool _isSearchTextExist(String? searchText) {
-    return searchText != null && searchText != "";
+  @override
+  void initState() {
+    _groupMemberList = widget.groupMemberList ?? [];
+    _searchMemberList = _groupMemberList;
+    _getMemberList();
+    super.initState();
   }
 
   @override
@@ -147,7 +142,7 @@ class _AtTextState extends TIMUIKitState<AtText> {
     Widget mentionedMembersBody() {
       return AtTextMemberList(
         groupType: widget.groupType ?? "",
-        memberList: _realMemberList ?? [],
+        memberList: _realMemberList,
         onTapMemberItem: _onTapMemberItem,
         canAtAll: widget.canAtAll,
         canSlideDelete: false,
@@ -198,7 +193,7 @@ class _AtTextState extends TIMUIKitState<AtText> {
         body: Column(
           children: [
             GroupMemberSearchTextField(
-              onTextChange: (text) => _handleSearchGroupMembers(text, context),
+              onTextChange: _handleSearchGroupMembers,
             ),
             Expanded(
               child: mentionedMembersBody(),
@@ -265,55 +260,39 @@ class _AtTextMemberListState extends TIMUIKitState<AtTextMemberList> {
                 : userID;
   }
 
-  List<ISuspensionBeanImpl> _getShowList(
-      List<V2TimGroupMemberFullInfo?> memberList) {
-    final List<ISuspensionBeanImpl> showList = List.empty(growable: true);
-    for (var i = 0; i < memberList.length; i++) {
-      final item = memberList[i];
-      final showName = _getShowName(item);
-      if (item?.role == GroupMemberRoleType.V2TIM_GROUP_MEMBER_ROLE_OWNER ||
-          item?.role == GroupMemberRoleType.V2TIM_GROUP_MEMBER_ROLE_ADMIN) {
-        showList.add(ISuspensionBeanImpl(memberInfo: item, tagIndex: "@"));
-      } else {
-        String pinyin = PinyinHelper.getPinyinE(showName);
-        String tag = pinyin.substring(0, 1).toUpperCase();
-        if (RegExp("[A-Z]").hasMatch(tag)) {
-          showList.add(ISuspensionBeanImpl(memberInfo: item, tagIndex: tag));
-        } else {
-          showList.add(ISuspensionBeanImpl(memberInfo: item, tagIndex: "#"));
-        }
-      }
-    }
-
-    SuspensionUtil.sortListBySuspensionTag(showList);
-
-    // add @everyone item
-    if (widget.canAtAll) {
-      final canAtGroupType = ["Work", "Public", "Meeting"];
-      if (canAtGroupType.contains(widget.groupType)) {
-        showList.insert(
-          0,
-          ISuspensionBeanImpl(
-            memberInfo: V2TimGroupMemberFullInfo(
-                userID: "__kImSDK_MesssageAtALL__", nickName: TIM_t("所有人")),
-            tagIndex: "",
-          ),
-        );
-      }
-    }
-
-    return showList;
-  }
-
   List<V2TimGroupMemberFullInfo?> get _memberList {
+    List<V2TimGroupMemberFullInfo?> list = List.from(widget.memberList);
+    list.sort(
+        (V2TimGroupMemberFullInfo? userA, V2TimGroupMemberFullInfo? userB) {
+      final isUserAIsGroupAdmin = userA?.role == 300;
+      final isUserAIsGroupOwner = userA?.role == 400;
+
+      final isUserBIsGroupAdmin = userB?.role == 300;
+      final isUserBIsGroupOwner = userB?.role == 400;
+
+      final String userAName = _getShowName(userA);
+      final String userBName = _getShowName(userB);
+
+      if (isUserAIsGroupOwner != isUserBIsGroupOwner) {
+        return isUserAIsGroupOwner ? -1 : 1;
+      }
+
+      if (isUserAIsGroupAdmin != isUserBIsGroupAdmin) {
+        return isUserAIsGroupAdmin ? -1 : 1;
+      }
+
+      return userAName.compareTo(userBName);
+    });
+
     if (widget.canAtAll && widget.memberList.isNotEmpty) {
-      return [
+      list = [
         V2TimGroupMemberFullInfo(
             userID: "__kImSDK_MesssageAtALL__", nickName: TIM_t("所有人")),
         ...widget.memberList,
       ];
     }
-    return widget.memberList;
+
+    return list;
   }
 
   Widget _buildListItem(
@@ -465,28 +444,6 @@ class _AtTextMemberListState extends TIMUIKitState<AtTextMemberList> {
               height: 0,
             )
           ],
-        ),
-      ),
-    );
-  }
-
-  static Widget getSusItem(BuildContext context, TUITheme theme, String tag,
-      {double susHeight = 40}) {
-    if (tag == '@') {
-      tag = TIM_t("群主、管理员");
-    }
-    return Container(
-      height: susHeight,
-      width: MediaQuery.of(context).size.width,
-      padding: const EdgeInsets.only(left: 16.0),
-      color: theme.weakBackgroundColor,
-      alignment: Alignment.centerLeft,
-      child: Text(
-        tag,
-        softWrap: true,
-        style: TextStyle(
-          fontSize: 14.0,
-          color: theme.darkTextColor,
         ),
       ),
     );

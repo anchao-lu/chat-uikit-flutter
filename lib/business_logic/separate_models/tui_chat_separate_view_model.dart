@@ -88,6 +88,15 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  //////////// 新增属性：用于桌面端 @ 时的关键字搜索 ////////////
+  String _desktopAtKeywords = '';
+  String get desktopAtKeywords => _desktopAtKeywords;
+  set desktopAtKeywords(String keywords) {
+    _desktopAtKeywords = keywords;
+    notifyListeners();
+  }
+  //////////// 新增属性：用于桌面端 @ 时的关键字搜索 ////////////
+
   List<V2TimGroupMemberFullInfo?> get showAtMemberList => _showAtMemberList;
 
   set showAtMemberList(List<V2TimGroupMemberFullInfo?> value) {
