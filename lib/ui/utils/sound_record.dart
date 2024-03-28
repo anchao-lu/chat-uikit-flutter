@@ -37,12 +37,17 @@ class SoundPlayer {
 
   // 语音消息连续播放新增逻辑 begin
   static Future<void> playWith({required AudioSource source}) async {
-    _audioPlayer.stop();
-    if (_soundInterruptListener != null) {
-      _soundInterruptListener!();
+    try {
+      _audioPlayer.stop();
+      if (_soundInterruptListener != null) {
+        _soundInterruptListener!();
+      }
+
+      await _audioPlayer.setAudioSource(source);
+      await _audioPlayer.play();
+    } catch (e) {
+      print(e);
     }
-    await _audioPlayer.setAudioSource(source);
-    await _audioPlayer.play();
   }
 
   ///  播放本地文件
@@ -51,7 +56,7 @@ class SoundPlayer {
     if (_soundInterruptListener != null) {
       _soundInterruptListener!();
     }
-    await _audioPlayer.setAsset(asset);
+    await _audioPlayer.setAsset(asset,preload: false);
     await _audioPlayer.play();
   }
 

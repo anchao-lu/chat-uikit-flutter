@@ -604,7 +604,7 @@ class _TIMUIKitTextFieldLayoutWideState extends TIMUIKitState<TIMUIKitTextFieldL
       );
       MessageUtils.handleMessageError(model.sendVideoMessage(videoPath: filePath, duration: duration, snapshotPath: tempPath, convID: convID, convType: convType), context);
     } catch (e) {
-      onTIMCallback(TIMCallback(type: TIMCallbackType.INFO, infoRecommendText: TIM_t("视频文件异常"), infoCode: 6660415));
+      // onTIMCallback(TIMCallback(type: TIMCallbackType.INFO, infoRecommendText: TIM_t("视频文件异常"), infoCode: 6660415));
     }
   }
 
@@ -664,7 +664,10 @@ class _TIMUIKitTextFieldLayoutWideState extends TIMUIKitState<TIMUIKitTextFieldL
     } catch (err) {
       // ignore: avoid_print
       outputLogger.i("send media err: $err");
-      onTIMCallback(TIMCallback(type: TIMCallbackType.INFO, infoRecommendText: TIM_t("视频文件异常"), infoCode: 6660415));
+      // onTIMCallback(TIMCallback(
+      //     type: TIMCallbackType.INFO,
+      //     infoRecommendText: TIM_t("视频文件异常"),
+      //     infoCode: 6660415));
     }
   }
 
