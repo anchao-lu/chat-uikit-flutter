@@ -596,6 +596,13 @@ class TUIChatGlobalModel extends ChangeNotifier implements TIMUIKitClass {
   }
 
   _onReceiveNewMsg(V2TimMessage msgComing) async {
+    //////////////  收到的非当前会话的消息，不再存入内存,桌面版减少内存占用 //////////////
+    final convID =
+        TencentUtils.checkString(msgComing.userID) ?? msgComing.groupID;
+    if (convID != currentSelectedConv) {
+      return;
+    }
+    //////////////  收到的非当前会话的消息，不再存入内存,桌面版减少内存占用 //////////////
     final V2TimMessage? newMsg = _lifeCycle?.newMessageWillMount != null
         ? await _lifeCycle?.newMessageWillMount(msgComing)
         : msgComing;
@@ -611,7 +618,7 @@ class TUIChatGlobalModel extends ChangeNotifier implements TIMUIKitClass {
     }
 
     _checkFromUserisActive(msgComing);
-    final convID = TencentUtils.checkString(newMsg.userID) ?? newMsg.groupID;
+    // final convID = TencentUtils.checkString(newMsg.userID) ?? newMsg.groupID;
     final convType = TencentUtils.checkString(newMsg.groupID) != null
         ? ConvType.group
         : ConvType.c2c;
