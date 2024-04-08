@@ -19,6 +19,7 @@ import 'package:tencent_cloud_chat_uikit/ui/utils/logger.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/message.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
 
+import 'tui_conversation_view_model.dart';
 enum ConvType { none, c2c, group }
 
 enum HistoryMessagePosition {
@@ -599,7 +600,10 @@ class TUIChatGlobalModel extends ChangeNotifier implements TIMUIKitClass {
     //////////////  收到的非当前会话的消息，不再存入内存,桌面版减少内存占用 //////////////
     final convID =
         TencentUtils.checkString(msgComing.userID) ?? msgComing.groupID;
-    if (convID != currentSelectedConv) {
+    final curConv = TUIConversationViewModel.of();
+    final curConvID =
+        TencentUtils.checkString(curConv?.userID) ?? curConv?.groupID;
+    if (convID != curConvID) {
       return;
     }
     //////////////  收到的非当前会话的消息，不再存入内存,桌面版减少内存占用 //////////////
