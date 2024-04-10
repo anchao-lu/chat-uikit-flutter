@@ -173,8 +173,14 @@ class MessageUtils {
       case GroupTipsElemType.V2TIM_GROUP_TIPS_TYPE_JOIN:
         final option3 =
         memberList!.map((e) => _getMemberNickName(e!).toString()).join("、");
-        displayMessage = TIM_t_para("用户{{option3}}加入了群聊", "用户$option3加入了群聊")(
-            option3: option3);
+        final inviteUser = _getOpUserNick(operationMember);
+        if(inviteUser!=null&&inviteUser.isNotEmpty&&inviteUser!=option3){
+          displayMessage ='$inviteUser 邀请'+TIM_t_para("用户{{option3}}加入了群聊", "用户$option3加入了群聊")(
+              option3: option3);
+        }else{
+          displayMessage = TIM_t_para("用户{{option3}}加入了群聊", "用户$option3加入了群聊")(
+              option3: option3);
+        }
         break;
       case GroupTipsElemType.V2TIM_GROUP_TIPS_TYPE_MEMBER_INFO_CHANGE:
         displayMessage = groupTipsElem.memberList!.map((e) {
