@@ -603,7 +603,7 @@ class TUIChatGlobalModel extends ChangeNotifier implements TIMUIKitClass {
     final curConv = TUIConversationViewModel.of();
     final curConvID =
         TencentUtils.checkString(curConv?.userID) ?? curConv?.groupID;
-    if (convID != curConvID) {
+    if (convID != curConvID && chatConfig.judgeIsCurConversation) {
       return;
     }
     //////////////  收到的非当前会话的消息，不再存入内存,桌面版减少内存占用 //////////////

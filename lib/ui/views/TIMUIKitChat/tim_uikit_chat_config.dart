@@ -252,12 +252,15 @@ class TIMUIKitChatConfig {
   // 因为部分视频格式官网不支持，加一个变量控制
   final bool useKangXunVideo;
 
-  //////////////// 图片、视频消息连续浏览 ////////////////
+  //////////////// 自定义入参 ////////////////
   final bool useMediaBrowser;
 
   //  控制文件，或者视频是否自动下载
   final bool fileAutoDownload;
-  //////////////// 图片、视频消息连续浏览 ////////////////
+
+  //判断时候是当前会话
+  final bool judgeIsCurConversation;
+  ////////////////自定义入参 ////////////////
 
   const TIMUIKitChatConfig({
     this.onTapLink,
@@ -311,9 +314,10 @@ class TIMUIKitChatConfig {
     this.onImageLongPress,
     this.disableForwardConversions,
     this.useKangXunVideo = false,
-    //////////////// 图片、视频消息连续浏览 ////////////////
+    //////////////// 自定义入参 ////////////////
     this.useMediaBrowser = false,
     this.fileAutoDownload = true,
-    //////////////// 图片、视频消息连续浏览 ////////////////
+    this.judgeIsCurConversation = true,
+    //////////////// 自定义入参 ////////////////
   });
 }
