@@ -482,7 +482,7 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
     switch (downloadProgress) {
       case -1:
         //  下载失败
-        return Image.asset('images/play.png',
+        return Image.asset('images/download_fail.png',
             package: 'tencent_cloud_chat_uikit', height: 64);
       case 100:
         // 下载成功
