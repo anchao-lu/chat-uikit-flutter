@@ -8,7 +8,6 @@ import 'package:open_file/open_file.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
-import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_global_model.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/message/message_services.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
@@ -398,7 +397,7 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
                         Positioned.fill(
                           // alignment: Alignment.center,
                           child: Center(
-                              child: Platform.isWindows
+                              child: PlatformUtils().isDesktop
                                   ? _getWindowView()
                                   : Image.asset('images/play.png',
                                       package: 'tencent_cloud_chat_uikit',
@@ -498,7 +497,8 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
 
       case 0:
         // 尚未下载
-        print("MediaDownloadProgressUtil===>尚未下载: 当前下载进度$downloadProgress");
+        debugPrint(
+            "MediaDownloadProgressUtil===>尚未下载: 当前下载进度$downloadProgress");
 
         return IconButton(
           icon: Image.asset(
@@ -534,7 +534,7 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
               !messageProgress.isSnapshot) {
             if (mounted) {
               if (messageProgress.isError || messageProgress.errorCode != 0) {
-                print("MediaDownloadProgressUtil===>$downloadKey下载任务失败");
+                debugPrint("MediaDownloadProgressUtil===>$downloadKey下载任务失败");
 
                 MediaDownloadProgressUtil.of
                     .removeListenerByKey(removeKey: downloadKey);
@@ -545,7 +545,7 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
                 return;
               }
               if (messageProgress.isFinish) {
-                print("MediaDownloadProgressUtil===>$downloadKey下载任务成功");
+                debugPrint("MediaDownloadProgressUtil===>$downloadKey下载任务成功");
 
                 MediaDownloadProgressUtil.of
                     .removeListenerByKey(removeKey: downloadKey);
@@ -558,7 +558,7 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
                         messageProgress.totalSize *
                         100)
                     .floor();
-                print(
+                debugPrint(
                     "MediaDownloadProgressUtil===>$downloadKey: 当前下载进度$currentProgress");
 
                 setState(() {
