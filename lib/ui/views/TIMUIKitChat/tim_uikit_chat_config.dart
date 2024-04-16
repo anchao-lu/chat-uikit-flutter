@@ -260,6 +260,8 @@ class TIMUIKitChatConfig {
 
   //判断时候是当前会话
   final bool judgeIsCurConversation;
+  //  控制桌面端图片浏览方式属性
+  final bool desktopDefaultBrowser;
   ////////////////自定义入参 ////////////////
 
   const TIMUIKitChatConfig({
@@ -318,6 +320,7 @@ class TIMUIKitChatConfig {
     this.useMediaBrowser = false,
     this.fileAutoDownload = true,
     this.judgeIsCurConversation = true,
+    this.desktopDefaultBrowser = true,
     //////////////// 自定义入参 ////////////////
   });
 }

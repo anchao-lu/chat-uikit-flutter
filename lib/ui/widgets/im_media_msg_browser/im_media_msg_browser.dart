@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
+import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/im_media_msg_browser/image_item.dart';
 import 'package:video_player/video_player.dart';
 
@@ -233,11 +234,21 @@ class IMMediaMsgBrowserState extends TIMUIKitState<IMMediaMsgBrowser>
                   Positioned(
                     left: 10,
                     right: 10,
-                    bottom: 0,
+                    bottom: PlatformUtils().isDesktop ? size.height / 2 : 0,
                     child: SafeArea(
                       top: false,
                       child: BottomActions(
                         onDownload: _saveImg,
+                        onNext: () {
+                          _pageController?.previousPage(
+                              duration: const Duration(microseconds: 200),
+                              curve: Curves.linear);
+                        },
+                        onPre: () {
+                          _pageController?.nextPage(
+                              duration: const Duration(microseconds: 200),
+                              curve: Curves.linear);
+                        },
                       ),
                     ),
                   ),

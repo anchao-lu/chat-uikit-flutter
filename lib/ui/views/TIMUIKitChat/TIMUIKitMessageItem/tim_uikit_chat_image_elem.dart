@@ -265,7 +265,8 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
                 ));
         return;
       }
-      if (PlatformUtils().isDesktop) {
+      if (PlatformUtils().isDesktop &&
+          widget.chatModel.chatConfig.desktopDefaultBrowser) {
         _handleOnTapPreviewImageOnDesktop(
           originImgUrl: imgUrl,
         );
@@ -313,7 +314,8 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
         );
       }
     } else {
-      if (PlatformUtils().isDesktop) {
+      if (PlatformUtils().isDesktop &&
+          widget.chatModel.chatConfig.desktopDefaultBrowser) {
         TUIKitWidePopup.showMedia(
             mediaLocalPath: imgPath,
             context: context,

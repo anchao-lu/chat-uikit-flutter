@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 
+import '../../utils/platform.dart';
+
 class BottomActions extends StatelessWidget {
   const BottomActions({
     super.key,
     this.onDownload,
+    this.onPre,
+    this.onNext,
   });
 
   final VoidCallback? onDownload;
+  final VoidCallback? onPre;
+  final VoidCallback? onNext;
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +20,13 @@ class BottomActions extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         GestureDetector(
-          onTap: Navigator.of(context).pop,
+          onTap: () {
+            if (PlatformUtils().isDesktop) {
+              onPre?.call();
+            } else {
+              Navigator.of(context).pop();
+            }
+          },
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 15),
             alignment: Alignment.center,
@@ -24,15 +36,15 @@ class BottomActions extends StatelessWidget {
             ),
             width: 44,
             height: 44,
-            child: const Icon(
-              Icons.close,
+            child: Icon(
+              PlatformUtils().isDesktop ? Icons.arrow_back_ios : Icons.close,
               color: Colors.white,
-              size: 20,
+              size: PlatformUtils().isDesktop ? 40 : 20,
             ),
           ),
         ),
         GestureDetector(
-          onTap: onDownload,
+          onTap: PlatformUtils().isDesktop ? onNext : onDownload,
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 15),
             alignment: Alignment.center,
@@ -42,10 +54,12 @@ class BottomActions extends StatelessWidget {
             ),
             width: 44,
             height: 44,
-            child: const Icon(
-              Icons.arrow_downward_sharp,
+            child: Icon(
+              PlatformUtils().isDesktop
+                  ? Icons.arrow_forward_ios
+                  : Icons.arrow_downward_sharp,
               color: Colors.white,
-              size: 20,
+              size: PlatformUtils().isDesktop ? 40 : 20,
             ),
           ),
         ),
