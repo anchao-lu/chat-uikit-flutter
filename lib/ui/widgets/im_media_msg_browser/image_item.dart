@@ -4,12 +4,20 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:open_file/open_file.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
 import 'package:tencent_cloud_chat_uikit/ui/constants/history_message_constant.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/logger.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/message.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/image_hero.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../../business_logic/view_models/tui_chat_global_model.dart';
+import '../../../data_services/core/tim_uikit_wide_modal_operation_key.dart';
+import '../../../data_services/services_locatar.dart';
+import '../wide_popup.dart';
+import 'package:path/path.dart' as path;
 
 class ImageItem extends StatelessWidget {
   const ImageItem({
@@ -115,9 +123,78 @@ class ImageItem extends StatelessWidget {
     }
     return GestureDetector(
       onTap: onImgTap,
+      onSecondaryTapDown: (details) {
+        if (PlatformUtils().isDesktop) {
+          TUIKitWidePopup.showPopupWindow(
+            operationKey: TUIKitWideModalOperationKey.conversationSecondaryMenu,
+            isDarkBackground: false,
+            borderRadius: const BorderRadius.all(
+              Radius.circular(4),
+            ),
+            context: context,
+            offset: Offset(
+              min(details.globalPosition.dx,
+                  MediaQuery.of(context).size.width - 80),
+              min(details.globalPosition.dy,
+                  MediaQuery.of(context).size.height - 130),
+            ),
+            child: (onClose) => _defaultSecondaryMenu(
+              onClose,
+            ),
+          );
+        }
+      },
       onLongPress: onLongPress,
       child: image,
     );
+  }
+
+  Widget _defaultSecondaryMenu(VoidCallback onClose) {
+    return TUIKitColumnMenu(data: [
+      if (!PlatformUtils().isWeb)
+        ColumnMenuItem(
+            label: PlatformUtils().isMacOS ? TIM_t("在访达中打开") : TIM_t("查看文件夹"),
+            icon: Image.asset(
+              "images/folder_open.png",
+              package: "tencent_cloud_chat_uikit",
+              width: 20,
+              height: 20,
+            ),
+            onClick: () {
+              onClose();
+              _onOpenDesktop();
+            }),
+    ]);
+  }
+
+  _onOpenDesktop() {
+    String savePath = "";
+    final TUIChatGlobalModel globalModal = serviceLocator<TUIChatGlobalModel>();
+    if (message.fileElem != null) {
+      savePath = (TencentUtils.checkString(
+              globalModal.getFileMessageLocation(message.msgID)) ??
+          TencentUtils.checkString(message.fileElem!.localUrl) ??
+          message.fileElem?.path ??
+          "");
+    } else if (message.imageElem != null) {
+      savePath = (TencentUtils.checkString(
+              message.imageElem!.imageList?[0]?.localUrl) ??
+          TencentUtils.checkString(message.imageElem?.path) ??
+          "");
+    } else if (message.videoElem != null) {
+      savePath = (TencentUtils.checkString(message.videoElem!.localVideoUrl) ??
+          TencentUtils.checkString(message.videoElem?.videoPath) ??
+          "");
+    }
+    final String fileDir = path.dirname(savePath);
+    try {
+      if (PlatformUtils().isDesktop && !PlatformUtils().isWindows) {
+        launchUrl(Uri.file(fileDir));
+      } else {
+        OpenFile.open(fileDir);
+      }
+      // ignore: empty_catches
+    } catch (e) {}
   }
 
   double? _initScale({
