@@ -1796,7 +1796,8 @@ extension TUIChatSeparateViewModelAudioPlay on TUIChatSeparateViewModel {
           //       errorMsg: '播放本地音频',
           //       errorCode: 1),
           // );
-          SoundPlayer.playWith(source: AudioSource.file(playUrl));
+          SoundPlayer.playWith(
+              source: AudioSource.uri(Uri.file(Uri.encodeFull(playUrl))));
         } else {
           // _coreServices.callOnCallback(
           //   TIMCallback(
