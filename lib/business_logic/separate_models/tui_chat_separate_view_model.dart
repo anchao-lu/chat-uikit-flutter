@@ -1655,6 +1655,7 @@ extension TUIChatSeparateViewModelAudioPlay on TUIChatSeparateViewModel {
                 msgID: currentMessage.msgID!,
                 url: url,
                 isLocal: isLocal,
+                currentMessage: currentMessage,
               );
             } else {
               _currentPlayedMsgId = "";
@@ -1684,11 +1685,31 @@ extension TUIChatSeparateViewModelAudioPlay on TUIChatSeparateViewModel {
     subscription?.cancel();
   }
 
+  // 音频文件是否已下载
+  String _soundLocalFilePath(V2TimMessage message) {
+    if (PlatformUtils().isWeb) {
+      return '';
+    }
+
+    String savePath = TencentUtils.checkString(
+            globalModel.getFileMessageLocation(message.msgID)) ??
+        TencentUtils.checkString(message.soundElem?.localUrl) ??
+        message.soundElem?.path ??
+        '';
+
+    File f = File(savePath);
+    if (f.existsSync()) {
+      return savePath;
+    }
+    return '';
+  }
+
   Future<void> playSound({
     required String msgID,
     required String url,
     required bool isLocal,
     bool findNext = true,
+    required V2TimMessage currentMessage,
   }) async {
     this.findNext = findNext;
 
@@ -1698,28 +1719,35 @@ extension TUIChatSeparateViewModelAudioPlay on TUIChatSeparateViewModel {
     debugPrint('playSound url: $playUrl isLocal: $playLocal');
 
     if (!playLocal || playUrl.isEmpty) {
-      try {
-        final response = await _messageService.getMessageOnlineUrl(
-          msgID: msgID,
-        );
-        if (response.data != null) {
-          playUrl = response.data!.soundElem?.localUrl ?? '';
-          if (playUrl.isEmpty) {
-            playUrl = response.data!.soundElem?.url ?? '';
-          } else {
-            playLocal = true;
+      // 获取已下载路径
+      playUrl = _soundLocalFilePath(currentMessage);
+
+      if (playUrl.isNotEmpty) {
+        playLocal = true;
+      } else {
+        try {
+          final response = await _messageService.getMessageOnlineUrl(
+            msgID: msgID,
+          );
+          if (response.data != null) {
+            playUrl = response.data!.soundElem?.localUrl ?? '';
+            if (playUrl.isEmpty) {
+              playUrl = response.data!.soundElem?.url ?? '';
+            } else {
+              playLocal = true;
+            }
           }
+          debugPrint(
+              'playSound getMessageOnlineUrl url: $playUrl isLocal: $playLocal');
+        } catch (e) {
+          _coreServices.callOnCallback(
+            TIMCallback(
+              type: TIMCallbackType.INFO,
+              infoRecommendText: '音频下载失败，请稍后再试',
+            ),
+          );
+          return;
         }
-        debugPrint(
-            'playSound getMessageOnlineUrl url: $playUrl isLocal: $playLocal');
-      } catch (e) {
-        _coreServices.callOnCallback(
-          TIMCallback(
-            type: TIMCallbackType.INFO,
-            infoRecommendText: '音频下载失败，请稍后再试',
-          ),
-        );
-        return;
       }
     }
 

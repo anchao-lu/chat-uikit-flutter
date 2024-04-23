@@ -314,6 +314,7 @@ class _TIMUIKitSoundElemState extends TIMUIKitState<TIMUIKitSoundElem> {
               url: stateElement.localUrl ?? stateElement.url ?? '',
               isLocal: stateElement.localUrl?.isNotEmpty == true,
               findNext: !isRead,
+              currentMessage: widget.message,
             );
           },
           child: LayoutBuilder(
