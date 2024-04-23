@@ -17,7 +17,8 @@ class SoundPlayer {
   static final FlutterPluginRecord _recorder = FlutterPluginRecord();
   static SoundInterruptListener? _soundInterruptListener;
   static bool isInit = false;
-  static final _audioPlayer = AudioPlayer();
+  static final _audioPlayer = AudioPlayer()
+    ..audioCache = AudioCache(prefix: '');
 
   static initSoundPlayer() {
     if (!isInit) {
