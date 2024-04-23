@@ -1,23 +1,12 @@
 // ignore_for_file: unnecessary_brace_in_string_interps
 
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:crypto/crypto.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:http/http.dart' as http;
-import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:logger/logger.dart';
-import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_global_model.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/message/message_services.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
-import 'package:tencent_cloud_chat_uikit/ui/constants/history_message_constant.dart';
-import 'package:tencent_cloud_chat_uikit/ui/utils/message.dart';
-import 'package:tencent_cloud_chat_uikit/ui/utils/permission.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
-import 'package:universal_html/html.dart' as html;
 
 typedef DownloadListener = Function(
     String downloadKey, V2TimMessageDownloadProgress infoDetail);
@@ -65,7 +54,7 @@ class MediaDownloadProgressUtil {
     //判断是否存在下载任务
 
     if (progressListeners.containsKey(downloadKey)) {
-      print("MediaDownloadProgressUtil===>该下载任务已存在");
+      debugPrint("MediaDownloadProgressUtil===>该下载任务已存在");
       return;
     }
 

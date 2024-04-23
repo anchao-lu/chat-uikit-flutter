@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+
+import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as p;
@@ -42,7 +44,7 @@ class TUIKitOutput extends LogOutput {
 
   Future<String> getPlatformLogPath({String? path}) async {
     if (TencentUtils.checkString(path) != null) {
-      print("The path to local log: $path");
+      debugPrint("The path to local log: $path");
       return path!;
     }
 
@@ -52,9 +54,14 @@ class TUIKitOutput extends LogOutput {
     String pkgName = packageInfo.packageName;
     var timeName =
         "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}";
-    final logPath = p.join(documentsDirectoryPath, "Documents", ".TencentCloudChat",
-        pkgName, "uikit_log", 'Flutter-TUIKit-$timeName.log');
-    print("The path to local log: $logPath");
+    final logPath = p.join(
+        documentsDirectoryPath,
+        "Documents",
+        ".TencentCloudChat",
+        pkgName,
+        "uikit_log",
+        'Flutter-TUIKit-$timeName.log');
+    debugPrint("The path to local log: $logPath");
 
     return logPath;
   }
