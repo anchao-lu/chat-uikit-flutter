@@ -3,14 +3,13 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:audioplayers/audioplayers.dart' as audio_players;
+import 'package:audioplayers/audioplayers.dart';
 // import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 // ignore: unnecessary_import
 import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/life_cycle/chat_life_cycle.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_model_tools.dart';
@@ -298,7 +297,6 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
 
     // 语音消息连续播放新增逻辑 begin
     _setSoundSubscription();
-    _setSoundSubscriptionNew();
     // 语音消息连续播放新增逻辑 end
 
     _isInit = true;
@@ -1598,7 +1596,6 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
   // 语音消息连续播放新增逻辑 begin
   bool isPlaying = false;
   bool findNext = true;
-  StreamSubscription<Object>? subscription;
   StreamSubscription<Object>? subscriptionNew;
   void cusNotifyListeners() {
     if (_isInit) {
@@ -1613,78 +1610,9 @@ extension TUIChatSeparateViewModelAudioPlay on TUIChatSeparateViewModel {
       globalModel.getSoundMessageList(conversationID);
 
   void _setSoundSubscription() {
-    subscription = SoundPlayer.playStateListener(
+    subscriptionNew = SoundPlayer.playStateListener(
       listener: (PlayerState state) {
-        if (state.processingState == ProcessingState.completed) {
-          if (!findNext) {
-            stopAndResetAudio();
-            return;
-          }
-
-          isPlaying = false;
-          final int index =
-              soundMessageList.indexWhere((e) => e.msgID == currentPlayedMsgId);
-          if (index == -1) {
-            stopAndResetAudio();
-            return;
-          }
-
-          if (index < soundMessageList.length - 1) {
-            final currentMessage = soundMessageList[index + 1];
-
-            // 遇到的音频已读，直接返回，不再往下进行
-            if (currentMessage.localCustomInt ==
-                HistoryMessageDartConstant.read) {
-              stopAndResetAudio();
-              return;
-            }
-
-            if (currentMessage.msgID != null) {
-              _currentPlayedMsgId = currentMessage.msgID!;
-
-              // 标记已读
-              globalModel.setLocalCustomInt(
-                currentPlayedMsgId,
-                HistoryMessageDartConstant.read,
-                conversationID,
-              );
-
-              // 直接使用 localUrl
-              bool isLocal = false;
-              String url = currentMessage.soundElem?.localUrl ?? '';
-              isLocal = url.isNotEmpty;
-
-              playSound(
-                msgID: currentMessage.msgID!,
-                url: url,
-                isLocal: isLocal,
-                currentMessage: currentMessage,
-              );
-            } else {
-              _currentPlayedMsgId = "";
-            }
-          } else {
-            _currentPlayedMsgId = "";
-          }
-
-          cusNotifyListeners();
-        }
-        // _coreServices.callOnCallback(
-        //   TIMCallback(
-        //     type: TIMCallbackType.API_ERROR,
-        //     errorMsg:
-        //         'audio ${state.processingState.name} --msgId $_currentPlayedMsgId',
-        //     errorCode: 3,
-        //   ),
-        // );
-      },
-    );
-  }
-
-  void _setSoundSubscriptionNew() {
-    subscriptionNew = SoundPlayer.playStateListenerNew(
-      listener: (audio_players.PlayerState state) {
-        if (state == audio_players.PlayerState.completed) {
+        if (state == PlayerState.completed) {
           if (!findNext) {
             stopAndResetAudio();
             return;
@@ -1746,7 +1674,6 @@ extension TUIChatSeparateViewModelAudioPlay on TUIChatSeparateViewModel {
     if (isPlaying) {
       stopAndResetAudio(notify: false);
     }
-    subscription?.cancel();
     subscriptionNew?.cancel();
   }
 
@@ -1861,8 +1788,7 @@ extension TUIChatSeparateViewModelAudioPlay on TUIChatSeparateViewModel {
           //       errorMsg: '播放本地音频',
           //       errorCode: 1),
           // );
-          SoundPlayer.playWithNew(
-              source: audio_players.DeviceFileSource(playUrl));
+          SoundPlayer.playWith(source: DeviceFileSource(playUrl));
         } else {
           // _coreServices.callOnCallback(
           //   TIMCallback(
@@ -1870,7 +1796,7 @@ extension TUIChatSeparateViewModelAudioPlay on TUIChatSeparateViewModel {
           //       errorMsg: '播放网络音频',
           //       errorCode: 2),
           // );
-          SoundPlayer.playNew(url: playUrl);
+          SoundPlayer.play(url: playUrl);
         }
       } catch (e) {
         debugPrint(
