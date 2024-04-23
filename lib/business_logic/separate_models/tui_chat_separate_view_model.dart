@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:audioplayers/audioplayers.dart' as audio_players;
 // import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
@@ -297,6 +298,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
 
     // 语音消息连续播放新增逻辑 begin
     _setSoundSubscription();
+    _setSoundSubscriptionNew();
     // 语音消息连续播放新增逻辑 end
 
     _isInit = true;
@@ -1597,6 +1599,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
   bool isPlaying = false;
   bool findNext = true;
   StreamSubscription<Object>? subscription;
+  StreamSubscription<Object>? subscriptionNew;
   void cusNotifyListeners() {
     if (_isInit) {
       notifyListeners();
@@ -1678,11 +1681,73 @@ extension TUIChatSeparateViewModelAudioPlay on TUIChatSeparateViewModel {
     );
   }
 
+  void _setSoundSubscriptionNew() {
+    subscriptionNew = SoundPlayer.playStateListenerNew(
+      listener: (audio_players.PlayerState state) {
+        if (state == audio_players.PlayerState.completed) {
+          if (!findNext) {
+            stopAndResetAudio();
+            return;
+          }
+
+          isPlaying = false;
+          final int index =
+              soundMessageList.indexWhere((e) => e.msgID == currentPlayedMsgId);
+          if (index == -1) {
+            stopAndResetAudio();
+            return;
+          }
+
+          if (index < soundMessageList.length - 1) {
+            final currentMessage = soundMessageList[index + 1];
+
+            // 遇到的音频已读，直接返回，不再往下进行
+            if (currentMessage.localCustomInt ==
+                HistoryMessageDartConstant.read) {
+              stopAndResetAudio();
+              return;
+            }
+
+            if (currentMessage.msgID != null) {
+              _currentPlayedMsgId = currentMessage.msgID!;
+
+              // 标记已读
+              globalModel.setLocalCustomInt(
+                currentPlayedMsgId,
+                HistoryMessageDartConstant.read,
+                conversationID,
+              );
+
+              // 直接使用 localUrl
+              bool isLocal = false;
+              String url = currentMessage.soundElem?.localUrl ?? '';
+              isLocal = url.isNotEmpty;
+
+              playSound(
+                msgID: currentMessage.msgID!,
+                url: url,
+                isLocal: isLocal,
+                currentMessage: currentMessage,
+              );
+            } else {
+              _currentPlayedMsgId = "";
+            }
+          } else {
+            _currentPlayedMsgId = "";
+          }
+
+          cusNotifyListeners();
+        }
+      },
+    );
+  }
+
   void cancelSoundSubscription() {
     if (isPlaying) {
       stopAndResetAudio(notify: false);
     }
     subscription?.cancel();
+    subscriptionNew?.cancel();
   }
 
   // 音频文件是否已下载

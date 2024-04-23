@@ -111,6 +111,10 @@ class SoundPlayer {
           {required void Function(PlayerState)? listener}) =>
       _audioPlayer.playerStateStream.listen(listener);
 
+  static StreamSubscription<audio_players.PlayerState> playStateListenerNew(
+          {required void Function(audio_players.PlayerState)? listener}) =>
+      _audioPlayers.onPlayerStateChanged.listen(listener);
+
   static setSoundInterruptListener(SoundInterruptListener listener) {
     _soundInterruptListener = listener;
   }
