@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:audioplayers/audioplayers.dart' as audio_players;
 // import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_plugin_record_plus/const/play_state.dart';
@@ -19,12 +20,22 @@ class SoundPlayer {
   static bool isInit = false;
   static final AudioPlayer _audioPlayer = AudioPlayer();
 
+  static final _audioPlayers = audio_players.AudioPlayer();
+
   static initSoundPlayer() {
     if (!isInit) {
       _recorder.init();
       // AudioPlayer.global.setGlobalAudioContext(const AudioContext());
       isInit = true;
     }
+  }
+
+  static Future<void> playNew({required String url}) async {
+    _audioPlayers.stop();
+    if (_soundInterruptListener != null) {
+      _soundInterruptListener!();
+    }
+    await _audioPlayers.play(audio_players.UrlSource(url));
   }
 
   static Future<void> play({required String url}) async {
@@ -51,6 +62,21 @@ class SoundPlayer {
     }
   }
 
+  // 语音消息连续播放新增逻辑 begin
+  static Future<void> playWithNew(
+      {required audio_players.Source source}) async {
+    try {
+      _audioPlayers.stop();
+      if (_soundInterruptListener != null) {
+        _soundInterruptListener!();
+      }
+
+      await _audioPlayers.play(source);
+    } catch (e) {
+      debugPrint('playWith e: $e');
+    }
+  }
+
   ///  播放本地文件
   static Future<void> playWithAsset({required String asset}) async {
     _audioPlayer.stop();
@@ -59,6 +85,15 @@ class SoundPlayer {
     }
     await _audioPlayer.setAsset(asset, preload: false);
     await _audioPlayer.play();
+  }
+
+  ///  播放本地文件
+  static Future<void> playWithAssetNew({required String asset}) async {
+    _audioPlayers.stop();
+    if (_soundInterruptListener != null) {
+      _soundInterruptListener!();
+    }
+    await _audioPlayers.play(audio_players.AssetSource(asset));
   }
 
   // 语音消息连续播放新增逻辑 end
