@@ -1861,8 +1861,8 @@ extension TUIChatSeparateViewModelAudioPlay on TUIChatSeparateViewModel {
           //       errorMsg: '播放本地音频',
           //       errorCode: 1),
           // );
-          SoundPlayer.playWith(
-              source: AudioSource.uri(Uri.file(Uri.encodeFull(playUrl))));
+          SoundPlayer.playWithNew(
+              source: audio_players.DeviceFileSource(playUrl));
         } else {
           // _coreServices.callOnCallback(
           //   TIMCallback(
@@ -1870,7 +1870,7 @@ extension TUIChatSeparateViewModelAudioPlay on TUIChatSeparateViewModel {
           //       errorMsg: '播放网络音频',
           //       errorCode: 2),
           // );
-          SoundPlayer.play(url: playUrl);
+          SoundPlayer.playNew(url: playUrl);
         }
       } catch (e) {
         debugPrint(

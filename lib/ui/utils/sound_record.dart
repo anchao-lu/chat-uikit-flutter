@@ -100,10 +100,12 @@ class SoundPlayer {
 
   static stop() {
     _audioPlayer.stop();
+    _audioPlayers.stop();
   }
 
   static dispose() {
     _audioPlayer.dispose();
+    _audioPlayers.dispose();
     _recorder.dispose();
   }
 
