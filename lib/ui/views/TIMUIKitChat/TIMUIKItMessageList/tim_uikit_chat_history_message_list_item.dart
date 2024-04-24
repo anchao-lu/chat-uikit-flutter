@@ -1083,7 +1083,8 @@ class _TIMUIKItHistoryMessageListItemState
           },
         ),
       if ((widget.toolTipsConfig?.showForwardMessage ?? true) &&
-          !isVoteMessage(widget.message))
+          !isVoteMessage(widget.message) &&
+          (model.chatConfig.messageCanLongPres!(widget.message)))
         MessageHoverControlItem(
           name: TIM_t("转发"),
           icon: Icon(
