@@ -35,12 +35,17 @@ class MessageHasFileUtil {
               message.fileElem?.path ??
               "";
         } else if (message.imageElem != null) {
-          final localUrl = (message.imageElem!.imageList ?? [])
-                  .firstWhere(
-                      (element) => element?.localUrl?.isNotEmpty == true)
-                  ?.localUrl ??
-              '';
-          savePath = TencentUtils.checkString(localUrl) ?? "";
+          final imageList = (message.imageElem!.imageList ?? []);
+          if (imageList.isNotEmpty) {
+            final localUrl = imageList
+                    .firstWhere(
+                      (element) => element?.localUrl?.isNotEmpty == true,
+                      orElse: () => V2TimImage(type: null),
+                    )
+                    ?.localUrl ??
+                '';
+            savePath = TencentUtils.checkString(localUrl) ?? "";
+          }
         } else if (message.videoElem != null) {
           savePath =
               TencentUtils.checkString(message.videoElem!.localVideoUrl!) ?? "";
