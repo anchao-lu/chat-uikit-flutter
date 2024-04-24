@@ -48,7 +48,7 @@ class MessageHasFileUtil {
           }
         } else if (message.videoElem != null) {
           savePath =
-              TencentUtils.checkString(message.videoElem!.localVideoUrl!) ?? "";
+              TencentUtils.checkString(message.videoElem!.localVideoUrl) ?? "";
         }
       }
     }
