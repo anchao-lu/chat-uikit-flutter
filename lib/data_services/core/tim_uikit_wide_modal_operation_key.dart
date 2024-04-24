@@ -40,5 +40,6 @@ enum TUIKitWideModalOperationKey {
   unableToSendDueToFolders,
   /////////// 自定义枚举类型 ///////////
   chatAvatarSecondaryMenu,
+  mediaBrowserImgSecondaryMenu,
   /////////// 自定义枚举类型 ///////////
 }
