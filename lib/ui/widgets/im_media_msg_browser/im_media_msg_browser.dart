@@ -234,7 +234,7 @@ class IMMediaMsgBrowserState extends TIMUIKitState<IMMediaMsgBrowser>
                   Positioned(
                     left: 10,
                     right: 10,
-                    bottom: PlatformUtils().isDesktop ? size.height / 2 : 0,
+                    bottom: PlatformUtils().isDesktop ? 730 / 2 : 0,
                     child: SafeArea(
                       top: false,
                       child: BottomActions(
