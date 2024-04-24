@@ -12,6 +12,7 @@ import 'package:tencent_cloud_chat_uikit/data_services/message/message_services.
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/message.dart';
+import 'package:tencent_cloud_chat_uikit/ui/utils/message_has_file_util.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitMessageItem/TIMUIKitMessageReaction/tim_uikit_message_reaction_wrapper.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/video_screen.dart';
@@ -447,20 +448,10 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
 
   ///  是否存在该文件
   bool _hasFile() {
-    if (PlatformUtils().isWeb) {
-      return true;
-    }
-    // String savePath = widget.chatModel.globalModel
-    //     .getFileMessageLocation(widget.message.msgID ?? "");
+    final (exists, savePath) = MessageHasFileUtil.of
+        .hasFile(widget.message, widget.chatModel.globalModel);
 
-    String savePath = TencentUtils.checkString(widget.chatModel.globalModel
-            .getFileMessageLocation(widget.message.msgID)) ??
-        TencentUtils.checkString(widget.message.videoElem!.localVideoUrl) ??
-        widget.message.videoElem?.videoPath ??
-        '';
-
-    File f = File(savePath);
-    if (f.existsSync() && widget.message.msgID != null) {
+    if (exists && widget.message.msgID != null) {
       if (widget.chatModel.globalModel
               .getMessageProgress(widget.message.msgID) !=
           100) {
@@ -468,9 +459,8 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
             .setMessageProgress(widget.message.msgID!, 100);
       }
       widget.message.videoElem?.localVideoUrl = savePath;
-      return true;
     }
-    return false;
+    return exists;
   }
 
   Widget _getWindowView() {

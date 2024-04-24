@@ -1,31 +1,30 @@
 // ignore_for_file: non_constant_identifier_names, avoid_print
 
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_clipboard/image_clipboard.dart';
 import 'package:open_file/open_file.dart';
+import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
-import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_self_info_view_model.dart';
-import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
-import 'package:tencent_cloud_chat_uikit/ui/utils/common_utils.dart';
-import 'package:tencent_cloud_chat_uikit/ui/utils/message.dart';
-import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitMessageItem/TIMUIKitMessageReaction/tim_uikit_message_reaction_select_emoji.dart';
-import 'package:tencent_im_base/tencent_im_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_global_model.dart';
+import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_self_info_view_model.dart';
+import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
+import 'package:tencent_cloud_chat_uikit/ui/utils/common_utils.dart';
+import 'package:tencent_cloud_chat_uikit/ui/utils/message.dart';
+import 'package:tencent_cloud_chat_uikit/ui/utils/message_has_file_util.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKItMessageList/tim_uikit_chat_history_message_list_item.dart';
+import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitMessageItem/TIMUIKitMessageReaction/tim_uikit_message_reaction_select_emoji.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/forward_message_screen.dart';
+import 'package:tencent_im_base/tencent_im_base.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:path/path.dart' as path;
-
-import '../../../utils/media_download_util.dart';
 
 class TIMUIKitMessageTooltip extends StatefulWidget {
   /// tool tips panel configuration, long press message will show tool tips panel
@@ -97,49 +96,10 @@ class TIMUIKitMessageTooltipState
   }
 
   hasFile() {
-    if (PlatformUtils().isMobile ||
-        (widget.message.fileElem == null &&
-            widget.message.imageElem == null &&
-            widget.message.videoElem == null)) {
-      fileBeenDownloaded = false;
-      return;
-    }
-    if (PlatformUtils().isWeb) {
-      fileBeenDownloaded = true;
-      return;
-    }
-    if (PlatformUtils().isDesktop) {
-      if (widget.message.fileElem != null) {
-        String savePath = TencentUtils.checkString(
-                globalModal.getFileMessageLocation(widget.message.msgID)) ??
-            TencentUtils.checkString(widget.message.fileElem!.localUrl) ??
-            widget.message.fileElem?.path ??
-            "";
-        File f = File(savePath);
-        if (f.existsSync() && widget.message.msgID != null) {
-          filePath = savePath;
-          fileBeenDownloaded = true;
-          return;
-        }
-      } else if (widget.message.imageElem != null) {
-        if (TencentUtils.checkString(
-                    widget.message.imageElem!.imageList![0]!.localUrl) !=
-                null &&
-            File(widget.message.imageElem!.imageList![0]!.localUrl!)
-                .existsSync()) {
-          fileBeenDownloaded = true;
-          return;
-        }
-      } else if (widget.message.videoElem != null) {
-        if (TencentUtils.checkString(widget.message.videoElem!.localVideoUrl) !=
-                null &&
-            File(widget.message.videoElem!.localVideoUrl!).existsSync()) {
-          fileBeenDownloaded = true;
-          return;
-        }
-      }
-    }
-    fileBeenDownloaded = false;
+    final (exists, savePath) =
+        MessageHasFileUtil.of.hasFile(widget.message, globalModal);
+    fileBeenDownloaded = exists;
+    filePath = savePath;
   }
 
   bool isRevocable(int timestamp, int upperTimeLimit) =>
@@ -401,12 +361,24 @@ class TIMUIKitMessageTooltipState
     return widgetList;
   }
 
-  _onOpenDesktop(String path) {
+  _onOpenDesktop(
+    String savePath, {
+    bool useDir = false,
+  }) {
+    String localFilePath = TencentUtils.checkString(filePath) ??
+        TencentUtils.checkString(savePath) ??
+        '';
+    if (localFilePath.isEmpty) return;
+    if (useDir) {
+      localFilePath = path.dirname(localFilePath);
+    }
     try {
       if (PlatformUtils().isDesktop && !PlatformUtils().isWindows) {
-        launchUrl(Uri.file(path));
+        launchUrl(Uri.file(localFilePath));
+        // launchUrl(Uri.file(path));
       } else {
-        OpenFile.open(path);
+        // OpenFile.open(path);
+        OpenFile.open(localFilePath);
       }
       // ignore: empty_catches
     } catch (e) {}
@@ -460,8 +432,8 @@ class TIMUIKitMessageTooltipState
               TencentUtils.checkString(widget.message.videoElem?.videoPath) ??
               "");
         }
-        final String fileDir = path.dirname(savePath);
-        _onOpenDesktop(fileDir);
+        // final String fileDir = path.dirname(savePath);
+        _onOpenDesktop(savePath, useDir: true);
         break;
       case "delete":
         model.deleteMsg(msgID, webMessageInstance: messageItem.messageFromWeb);
