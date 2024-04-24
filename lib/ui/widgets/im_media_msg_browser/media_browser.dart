@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
+import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
 
 import 'browser_page_routes.dart';
 import 'im_media_msg_browser.dart';
@@ -17,19 +18,42 @@ class MediaBrowser {
     ValueChanged<V2TimMessage>? onImgLongPress,
     ValueChanged<V2TimMessage>? onDownloadImage,
   }) {
-    Navigator.push(
-      context,
-      BrowserTransparentPageRoute(
-        pageBuilder: (_, __, ___) => IMMediaMsgBrowser(
-          curMsg: curMsg,
-          userID: userID,
-          groupID: groupID,
-          isFrom: isFrom,
-          onDownloadVideo: onDownloadVideo,
-          onImgLongPress: onImgLongPress,
-          onDownloadImage: onDownloadImage,
+    if (PlatformUtils().isDesktop) {
+      showDialog(
+          context: context,
+          builder: (context) {
+            const Size defaultWideSize = Size(414, 730);
+            return UnconstrainedBox(
+              child: SizedBox(
+                height: defaultWideSize.height,
+                width: defaultWideSize.width*2 ,
+                child: IMMediaMsgBrowser(
+                  curMsg: curMsg,
+                  userID: userID,
+                  groupID: groupID,
+                  isFrom: isFrom,
+                  onDownloadVideo: onDownloadVideo,
+                  onImgLongPress: onImgLongPress,
+                  onDownloadImage: onDownloadImage,
+                ),
+              ),
+            );
+          });
+    } else {
+      Navigator.push(
+        context,
+        BrowserTransparentPageRoute(
+          pageBuilder: (_, __, ___) => IMMediaMsgBrowser(
+            curMsg: curMsg,
+            userID: userID,
+            groupID: groupID,
+            isFrom: isFrom,
+            onDownloadVideo: onDownloadVideo,
+            onImgLongPress: onImgLongPress,
+            onDownloadImage: onDownloadImage,
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 }
