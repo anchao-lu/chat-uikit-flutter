@@ -17,7 +17,6 @@ import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
 import 'package:tencent_cloud_chat_uikit/ui/constants/history_message_constant.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/logger.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/message.dart';
-import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
 
 import 'tui_conversation_view_model.dart';
 
@@ -797,7 +796,7 @@ class TUIChatGlobalModel extends ChangeNotifier implements TIMUIKitClass {
       // 暂时不考虑语音：验证出现语音不能播放的问题
       // bool isSoundType = false;
       // message.elemType == MessageElemType.V2TIM_ELEM_TYPE_SOUND;
-      final originalImageType = PlatformUtils().isIOS ? 1 : 0;
+      const originalImageType = 0;
       debugPrint('savePath messageProgress type: ${messageProgress.type}');
       debugPrint(
           'savePath messageProgress originalImageType: $originalImageType');
