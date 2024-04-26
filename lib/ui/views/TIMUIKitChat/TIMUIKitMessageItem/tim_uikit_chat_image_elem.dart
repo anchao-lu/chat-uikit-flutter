@@ -458,6 +458,10 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
         ?.firstWhereOrNull((element) => element?.type == 2)
         ?.localUrl);
 
+    debugPrint('savePath elem.imageElem1: $zeroImageLocal');
+    debugPrint('savePath elem.imageElem2: $oneImageLocal');
+    debugPrint('savePath elem.imageElem3: $twoImageLocal');
+
     if (!PlatformUtils().isWeb &&
         TencentUtils.checkString(widget.message.msgID) != null) {
       if ((widget.message.imageElem?.imageList) == null ||
@@ -467,6 +471,8 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
         final elem = response.data;
         if (elem != null && elem.imageElem != null) {
           widget.message.imageElem = elem.imageElem;
+          debugPrint(
+              'savePath elem.imageElem4: ${elem.imageElem?.imageList?.length}');
         }
       }
       if ((oneImageLocal == null || !File(oneImageLocal).existsSync()) &&
@@ -488,6 +494,8 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
             isSnapshot: false);
       }
       if (zeroImageLocal == null || !File(zeroImageLocal).existsSync()) {
+        debugPrint('savePath zeroImageLocal: $zeroImageLocal');
+        debugPrint('savePath zeroImageLocal msgID: ${widget.message.msgID}');
         // origin
         _messageService.downloadMessage(
             msgID: widget.message.msgID!,

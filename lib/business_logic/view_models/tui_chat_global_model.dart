@@ -20,6 +20,7 @@ import 'package:tencent_cloud_chat_uikit/ui/utils/message.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
 
 import 'tui_conversation_view_model.dart';
+
 enum ConvType { none, c2c, group }
 
 enum HistoryMessagePosition {
@@ -797,6 +798,9 @@ class TUIChatGlobalModel extends ChangeNotifier implements TIMUIKitClass {
       // bool isSoundType = false;
       // message.elemType == MessageElemType.V2TIM_ELEM_TYPE_SOUND;
       final originalImageType = PlatformUtils().isIOS ? 1 : 0;
+      debugPrint('savePath messageProgress type: ${messageProgress.type}');
+      debugPrint(
+          'savePath messageProgress originalImageType: $originalImageType');
       if (!isImageType && !isVideoType /* && !isSoundType*/) {
         _updateMessageLocationAndDownloadFile(messageProgress);
       } else if ((isImageType && messageProgress.type == originalImageType) ||
@@ -804,6 +808,9 @@ class TUIChatGlobalModel extends ChangeNotifier implements TIMUIKitClass {
                   !messageProgress.isSnapshot) /* ||
           isSoundType*/
           ) {
+        debugPrint('savePath messageProgress type: ${messageProgress.type}');
+        debugPrint('savePath messageProgress msgID: ${messageProgress.msgID}');
+        debugPrint('savePath messageProgress path: ${messageProgress.path}');
         ////////////// 语音消息放入可下载类型（暂时屏蔽） //////////////
         Future.delayed(
             const Duration(seconds: 1),
@@ -849,6 +856,8 @@ class TUIChatGlobalModel extends ChangeNotifier implements TIMUIKitClass {
     V2TimMessageDownloadProgress messageProgress, {
     bool notify = true,
   }) {
+    debugPrint('savePath messageProgress msgID: ${messageProgress.msgID}');
+    debugPrint('savePath messageProgress path: ${messageProgress.path}');
     setFileMessageLocation(
       messageProgress.msgID,
       messageProgress.path,

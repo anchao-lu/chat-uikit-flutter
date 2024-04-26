@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_global_model.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
@@ -29,6 +30,7 @@ class MessageHasFileUtil {
       savePath = TencentUtils.checkString(
               globalModel.getFileMessageLocation(message.msgID)) ??
           '';
+      debugPrint('savePath: $savePath');
       if (savePath.isEmpty) {
         if (message.fileElem != null) {
           savePath = TencentUtils.checkString(message.fileElem!.localUrl) ??
@@ -45,6 +47,7 @@ class MessageHasFileUtil {
                     ?.localUrl ??
                 '';
             savePath = TencentUtils.checkString(localUrl) ?? "";
+            debugPrint('savePath1: $savePath');
           }
         } else if (message.videoElem != null) {
           savePath =
