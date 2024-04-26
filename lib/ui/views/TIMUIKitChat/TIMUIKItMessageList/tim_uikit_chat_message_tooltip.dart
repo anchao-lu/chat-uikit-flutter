@@ -16,6 +16,7 @@ import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_glo
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_self_info_view_model.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/common_utils.dart';
+import 'package:tencent_cloud_chat_uikit/ui/utils/file_util.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/message.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/message_has_file_util.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
@@ -175,6 +176,14 @@ class TIMUIKitMessageTooltipState
             widget.message.elemType == MessageElemType.V2TIM_ELEM_TYPE_IMAGE &&
             fileBeenDownloaded);
 
+    final messageCanSaveAs = (isDesktopScreen &&
+            (widget.message.elemType == MessageElemType.V2TIM_ELEM_TYPE_IMAGE &&
+                fileBeenDownloaded) ||
+        ((widget.message.elemType == MessageElemType.V2TIM_ELEM_TYPE_FILE &&
+                fileBeenDownloaded) ||
+            (widget.message.elemType == MessageElemType.V2TIM_ELEM_TYPE_VIDEO &&
+                fileBeenDownloaded)));
+
     final List<MessageToolTipItem> defaultTipsList = [
       if (fileBeenDownloaded)
         MessageToolTipItem(
@@ -188,6 +197,12 @@ class TIMUIKitMessageTooltipState
             id: "finder",
             iconImageAsset: "images/folder_open.png",
             onClick: () => _onTap("finder", model)),
+      if (messageCanSaveAs)
+        MessageToolTipItem(
+            label: TIM_t("另存为"),
+            id: "finder",
+            iconImageAsset: "images/folder_open.png",
+            onClick: () => _onTap("copyFile", model)),
       if (messageCanCopy)
         MessageToolTipItem(
             label: TIM_t("复制"),
@@ -434,6 +449,24 @@ class TIMUIKitMessageTooltipState
         }
         // final String fileDir = path.dirname(savePath);
         _onOpenDesktop(savePath, useDir: true);
+        break;
+
+      case "copyFile":
+        final (exists, saveTempPath) =
+            MessageHasFileUtil.of.hasFile(widget.message, globalModal);
+        fileBeenDownloaded = exists;
+        String targetDirPath = "";
+        if (exists) {
+          targetDirPath = await FileUtil.of.selectFolder();
+        }
+
+        if (targetDirPath.isNotEmpty) {
+          String targetPath =
+              targetDirPath + "\\" + saveTempPath.split("\\").last;
+
+          FileUtil.of.copyFile(saveTempPath, targetPath);
+        }
+
         break;
       case "delete":
         model.deleteMsg(msgID, webMessageInstance: messageItem.messageFromWeb);

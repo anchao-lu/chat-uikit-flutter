@@ -49,6 +49,20 @@ class MultiSelectPanel extends TIMUIKitStatelessWidget {
 
   _handleForwardMessageWide(BuildContext context, bool isMergerForward,
       TUIChatSeparateViewModel model) {
+    for (var message in model.multiSelectedMessageList) {
+      if (model.chatConfig.messageCanLongPres != null) {
+        if (!model.chatConfig.messageCanLongPres!(message)) {
+          final CoreServicesImpl _coreServices =
+              serviceLocator<CoreServicesImpl>();
+          _coreServices.callOnCallback(TIMCallback(
+            type: TIMCallbackType.INFO,
+            infoRecommendText: "包含不支持转发的消息",
+          ));
+          return;
+        }
+      }
+    }
+
     TUIKitWidePopup.showPopupWindow(
         operationKey: TUIKitWideModalOperationKey.forward,
         context: context,
