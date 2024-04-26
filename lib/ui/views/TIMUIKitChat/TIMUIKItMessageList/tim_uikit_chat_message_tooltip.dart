@@ -462,7 +462,7 @@ class TIMUIKitMessageTooltipState
 
         if (targetDirPath.isNotEmpty) {
           String targetPath =
-              targetDirPath + "\\" + saveTempPath.split("\\").last;
+              path.join(targetDirPath, path.split(saveTempPath).last);
 
           FileUtil.of.copyFile(saveTempPath, targetPath);
         }
