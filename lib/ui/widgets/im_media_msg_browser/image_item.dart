@@ -153,7 +153,7 @@ class ImageItem extends StatelessWidget {
 
   Widget _defaultSecondaryMenu(VoidCallback onClose) {
     return TUIKitColumnMenu(data: [
-      if (!PlatformUtils().isWeb)
+      if (!PlatformUtils().isWeb && false)
         ColumnMenuItem(
             label: PlatformUtils().isMacOS ? TIM_t("在访达中打开") : TIM_t("查看文件夹"),
             icon: Image.asset(

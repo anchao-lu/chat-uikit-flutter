@@ -191,7 +191,9 @@ class TIMUIKitMessageTooltipState
             id: "open",
             iconImageAsset: "images/open_in_new.png",
             onClick: () => _onTap("open", model)),
-      if (fileBeenDownloaded && PlatformUtils().isDesktop)
+
+      //  此处禁用在文件中查看
+      if (fileBeenDownloaded && PlatformUtils().isDesktop && false)
         MessageToolTipItem(
             label: PlatformUtils().isMacOS ? TIM_t("在访达中打开") : TIM_t("查看文件夹"),
             id: "finder",
