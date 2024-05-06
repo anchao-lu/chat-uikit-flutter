@@ -247,7 +247,7 @@ extension V2TimMessageImgProvider on V2TimMessage {
       }
     } catch (e) {
       // ignore: avoid_print
-      outputLogger.i(e);
+      outputLogger.i(e.toString());
     }
 
     try {
@@ -262,7 +262,7 @@ extension V2TimMessageImgProvider on V2TimMessage {
       }
     } catch (e) {
       // ignore: avoid_print
-      outputLogger.i(e);
+      outputLogger.i(e.toString());
       return _getImgProvider(
         isNetworkImage: true,
         smallImg: smallImg,

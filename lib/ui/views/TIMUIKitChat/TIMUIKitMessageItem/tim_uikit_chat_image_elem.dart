@@ -430,6 +430,26 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
       }
     }
 
+    double? currentPositionRadio;
+    // File imgF = File((TencentUtils.checkString(originLocalPath) != null
+    //         ? originLocalPath
+    //         : smallLocalPath) ??
+    //     "");
+    // bool isExist = imgF.existsSync();
+    //
+    // if (!isExist) {
+    //   return errorDisplay(context, theme);
+    // }
+    // Image image = Image.file(imgF);
+    //
+    // image.image
+    //     .resolve(const ImageConfiguration())
+    //     .addListener(ImageStreamListener((image, synchronousCall) {
+    //   if (image.image.width != 0 && image.image.height != 0) {
+    //     currentPositionRadio = image.image.width / image.image.height;
+    //   }
+    // }));
+
     return GestureDetector(
       onTap: () => onClickImage(
           theme: theme,
@@ -557,7 +577,7 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
       }
     } catch (e) {
       // ignore: avoid_print
-      outputLogger.i(e);
+      outputLogger.i(e.toString());
     }
 
     try {
@@ -576,7 +596,7 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
       }
     } catch (e) {
       // ignore: avoid_print
-      outputLogger.i(e);
+      outputLogger.i(e.toString());
       return _renderAllImage(
         heroTag: heroTag,
         theme: theme,

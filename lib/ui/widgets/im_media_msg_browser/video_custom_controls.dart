@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:chewie_for_us/chewie_for_us.dart';
-import 'package:chewie_for_us/src/animated_play_pause.dart';
-import 'package:chewie_for_us/src/material/material_progress_bar.dart';
+import 'package:chewie/chewie.dart';
+import 'package:chewie/src/animated_play_pause.dart';
+import 'package:chewie/src/material/material_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 

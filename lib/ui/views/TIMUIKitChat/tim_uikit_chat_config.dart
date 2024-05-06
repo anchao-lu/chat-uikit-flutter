@@ -97,6 +97,10 @@ class TIMUIKitChatConfig {
   /// [Default]: true.
   final bool isAtWhenReply;
 
+  /// Control if allowed to at when reply automatically.
+  /// [Default]: true.
+  final bool Function(V2TimMessage message)? isAtWhenReplyDynamic;
+
   /// The main switch of the group read receipt.
   final bool isShowGroupMessageReadReceipt;
 
@@ -283,6 +287,7 @@ class TIMUIKitChatConfig {
     this.isUseMessageReaction = true,
     this.isShowAvatar = true,
     this.isShowSelfNameInGroup = false,
+    this.isAtWhenReplyDynamic,
     this.offlinePushInfo,
     @Deprecated("Please use [isShowGroupReadingStatus] instead")
     this.isShowGroupMessageReadReceipt = true,
@@ -312,11 +317,11 @@ class TIMUIKitChatConfig {
     this.additionalDesktopControlBarItems,
     this.isAllowLongPressAvatarToAt = true,
     this.isUseDefaultEmoji = false,
+    //////////////// 自定义入参 ////////////////
     this.messageCanLongPres,
     this.onImageLongPress,
     this.disableForwardConversions,
     this.useKangXunVideo = false,
-    //////////////// 自定义入参 ////////////////
     this.useMediaBrowser = false,
     this.fileAutoDownload = true,
     this.judgeIsCurConversation = true,

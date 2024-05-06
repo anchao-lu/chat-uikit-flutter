@@ -1,6 +1,6 @@
 name: tencent_cloud_chat_uikit
 description: A powerful chat UI component library and business logic for Tencent Cloud Chat, creating seamless in-app chat modules for delightful user experiences.
-version: 2.5.1
+version: 2.5.1+4
 homepage: https://trtc.io/products/chat?utm_source=gfs&utm_medium=link&utm_campaign=%E6%B8%A0%E9%81%93&_channel_track_key=k6WgfCKn
 repository: https://github.com/TencentCloud/chat-uikit-flutter
 documentation: https://comm.qq.com/im/doc/flutter/en/TUIKit/readme.html
@@ -21,7 +21,6 @@ dependencies:
     sdk: flutter
   adaptive_action_sheet: ^2.0.2
   provider: ^6.0.5
-  chewie: ^1.4.0
   intl: any
   get_it: ^7.2.0
   dotted_border: ^2.0.0+2
@@ -31,7 +30,7 @@ dependencies:
   file_picker: ^5.3.0
   tencent_super_tooltip: ^0.0.1
   video_player: ^2.7.0
-  chewie_for_us: ^1.5.0
+  chewie: ^1.7.5
   flutter_slidable: ^3.0.1
   flutter_plugin_record_plus: ^0.0.16
   azlistview_all_platforms: ^2.1.2
@@ -67,10 +66,10 @@ dependencies:
   open_file: ^3.3.2
   tencent_keyboard_visibility: ^1.0.1
   tim_ui_kit_sticker_plugin: ^3.1.0
-  tencent_im_base: ^3.3.775296
+  tencent_im_base: ^3.3.775297
   fc_native_video_thumbnail: any
   path: ^1.8.1
-  tencent_cloud_uikit_core: ^1.2.1
+  tencent_cloud_uikit_core: ^1.6.0
   pasteboard: ^0.2.0
   desktop_drop: ^0.4.4
   device_info_plus: any
@@ -88,14 +87,14 @@ dependencies:
 dependency_overrides:
   # ffi: ^2.0.1
   # js: ^0.6.7
-  collection: ^1.17.1
+  # collection: ^1.17.1
   # intl: ^0.18.0
-  tencent_cloud_chat_sdk: ^5.1.5
-  win32: 4.0.0
+  # tencent_cloud_chat_sdk: ^5.1.5
+  # win32: 4.0.0
   # 兼容 tencent_im_sdk_plugin_desktop 中的 Tools.getDyLibNameByPlatform()
   # 等 tencent_im_sdk_plugin_desktop 升级后需要对应调整版本
-  system_info2: ^2.0.4
-  photo_manager: ^3.0.0
+  system_info2: ^4.0.0
+  photo_manager: ^3.1.0
 
 dev_dependencies:
   flutter_lints: ^1.0.0

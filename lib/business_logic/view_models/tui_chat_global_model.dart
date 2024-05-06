@@ -616,7 +616,7 @@ class TUIChatGlobalModel extends ChangeNotifier implements TIMUIKitClass {
     // check the message is editing status msg. and flutter is only support the latest version
     bool isEditMessage = _editStatusCheck(msgComing);
 
-    // if the message is edit status message dont up to screen
+    // if the message is edit status message don't up to screen
     if (isEditMessage) {
       return;
     }
@@ -670,7 +670,9 @@ class TUIChatGlobalModel extends ChangeNotifier implements TIMUIKitClass {
         }
       }
     } else if (convID != null) {
-      final currentMsg = _messageListMap[convID] ?? [];
+      final tempCurrentMsgList = _messageListMap[convID] ?? [];
+      final currentMsg = tempCurrentMsgList
+        ..sublist(max(0, (tempCurrentMsgList.length - 20)));
       _messageListMap[convID] = [newMsg, ...currentMsg];
       notifyListeners();
     }
@@ -761,6 +763,8 @@ class TUIChatGlobalModel extends ChangeNotifier implements TIMUIKitClass {
   Future<void> onMessageDownloadProgressCallback(
       V2TimMessageDownloadProgress messageProgress) async {
     final currentProgress = getMessageProgress(messageProgress.msgID);
+    debugPrint(
+        "onMessageDownloadProgressCallback, ${messageProgress.type} - ${messageProgress.isFinish} - ${messageProgress.currentSize} - $currentProgress - ");
 
     if (messageProgress.isError || messageProgress.errorCode != 0) {
       V2TimMessage? message =
@@ -788,19 +792,12 @@ class TUIChatGlobalModel extends ChangeNotifier implements TIMUIKitClass {
   void _handleFinishedDownload(
       V2TimMessageDownloadProgress messageProgress, V2TimMessage? message) {
     if (message != null) {
-      ////////////// 语音消息放入可下载类型（暂时屏蔽） //////////////
       bool isImageType =
           message.elemType == MessageElemType.V2TIM_ELEM_TYPE_IMAGE;
       bool isVideoType =
           message.elemType == MessageElemType.V2TIM_ELEM_TYPE_VIDEO;
-      // 暂时不考虑语音：验证出现语音不能播放的问题
-      // bool isSoundType = false;
-      // message.elemType == MessageElemType.V2TIM_ELEM_TYPE_SOUND;
       const originalImageType = 0;
-      debugPrint('savePath messageProgress type: ${messageProgress.type}');
-      debugPrint(
-          'savePath messageProgress originalImageType: $originalImageType');
-      if (!isImageType && !isVideoType /* && !isSoundType*/) {
+      if (!isImageType && !isVideoType) {
         _updateMessageLocationAndDownloadFile(messageProgress);
       } else if ((isImageType && messageProgress.type == originalImageType) ||
               (isVideoType &&

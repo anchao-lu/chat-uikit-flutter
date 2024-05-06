@@ -78,14 +78,14 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
 
   set groupUserShowName(Map<String, String> value) {
     _groupUserShowName = value;
-    notifyListeners();
+    _notify();
   }
 
   int get activeAtIndex => _activeAtIndex;
 
   set activeAtIndex(int value) {
     _activeAtIndex = value;
-    notifyListeners();
+    _notify();
   }
 
   //////////// 新增属性：用于桌面端 @ 时的关键字搜索 ////////////
@@ -101,84 +101,84 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
 
   set showAtMemberList(List<V2TimGroupMemberFullInfo?> value) {
     _showAtMemberList = value;
-    notifyListeners();
+    _notify();
   }
 
   V2TimGroupInfo? get groupInfo => _groupInfo;
 
   set groupInfo(V2TimGroupInfo? value) {
     _groupInfo = value;
-    notifyListeners();
+    _notify();
   }
 
   int get totalUnreadCount => _totalUnreadCount;
 
   set totalUnreadCount(int value) {
     _totalUnreadCount = value;
-    notifyListeners();
+    _notify();
   }
 
   bool get isMultiSelect => _isMultiSelect;
 
   set isMultiSelect(bool value) {
     _isMultiSelect = value;
-    notifyListeners();
+    _notify();
   }
 
   String get currentPlayedMsgId => _currentPlayedMsgId;
 
   set currentPlayedMsgId(String value) {
     _currentPlayedMsgId = value;
-    notifyListeners();
+    _notify();
   }
 
   GroupReceiptAllowType? get groupType => _groupType;
 
   set groupType(GroupReceiptAllowType? value) {
     _groupType = value;
-    notifyListeners();
+    _notify();
   }
 
   List<V2TimMessage> get multiSelectedMessageList => _multiSelectedMessageList;
 
   set multiSelectedMessageList(List<V2TimMessage> value) {
     _multiSelectedMessageList = value;
-    notifyListeners();
+    _notify();
   }
 
   V2TimMessage? get repliedMessage => _repliedMessage;
 
   set repliedMessage(V2TimMessage? value) {
     _repliedMessage = value;
-    notifyListeners();
+    _notify();
   }
 
   String get jumpMsgID => _jumpMsgID;
 
   set jumpMsgID(String value) {
     _jumpMsgID = value;
-    notifyListeners();
+    _notify();
   }
 
   bool get isGroupExist => _isGroupExist;
 
   set isGroupExist(bool value) {
     _isGroupExist = value;
-    notifyListeners();
+    _notify();
   }
 
   bool get isNotAMember => _isNotAMember;
 
   set isNotAMember(bool value) {
     _isNotAMember = value;
-    notifyListeners();
+    _notify();
   }
 
   V2TimGroupMemberFullInfo? get currentChatUserInfo => _currentChatUserInfo;
 
   set currentChatUserInfo(V2TimGroupMemberFullInfo? value) {
     _currentChatUserInfo = value;
-    notifyListeners();
+    _notify();
   }
 
   setLoadingMessageMap(String conversationID, V2TimMessage messageInfo) {
@@ -219,7 +219,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
           }
         }
         if (data.isNotEmpty) {
-          notifyListeners();
+          _notify();
         }
       }
     }
@@ -252,7 +252,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
 
     if (conversationType == ConvType.group) {
       _groupID = groupID;
-      notifyListeners();
+      _notify();
       Future.delayed(const Duration(milliseconds: 10), () async {
         globalModel.refreshGroupApplicationList();
         loadGroupInfo(groupID ?? convID);
@@ -291,7 +291,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
             );
           }
         }
-        notifyListeners();
+        _notify();
       });
     }
 
@@ -326,7 +326,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
 
     msgList = await lifeCycle?.didGetHistoricalMessageList(msgList) ?? msgList;
     msgList.insert(
-        0,
+        msgList.length - 1,
         V2TimMessage(
             userID: '',
             isSelf: false,
@@ -389,7 +389,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
       } else {
         haveMoreData = !response.isFinished;
       }
-      notifyListeners();
+      _notify();
 
       // 根据lastMsgID判断是否为分页加载
       if (lastMsgID != null && currentRecordList != null) {
@@ -448,7 +448,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
         globalModel.setMessageListPosition(
             conversationID, HistoryMessagePosition.inTwoScreen);
       }
-      notifyListeners();
+      _notify();
 
       return haveMoreData;
     } catch (e) {
@@ -490,7 +490,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
           }
         }
       }
-      notifyListeners();
+      _notify();
     }
   }
 
@@ -515,7 +515,8 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
     for (var item in message) {
       final isSelf = item.isSelf ?? true;
       final needReadReceipt = item.needReadReceipt ?? false;
-      if (!isSelf && needReadReceipt && item.msgID != null) {
+      final isRead = item.isRead ?? false;
+      if (!isRead && !isSelf && needReadReceipt && item.msgID != null) {
         msgIDList.add(item.msgID!);
         item.needReadReceipt = false;
       }
@@ -556,7 +557,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
       final userList = getGroupMembersInfoRes.data;
       selfMemberInfo = userList
           ?.firstWhereOrNull((e) => e.userID == selfModel.loginInfo?.userID);
-      notifyListeners();
+      _notify();
     }
     return;
   }
@@ -571,7 +572,15 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
     } else {
       selfMemberInfo = groupMemberList
           ?.firstWhereOrNull((e) => e?.userID == selfModel.loginInfo?.userID);
+      _notify();
+    }
+  }
+
+  void _notify() {
+    try {
       notifyListeners();
+    } catch (e) {
+      debugPrint(e.toString());
     }
   }
 
@@ -618,7 +627,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
         };
         _groupType = groupTypeMap[groupRes.groupInfo?.groupType];
 
-        notifyListeners();
+        _notify();
         return (_groupInfo, _groupType);
       }
     }
@@ -750,7 +759,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
           ...currentHistoryMsgList
         ];
         globalModel.setMessageList(conversationID, currentHistoryMsgList);
-        notifyListeners();
+        _notify();
       }
 
       return _sendMessage(
@@ -789,7 +798,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
           ...currentHistoryMsgList
         ];
         globalModel.setMessageList(conversationID, currentHistoryMsgList);
-        notifyListeners();
+        _notify();
       }
 
       return _sendMessage(
@@ -829,7 +838,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
           ...currentHistoryMsgList
         ];
         globalModel.setMessageList(conversationID, currentHistoryMsgList);
-        notifyListeners();
+        _notify();
       }
 
       return _sendMessage(
@@ -871,7 +880,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
           ...currentHistoryMsgList
         ];
         globalModel.setMessageList(conversationID, currentHistoryMsgList);
-        notifyListeners();
+        _notify();
       }
 
       return _sendMessage(
@@ -927,8 +936,8 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
         messageInfoWithSender.cloudCustomData = json.encode(cloudCustomData);
         V2TimMessage? lifeCycleMsg;
         if (lifeCycle?.messageWillSend != null) {
-          lifeCycleMsg =
-              await lifeCycle?.messageWillSend(messageInfoWithSender);
+          lifeCycleMsg = await lifeCycle?.messageWillSend(
+              messageInfoWithSender, repliedMessage);
           if (lifeCycleMsg == null) {
             return null;
           }
@@ -942,7 +951,9 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
 
         _repliedMessage = null;
         final sendMsgRes = await _messageService.sendMessage(
-            cloudCustomData: json.encode(cloudCustomData),
+            cloudCustomData:
+                TencentUtils.checkString(lifeCycleMsg?.cloudCustomData) ??
+                    json.encode(cloudCustomData),
             id: textMessageInfo.id as String,
             offlinePushInfo: tools.buildMessagePushInfo(
                 messageInfoWithSender, convID, convType),
@@ -956,7 +967,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
                             .contains(oldGroupType))),
             groupID: groupID,
             receiver: receiver);
-        notifyListeners();
+        _notify();
         globalModel.updateMessage(sendMsgRes, convID,
             messageInfoWithSender.id ?? "", convType, groupType, setInputField);
         if (lifeCycle?.messageDidSend != null) {
@@ -1032,7 +1043,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
           ...currentHistoryMsgList
         ];
         globalModel.setMessageList(conversationID, currentHistoryMsgList);
-        notifyListeners();
+        _notify();
       }
 
       return _sendMessage(
@@ -1082,7 +1093,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
           ...currentHistoryMsgList
         ];
         globalModel.setMessageList(conversationID, currentHistoryMsgList);
-        notifyListeners();
+        _notify();
       }
 
       return _sendMessage(
@@ -1105,7 +1116,6 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
       required String convID,
       required ConvType convType}) async {
     if (await tools.hasZeroSize(filePath ?? "")) {
-      final CoreServicesImpl _coreServices = serviceLocator<CoreServicesImpl>();
       _coreServices.callOnCallback(TIMCallback(
           type: TIMCallbackType.INFO,
           infoRecommendText: "不支持 0KB 文件的传输",
@@ -1137,7 +1147,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
           ...currentHistoryMsgList
         ];
         globalModel.setMessageList(conversationID, currentHistoryMsgList);
-        notifyListeners();
+        _notify();
       }
 
       return _sendMessage(
@@ -1180,7 +1190,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
           ...currentHistoryMsgList
         ];
         globalModel.setMessageList(conversationID, currentHistoryMsgList);
-        notifyListeners();
+        _notify();
       }
       return _sendMessage(
         convID: convID,
@@ -1395,7 +1405,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
           ...currentHistoryMsgList
         ];
         globalModel.setMessageList(conversationID, currentHistoryMsgList);
-        notifyListeners();
+        _notify();
       }
 
       return _sendMessage(
@@ -1507,12 +1517,12 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
 
   addToMultiSelectedMessageList(V2TimMessage message) {
     _multiSelectedMessageList.add(message);
-    notifyListeners();
+    _notify();
   }
 
   removeFromMultiSelectedMessageList(V2TimMessage message) {
     _multiSelectedMessageList.remove(message);
-    notifyListeners();
+    _notify();
   }
 
   deleteSelectedMsg() async {
@@ -1541,7 +1551,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
     if (!isSelect) {
       _multiSelectedMessageList.clear();
     }
-    notifyListeners();
+    _notify();
   }
 
   Future<V2TimValueCallback<V2TimGroupMessageReadMemberList>>
