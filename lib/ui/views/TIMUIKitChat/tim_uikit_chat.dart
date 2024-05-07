@@ -272,7 +272,7 @@ class _TUIChatState extends TIMUIKitState<TIMUIKitChat> {
     axis: Axis.vertical,
   );
 
-  Widget? joinInGroupCallWidget;
+  Widget? _joinInGroupCallWidget;
 
   @override
   void initState() {
@@ -405,8 +405,13 @@ class _TUIChatState extends TIMUIKitState<TIMUIKitChat> {
     if (_getConvType() != ConvType.group) {
       return;
     }
-    joinInGroupCallWidget = await TUICore.instance.raiseExtension(TUIExtensionID.joinInGroup, {GROUP_ID: widget.conversationID!});
-    setState(() {});
+    final w = await TUICore.instance.raiseExtension(TUIExtensionID.joinInGroup, {GROUP_ID: widget.conversationID!});
+    if(w != _joinInGroupCallWidget){
+
+      setState(() {
+        _joinInGroupCallWidget = w;
+      });
+    }
   }
 
   @override
@@ -544,7 +549,7 @@ class _TUIChatState extends TIMUIKitState<TIMUIKitChat> {
                             _renderJoinGroupApplication(
                                 filteredApplicationList.length, theme),
                           if (widget.topFixWidget != null) widget.topFixWidget!,
-                          if (joinInGroupCallWidget != null) Center(child: joinInGroupCallWidget!),
+                          if (_joinInGroupCallWidget != null) Center(child: _joinInGroupCallWidget!),
                           Expanded(
                               child: Container(
                             color: theme.chatBgColor,

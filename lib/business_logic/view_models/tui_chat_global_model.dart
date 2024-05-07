@@ -217,8 +217,8 @@ class TUIChatGlobalModel extends ChangeNotifier implements TIMUIKitClass {
   clearCurrentConversation() {
     // Only keep the last 20 messages when existing a chat.
     _messageListMap[currentSelectedConv] =
-        (_messageListMap[currentSelectedConv] ?? []).sublist(
-            max(0, ((_messageListMap[currentSelectedConv] ?? []).length - 10)));
+        (_messageListMap[currentSelectedConv] ?? []).sublist(0,
+            min(10, ((_messageListMap[currentSelectedConv] ?? []).length - 1)));
     if (_currentConversationList.isNotEmpty) {
       _currentConversationList.removeLast();
     }
@@ -644,9 +644,7 @@ class TUIChatGlobalModel extends ChangeNotifier implements TIMUIKitClass {
         }
         _receivedNewMessageCount = 0;
         final tempCurrentMsgList = _messageListMap[convID] ?? [];
-        final currentMsg = tempCurrentMsgList
-          ..sublist(max(0, (tempCurrentMsgList.length - 30)));
-        _messageListMap[convID] = [newMsg, ...currentMsg];
+        _messageListMap[convID] = [newMsg, ...tempCurrentMsgList];
         notifyListeners();
         final messageID = newMsg.msgID;
         final needReadReceipt = newMsg.needReadReceipt ?? false;
@@ -671,9 +669,7 @@ class TUIChatGlobalModel extends ChangeNotifier implements TIMUIKitClass {
       }
     } else if (convID != null) {
       final tempCurrentMsgList = _messageListMap[convID] ?? [];
-      final currentMsg = tempCurrentMsgList
-        ..sublist(max(0, (tempCurrentMsgList.length - 20)));
-      _messageListMap[convID] = [newMsg, ...currentMsg];
+      _messageListMap[convID] = [newMsg, ...tempCurrentMsgList];
       notifyListeners();
     }
   }
