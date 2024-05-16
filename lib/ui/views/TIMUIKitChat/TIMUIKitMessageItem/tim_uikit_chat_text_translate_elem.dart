@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
+import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitTextField/special_text/DefaultSpecialTextSpanBuilder.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/link_preview/link_preview_entry.dart';
 
@@ -134,6 +134,44 @@ class _TIMUIKitTextTranslationElemState
         customEmojiStickerList: widget.customEmojiStickerList,
         isEnableTextSelection:
             widget.chatModel.chatConfig.isEnableTextSelection ?? false);
+
+    ////////////// 自定义 //////////////
+    final String? convertVoiceToText = localCustomData.convertVoiceToText;
+    if (widget.message.elemType == MessageElemType.V2TIM_ELEM_TYPE_SOUND &&
+        TencentUtils.checkString(convertVoiceToText) != null) {
+      return Container(
+        margin: const EdgeInsets.only(top: 6),
+        padding:
+            widget.textPadding ?? EdgeInsets.all(isDesktopScreen ? 12 : 10),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: widget.borderRadius ?? borderRadius,
+        ),
+        constraints:
+            BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.6),
+        child: ExtendedText(
+          convertVoiceToText!,
+          softWrap: true,
+          style: widget.fontStyle ??
+              TextStyle(
+                fontSize: isDesktopScreen ? 14 : 16,
+                height: widget.chatModel.chatConfig.textHeight,
+              ),
+          specialTextSpanBuilder: DefaultSpecialTextSpanBuilder(
+            isUseQQPackage: (widget.chatModel.chatConfig.stickerPanelConfig
+                        ?.useTencentCloudChatStickerPackage ??
+                    true) ||
+                widget.isUseDefaultEmoji,
+            isUseTencentCloudChatPackage: widget.chatModel.chatConfig
+                    .stickerPanelConfig?.useTencentCloudChatStickerPackage ??
+                true,
+            customEmojiStickerList: widget.customEmojiStickerList,
+            showAtBackground: true,
+          ),
+        ),
+      );
+    }
+    ////////////// 自定义 //////////////
 
     return TencentUtils.checkString(translateText) != null
         ? Container(

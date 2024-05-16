@@ -831,4 +831,24 @@ class MessageServiceImpl extends MessageService {
     }
     return result.data?[text] ?? "";
   }
+
+  ////////////// 自定义方法 //////////////
+  @override
+  Future<String> convertVoiceToText(String msgID, String language) async {
+    final result = await TencentImSDKPlugin.v2TIMManager
+        .getMessageManager()
+        .convertVoiceToText(msgID: msgID, language: language);
+    if (result.code != 0) {
+      debugPrint('convertVoiceToText error: ${result.desc}');
+      _coreService.callOnCallback(
+        TIMCallback(
+          type: TIMCallbackType.API_ERROR,
+          errorMsg: result.desc,
+          errorCode: result.code,
+        ),
+      );
+    }
+    return result.data ?? "";
+  }
+  ////////////// 自定义方法 //////////////
 }

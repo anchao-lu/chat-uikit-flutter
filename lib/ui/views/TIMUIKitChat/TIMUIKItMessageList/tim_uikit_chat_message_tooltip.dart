@@ -15,16 +15,14 @@ import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_global_model.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_self_info_view_model.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
-import 'package:tencent_cloud_chat_uikit/ui/utils/common_utils.dart';
+import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/file_util.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/message.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/message_has_file_util.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
-import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKItMessageList/tim_uikit_chat_history_message_list_item.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitMessageItem/TIMUIKitMessageReaction/tim_uikit_message_reaction_select_emoji.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/forward_message_screen.dart';
-import 'package:tencent_im_base/tencent_im_base.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TIMUIKitMessageTooltip extends StatefulWidget {
@@ -227,6 +225,13 @@ class TIMUIKitMessageTooltipState
             id: "replyMessage",
             iconImageAsset: "images/reply_message.png",
             onClick: () => _onTap("replyMessage", model)),
+      ////////////// 自定义 //////////////
+      MessageToolTipItem(
+          label: TIM_t("转文字"),
+          id: "convertVoiceToText",
+          iconImageAsset: "images/convert_voice_to_text.png",
+          onClick: () => _onTap("convertVoiceToText", model)),
+      ////////////// 自定义 //////////////
       MessageToolTipItem(
           label: TIM_t("多选"),
           id: "multiSelect",
@@ -258,8 +263,13 @@ class TIMUIKitMessageTooltipState
           return tooltipsConfig.showCopyMessage;
         }
         if (type == "forwardMessage") {
-          return tooltipsConfig.showForwardMessage &&
-              !(isDesktopScreen && widget.iSUseDefaultHoverBar);
+          return
+              ////////////// 自定义 //////////////
+              widget.message.elemType !=
+                      MessageElemType.V2TIM_ELEM_TYPE_SOUND &&
+                  ////////////// 自定义 //////////////
+                  tooltipsConfig.showForwardMessage &&
+                  !(isDesktopScreen && widget.iSUseDefaultHoverBar);
         }
         if (type == "replyMessage") {
           return tooltipsConfig.showReplyMessage &&
@@ -279,6 +289,19 @@ class TIMUIKitMessageTooltipState
           return tooltipsConfig.showTranslation &&
               widget.message.elemType == MessageElemType.V2TIM_ELEM_TYPE_TEXT;
         }
+        ////////////// 自定义 //////////////
+        if (type == "convertVoiceToText") {
+          final LocalCustomDataModel localCustomData =
+              LocalCustomDataModel.fromMap(json.decode(
+                  TencentUtils.checkString(widget.message.localCustomData) ??
+                      "{}"));
+          final convertVoiceToText = localCustomData.convertVoiceToText ?? '';
+          // 翻译过了就不显示了
+          return widget.message.elemType ==
+                  MessageElemType.V2TIM_ELEM_TYPE_SOUND &&
+              convertVoiceToText.isEmpty;
+        }
+        ////////////// 自定义 //////////////
         return true;
       }).toList();
     }
@@ -486,6 +509,9 @@ class TIMUIKitMessageTooltipState
         break;
       case 'translate':
         model.translateText(widget.message);
+        break;
+      case 'convertVoiceToText':
+        model.convertVoiceToText(widget.message);
         break;
       case "multiSelect":
         model.updateMultiSelectStatus(true);

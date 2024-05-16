@@ -208,4 +208,11 @@ abstract class MessageService {
   });
 
   Future<String> translateText(String text, String target);
+
+  ////////////// 自定义方法 //////////////
+  /// String msgID,
+  /// String language："zh (cmn-Hans-CN)" "yue-Hant-HK" "en-US" "ja-JP"
+  /// return result
+  Future<String> convertVoiceToText(String msgID, String language);
+  ////////////// 自定义方法 //////////////
 }

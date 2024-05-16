@@ -1838,3 +1838,31 @@ extension TUIChatSeparateViewModelAudioPlay on TUIChatSeparateViewModel {
     }
   }
 }
+
+////////////// 自定义方法 //////////////
+extension CusMethods on TUIChatSeparateViewModel {
+  convertVoiceToText(V2TimMessage message) async {
+    final soundElem = message.soundElem;
+    // 不是语音消息，直接返回
+    if (soundElem == null) return;
+    final msgID = message.msgID ?? '';
+    if (msgID.isEmpty) return;
+    final convertVoiceToText = await _messageService.convertVoiceToText(
+      msgID,
+      // 如果您的主流用户使用中、英文居多，language 参数可传空字符串，此时我们默认使用中英模型识别
+      '',
+    );
+
+    final LocalCustomDataModel localCustomData = LocalCustomDataModel.fromMap(
+      json.decode(TencentUtils.checkString(message.localCustomData) ?? "{}"),
+    );
+    localCustomData.convertVoiceToText = convertVoiceToText;
+    message.localCustomData = json.encode(localCustomData.toMap());
+    globalModel.onMessageModified(message);
+    TencentImSDKPlugin.v2TIMManager.v2TIMMessageManager.setLocalCustomData(
+      msgID: message.msgID!,
+      localCustomData: message.localCustomData ?? "",
+    );
+  }
+}
+////////////// 自定义方法 //////////////

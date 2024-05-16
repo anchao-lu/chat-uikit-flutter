@@ -11,8 +11,20 @@ class LocalCustomDataModel {
   final String? title;
   String? translatedText;
 
-  LocalCustomDataModel(
-      {this.description, this.image, this.url, this.title, this.translatedText});
+  ////////////// 自定义 //////////////
+  String? convertVoiceToText;
+  ////////////// 自定义 //////////////
+
+  LocalCustomDataModel({
+    this.description,
+    this.image,
+    this.url,
+    this.title,
+    this.translatedText,
+    ////////////// 自定义 //////////////
+    this.convertVoiceToText,
+    ////////////// 自定义 //////////////
+  });
 
   Map<String, String?> toMap() {
     final Map<String, String?> data = {};
@@ -21,6 +33,9 @@ class LocalCustomDataModel {
     data['title'] = title;
     data['description'] = description;
     data['translatedText'] = translatedText;
+    ////////////// 自定义 //////////////
+    data['convertVoiceToText'] = convertVoiceToText;
+    ////////////// 自定义 //////////////
     return data;
   }
 
@@ -29,6 +44,9 @@ class LocalCustomDataModel {
         image = map['image'],
         url = map['url'],
         translatedText = map['translatedText'],
+        ////////////// 自定义 //////////////
+        convertVoiceToText = map['convertVoiceToText'],
+        ///////////////// 自定义 ///////////
         title = map['title'];
 
   @override
