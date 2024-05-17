@@ -1,12 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_statelesswidget.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_global_model.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/core/tim_uikit_wide_modal_operation_key.dart';
+import 'package:tencent_cloud_chat_uikit/ui/utils/file_util.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/media_download_util.dart';
+import 'package:tencent_cloud_chat_uikit/ui/utils/message_has_file_util.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/forward_message_screen.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/wide_popup.dart';
@@ -86,6 +89,103 @@ class MultiSelectPanel extends TIMUIKitStatelessWidget {
             ));
   }
 
+  Future<void> _desktopDownMedia(
+      BuildContext context, TUIChatSeparateViewModel model, theme) async {
+    showDialog(
+      context: context,
+      barrierColor: Colors.transparent,
+      barrierDismissible: false,
+      builder: (context) => UnconstrainedBox(
+        child: Container(
+          width: 100,
+          height: 100,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: const CupertinoActivityIndicator(
+            color: Colors.black,
+            radius: 15,
+          ),
+        ),
+      ),
+    );
+
+    final List<V2TimMessage> imgMsgs = List.from(model.multiSelectedMessageList
+        .where((msg) => msg.elemType == MessageElemType.V2TIM_ELEM_TYPE_IMAGE));
+    final List<V2TimMessage> videoMsgs = List.from(model
+        .multiSelectedMessageList
+        .where((msg) => msg.elemType == MessageElemType.V2TIM_ELEM_TYPE_VIDEO));
+    if (imgMsgs.isEmpty && videoMsgs.isEmpty) {
+      onTIMCallback(
+        TIMCallback(
+          type: TIMCallbackType.INFO,
+          infoRecommendText: 'Only pictures and videos can be downloaded',
+        ),
+      );
+      // pop loading
+      Navigator.of(context).pop();
+      return;
+    }
+
+    final targetDirPath = await FileUtil.of.selectFolder();
+
+    if (targetDirPath.isNotEmpty) {
+      try {
+        final TUIChatGlobalModel globalModal =
+            serviceLocator<TUIChatGlobalModel>();
+        final List<String> mediaLocalPaths = [];
+        for (var msg in imgMsgs) {
+          final (exists, saveTempPath) =
+              MessageHasFileUtil.of.hasFile(msg, globalModal);
+          if (exists && saveTempPath.isNotEmpty) {
+            mediaLocalPaths.add(saveTempPath);
+          }
+        }
+        for (var msg in videoMsgs) {
+          if (msg.videoElem != null) {
+            final (exists, saveTempPath) =
+                MessageHasFileUtil.of.hasFile(msg, globalModal);
+            if (exists && saveTempPath.isNotEmpty) {
+              mediaLocalPaths.add(saveTempPath);
+            }
+          }
+        }
+
+        if (mediaLocalPaths.isEmpty) {
+          // pop loading
+          Navigator.of(context).pop();
+
+          onTIMCallback(
+            TIMCallback(
+              type: TIMCallbackType.INFO,
+              infoRecommendText: TIM_t("the message is downloading"),
+            ),
+          );
+          return;
+        }
+
+        for (final localPath in mediaLocalPaths) {
+          String targetPath =
+              path.join(targetDirPath, path.split(localPath).last);
+          FileUtil.of.copyFile(localPath, targetPath);
+        }
+
+        // pop loading
+        Navigator.of(context).pop();
+
+        onTIMCallback(
+          TIMCallback(
+            type: TIMCallbackType.INFO,
+            infoRecommendText: TIM_t("Download successfully"),
+          ),
+        );
+      } catch (e) {
+        Navigator.of(context).pop();
+      }
+    }
+  }
+
   Future<void> _downMedia(
       BuildContext context, TUIChatSeparateViewModel model, theme) async {
     showDialog(
@@ -120,6 +220,7 @@ class MultiSelectPanel extends TIMUIKitStatelessWidget {
           infoRecommendText: 'Only pictures and videos can be downloaded',
         ),
       );
+      // pop loading
       Navigator.of(context).pop();
       return;
     }
@@ -145,6 +246,7 @@ class MultiSelectPanel extends TIMUIKitStatelessWidget {
         }
       }
 
+      // pop loading
       Navigator.of(context).pop();
 
       onTIMCallback(
@@ -217,6 +319,28 @@ class MultiSelectPanel extends TIMUIKitStatelessWidget {
                       TIM_t("合并转发"),
                       style: TextStyle(
                           color: theme.selectPanelTextIconColor, fontSize: 12),
+                    )
+                  ],
+                ),
+                Column(
+                  children: [
+                    IconButton(
+                      icon: Image.asset(
+                        'images/multi_select_download.png',
+                        package: 'tencent_cloud_chat_uikit',
+                        color: theme.selectPanelTextIconColor,
+                      ),
+                      iconSize: 30,
+                      onPressed: () {
+                        _desktopDownMedia(context, model, theme);
+                      },
+                    ),
+                    Text(
+                      TIM_t("下载"),
+                      style: TextStyle(
+                        color: theme.selectPanelTextIconColor,
+                        fontSize: 12,
+                      ),
                     )
                   ],
                 ),
@@ -310,6 +434,26 @@ class MultiSelectPanel extends TIMUIKitStatelessWidget {
             Column(
               children: [
                 IconButton(
+                  icon: Image.asset(
+                    'images/multi_select_download.png',
+                    package: 'tencent_cloud_chat_uikit',
+                    color: theme.selectPanelTextIconColor,
+                  ),
+                  iconSize: 40,
+                  onPressed: () {
+                    _downMedia(context, model, theme);
+                  },
+                ),
+                Text(
+                  TIM_t("下载"),
+                  style: TextStyle(
+                      color: theme.selectPanelTextIconColor, fontSize: 12),
+                )
+              ],
+            ),
+            Column(
+              children: [
+                IconButton(
                   icon: Image.asset('images/delete.png',
                       package: 'tencent_cloud_chat_uikit',
                       color: theme.selectPanelTextIconColor),
@@ -355,26 +499,6 @@ class MultiSelectPanel extends TIMUIKitStatelessWidget {
                 Text(TIM_t("删除"),
                     style: TextStyle(
                         color: theme.selectPanelTextIconColor, fontSize: 12))
-              ],
-            ),
-            Column(
-              children: [
-                IconButton(
-                  icon: Image.asset(
-                    'images/multi_select_download.png',
-                    package: 'tencent_cloud_chat_uikit',
-                    color: theme.selectPanelTextIconColor,
-                  ),
-                  iconSize: 40,
-                  onPressed: () {
-                    _downMedia(context, model, theme);
-                  },
-                ),
-                Text(
-                  TIM_t("下载"),
-                  style: TextStyle(
-                      color: theme.selectPanelTextIconColor, fontSize: 12),
-                )
               ],
             ),
           ],
