@@ -130,59 +130,66 @@ class MultiSelectPanel extends TIMUIKitStatelessWidget {
 
     final targetDirPath = await FileUtil.of.selectFolder();
 
-    if (targetDirPath.isNotEmpty) {
-      try {
-        final TUIChatGlobalModel globalModal =
-            serviceLocator<TUIChatGlobalModel>();
-        final List<String> mediaLocalPaths = [];
-        for (var msg in imgMsgs) {
+    if (targetDirPath.isEmpty) {
+      // pop loading
+      Navigator.of(context).pop();
+      return;
+    }
+
+    try {
+      final TUIChatGlobalModel globalModal =
+          serviceLocator<TUIChatGlobalModel>();
+      final List<String> mediaLocalPaths = [];
+      for (var msg in imgMsgs) {
+        final (exists, saveTempPath) =
+            MessageHasFileUtil.of.hasFile(msg, globalModal);
+        if (exists && saveTempPath.isNotEmpty) {
+          mediaLocalPaths.add(saveTempPath);
+        }
+      }
+      for (var msg in videoMsgs) {
+        if (msg.videoElem != null) {
           final (exists, saveTempPath) =
               MessageHasFileUtil.of.hasFile(msg, globalModal);
           if (exists && saveTempPath.isNotEmpty) {
             mediaLocalPaths.add(saveTempPath);
           }
         }
-        for (var msg in videoMsgs) {
-          if (msg.videoElem != null) {
-            final (exists, saveTempPath) =
-                MessageHasFileUtil.of.hasFile(msg, globalModal);
-            if (exists && saveTempPath.isNotEmpty) {
-              mediaLocalPaths.add(saveTempPath);
-            }
-          }
-        }
+      }
 
-        if (mediaLocalPaths.isEmpty) {
-          // pop loading
-          Navigator.of(context).pop();
-
-          onTIMCallback(
-            TIMCallback(
-              type: TIMCallbackType.INFO,
-              infoRecommendText: TIM_t("the message is downloading"),
-            ),
-          );
-          return;
-        }
-
-        for (final localPath in mediaLocalPaths) {
-          String targetPath =
-              path.join(targetDirPath, path.split(localPath).last);
-          FileUtil.of.copyFile(localPath, targetPath);
-        }
-
+      if (mediaLocalPaths.isEmpty) {
         // pop loading
         Navigator.of(context).pop();
 
         onTIMCallback(
           TIMCallback(
             type: TIMCallbackType.INFO,
-            infoRecommendText: TIM_t("Download successfully"),
+            infoRecommendText: TIM_t("the message is downloading"),
           ),
         );
-      } catch (e) {
-        Navigator.of(context).pop();
+        return;
       }
+
+      for (final localPath in mediaLocalPaths) {
+        String targetPath =
+            path.join(targetDirPath, path.split(localPath).last);
+        FileUtil.of.copyFile(localPath, targetPath);
+      }
+
+      // pop loading
+      Navigator.of(context).pop();
+
+      // 退出多选模式
+      model.updateMultiSelectStatus(false);
+
+      onTIMCallback(
+        TIMCallback(
+          type: TIMCallbackType.INFO,
+          infoRecommendText: TIM_t("Download successfully"),
+        ),
+      );
+    } catch (e) {
+      Navigator.of(context).pop();
     }
   }
 
