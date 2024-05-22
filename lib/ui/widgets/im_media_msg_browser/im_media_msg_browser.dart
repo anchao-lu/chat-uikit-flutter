@@ -240,14 +240,18 @@ class IMMediaMsgBrowserState extends TIMUIKitState<IMMediaMsgBrowser>
                       child: BottomActions(
                         onDownload: _saveImg,
                         onNext: () {
+                          if (_currentIndex >= _msgs.length - 1) return;
                           _pageController?.nextPage(
-                              duration: const Duration(microseconds: 200),
-                              curve: Curves.linear);
+                            duration: const Duration(microseconds: 200),
+                            curve: Curves.linear,
+                          );
                         },
                         onPre: () {
+                          if (_currentIndex == 0) return;
                           _pageController?.previousPage(
-                              duration: const Duration(microseconds: 200),
-                              curve: Curves.linear);
+                            duration: const Duration(microseconds: 200),
+                            curve: Curves.linear,
+                          );
                         },
                       ),
                     ),
