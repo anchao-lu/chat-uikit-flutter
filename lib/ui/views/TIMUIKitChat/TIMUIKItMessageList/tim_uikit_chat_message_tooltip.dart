@@ -247,7 +247,8 @@ class TIMUIKitMessageTooltipState
           id: "delete",
           iconImageAsset: "images/delete_message.png",
           onClick: () => _onTap("delete", model)),
-      if (shouldShowRevokeAction)
+      if (shouldShowRevokeAction &&
+          globalModal.chatConfig.messageCanLongPres!(widget.message))
         MessageToolTipItem(
             label: TIM_t("撤回"),
             id: "revoke",
