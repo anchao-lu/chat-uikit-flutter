@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:path/path.dart' as path;
 import 'package:audioplayers/audioplayers.dart';
 // import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
@@ -1122,6 +1123,15 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
           infoCode: 6660417));
       return null;
     }
+    /////////////  处理桌面端路径的问题
+    if (Platform.isMacOS || Platform.isWindows) {
+      if (filePath != null && filePath.isNotEmpty) {
+        fileName = path
+            .split(filePath)
+            .last;
+      }
+    }
+    //////////////
     final fileMessageInfo = await _messageService.createFileMessage(
         inputElement: inputElement,
         fileName: fileName ?? filePath?.split('/').last ?? "",
