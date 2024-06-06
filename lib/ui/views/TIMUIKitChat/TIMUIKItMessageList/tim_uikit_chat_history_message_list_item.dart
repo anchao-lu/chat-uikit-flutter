@@ -1045,7 +1045,8 @@ class _TIMUIKItHistoryMessageListItemState
   List<MessageHoverControlItem> getMessageHoverControlBar(
       TUIChatSeparateViewModel model, TUITheme theme) {
     return [
-      if (widget.isUseMessageReaction ?? false)
+      if ((widget.isUseMessageReaction ?? false) &&
+          (model.chatConfig.messageCanLongPres!(widget.message)))
         MessageHoverControlItem(
           name: TIM_t("表情回应"),
           icon: Icon(
@@ -1058,7 +1059,8 @@ class _TIMUIKItHistoryMessageListItemState
                 context, widget.message, model, theme, details, true, true);
           },
         ),
-      if (widget.toolTipsConfig?.showReplyMessage ?? true)
+      if ((widget.toolTipsConfig?.showReplyMessage ?? true) &&
+          (model.chatConfig.messageCanLongPres!(widget.message)))
         MessageHoverControlItem(
           name: TIM_t("回复"),
           icon: Icon(
