@@ -152,14 +152,22 @@ class TIMUIKitMessageReactionShowPanel extends TIMUIKitStatelessWidget {
               children: [
                 ...filteredMessageReactionStickerList.map((sticker) {
                   return TIMUIKitMessageReactionShowItem(
-                      memberList: memberList,
-                      message: message,
-                      nameList: messageReaction[sticker.toString()],
-                      sticker: sticker,
-                      onShowDetail: (int sticker) {
-                        showMore(context, memberList, messageReaction, sticker,
-                            filteredMessageReactionStickerList, model);
-                      });
+                    memberList: memberList,
+                    message: message,
+                    nameList: messageReaction[sticker.toString()],
+                    sticker: sticker,
+                    onShowDetail: (int sticker,
+                        List<V2TimGroupMemberFullInfo?> memberList) {
+                      showMore(
+                        context,
+                        memberList,
+                        messageReaction,
+                        sticker,
+                        filteredMessageReactionStickerList,
+                        model,
+                      );
+                    },
+                  );
                 }).toList(),
               ],
             ),
