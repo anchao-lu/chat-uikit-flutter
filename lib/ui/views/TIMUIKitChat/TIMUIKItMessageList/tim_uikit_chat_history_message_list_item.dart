@@ -1122,18 +1122,20 @@ class _TIMUIKItHistoryMessageListItemState
                 theme: theme);
           },
         ),
-      MessageHoverControlItem(
-        name: TIM_t("更多"),
-        icon: Icon(
-          Icons.more_horiz,
-          size: 13,
-          color: hexToColor("8f959e"),
+      /// 桌面端隐藏三个点
+      if (widget.messageCanLongPres!(widget.message))
+        MessageHoverControlItem(
+          name: TIM_t("更多"),
+          icon: Icon(
+            Icons.more_horiz,
+            size: 13,
+            color: hexToColor("8f959e"),
+          ),
+          onClick: (details) {
+            _onOpenToolTip(
+                context, widget.message, model, theme, details, true, false);
+          },
         ),
-        onClick: (details) {
-          _onOpenToolTip(
-              context, widget.message, model, theme, details, true, false);
-        },
-      ),
       ...?model.chatConfig.additionalDesktopMessageHoverBarItem
     ];
   }
