@@ -1020,122 +1020,129 @@ class _TIMUIKitTextFieldLayoutWideState
     }
 
     return RawKeyboardListener(
-        focusNode: textFocusNode,
-        onKey: _handleKeyEvent,
-        child: Container(
-          color: widget.backgroundColor ?? theme.desktopChatMessageInputBgColor,
-          child: Column(
-            children: [
-              _buildRepliedMessage(widget.repliedMessage),
-              SizedBox(
-                  height: 1,
-                  child: Container(
-                      color: theme.weakDividerColor ?? Colors.black12)),
-              if (widget.forbiddenText == null)
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: generateControlBar(widget.model, theme),
-                  ),
-                ),
+      focusNode: textFocusNode,
+      onKey: _handleKeyEvent,
+      child: Container(
+        color: widget.backgroundColor ?? theme.desktopChatMessageInputBgColor,
+        child: Column(
+          children: [
+            _buildRepliedMessage(widget.repliedMessage),
+            SizedBox(
+                height: 1,
+                child:
+                    Container(color: theme.weakDividerColor ?? Colors.black12)),
+            if (widget.forbiddenText == null)
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-                constraints: const BoxConstraints(minHeight: 50),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
                 child: Row(
-                  children: [
-                    if (widget.forbiddenText != null)
-                      Expanded(
-                          child: Container(
-                        height: 35,
-                        color: widget.backgroundColor ??
-                            theme.desktopChatMessageInputBgColor,
-                        alignment: Alignment.center,
-                        child: Text(
-                          TIM_t(widget.forbiddenText!),
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: theme.weakTextColor,
-                          ),
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: generateControlBar(widget.model, theme),
+                ),
+              ),
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+              constraints: const BoxConstraints(minHeight: 50),
+              child: Row(
+                children: [
+                  if (widget.forbiddenText != null)
+                    Expanded(
+                        child: Container(
+                      height: 35,
+                      color: widget.backgroundColor ??
+                          theme.desktopChatMessageInputBgColor,
+                      alignment: Alignment.center,
+                      child: Text(
+                        TIM_t(widget.forbiddenText!),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: theme.weakTextColor,
                         ),
-                      )),
-                    if (widget.forbiddenText == null)
-                      Expanded(
-                        child: ExtendedTextField(
-                            scrollController: _scrollController,
-                            autofocus: true,
-                            maxLines:
-                                widget.chatConfig.desktopMessageInputFieldLines,
-                            minLines:
-                                widget.chatConfig.desktopMessageInputFieldLines,
-                            focusNode: widget.focusNode,
-                            onChanged: debounceFunc,
-                            keyboardType: TextInputType.multiline,
-                            onEditingComplete: () {
-                              //   // widget.onSubmitted();
-                            },
-                            textAlignVertical: TextAlignVertical.top,
-                            style: const TextStyle(fontSize: 14),
-                            decoration: InputDecoration(
-                              hoverColor: Colors.transparent,
-                              border: InputBorder.none,
-                              hintStyle: const TextStyle(
-                                color: Color(0xffAEA4A3),
-                              ),
-                              fillColor: widget.backgroundColor ??
-                                  theme.desktopChatMessageInputBgColor ??
-                                  hexToColor("fafafa"),
-                              filled: true,
-                              isDense: true,
-                              hintText: widget.hintText ?? '',
-                            ),
-                            controller: widget.textEditingController,
-                            specialTextSpanBuilder: PlatformUtils().isWeb
-                                ? null
-                                : DefaultSpecialTextSpanBuilder(
-                                    isUseQQPackage: (widget
-                                                .model
-                                                .chatConfig
-                                                .stickerPanelConfig
-                                                ?.useTencentCloudChatStickerPackage ??
-                                            true) ||
-                                        widget.isUseDefaultEmoji,
-                                    isUseTencentCloudChatPackage: widget
+                      ),
+                    )),
+                  if (widget.forbiddenText == null)
+                    Expanded(
+                      child: ExtendedTextField(
+                        scrollController: _scrollController,
+                        autofocus: true,
+                        maxLines:
+                            widget.chatConfig.desktopMessageInputFieldLines,
+                        minLines:
+                            widget.chatConfig.desktopMessageInputFieldLines,
+                        focusNode: widget.focusNode,
+                        onChanged: debounceFunc,
+                        keyboardType: TextInputType.multiline,
+                        onEditingComplete: () {
+                          //   // widget.onSubmitted();
+                        },
+                        textAlignVertical: TextAlignVertical.top,
+                        style: const TextStyle(fontSize: 14),
+                        decoration: InputDecoration(
+                          hoverColor: Colors.transparent,
+                          border: InputBorder.none,
+                          hintStyle: const TextStyle(
+                            color: Color(0xffAEA4A3),
+                          ),
+                          fillColor: widget.backgroundColor ??
+                              theme.desktopChatMessageInputBgColor ??
+                              hexToColor("fafafa"),
+                          filled: true,
+                          isDense: true,
+                          hintText: widget.hintText ?? '',
+                        ),
+                        controller: widget.textEditingController,
+                        specialTextSpanBuilder: PlatformUtils().isWeb
+                            ? null
+                            : DefaultSpecialTextSpanBuilder(
+                                isUseQQPackage: (widget
                                             .model
                                             .chatConfig
                                             .stickerPanelConfig
                                             ?.useTencentCloudChatStickerPackage ??
-                                        true,
-                                    customEmojiStickerList:
-                                        widget.customEmojiStickerList,
-                                    showAtBackground: true,
-                                  )),
+                                        true) ||
+                                    widget.isUseDefaultEmoji,
+                                isUseTencentCloudChatPackage: widget
+                                        .model
+                                        .chatConfig
+                                        .stickerPanelConfig
+                                        ?.useTencentCloudChatStickerPackage ??
+                                    true,
+                                customEmojiStickerList:
+                                    widget.customEmojiStickerList,
+                                showAtBackground: true,
+                              ),
                       ),
-                  ],
+                    ),
+                ],
+              ),
+            ),
+            if (PlatformUtils().isDesktop)
+              Container(
+                color: widget.backgroundColor ??
+                    theme.desktopChatMessageInputBgColor ??
+                    hexToColor("fafafa"),
+                padding: const EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      widget.onSubmitted();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 5, vertical: 3),
+                      child: Text(
+                        TIM_t("发送"),
+                      ),
+                    ),
+                  ),
                 ),
               ),
-              if (PlatformUtils().isDesktop)
-                Container(
-                  color: hexToColor("fafafa"),
-                  padding:
-                      const EdgeInsets.only(top: 10, bottom: 10, right: 20),
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: ElevatedButton(
-                        onPressed: () {
-                          widget.onSubmitted();
-                        },
-                        child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 5, vertical: 3),
-                            child: Text(TIM_t("发送")))),
-                  ),
-                )
-            ],
-          ),
-        ));
+          ],
+        ),
+      ),
+    );
   }
 }
