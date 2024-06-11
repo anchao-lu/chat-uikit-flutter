@@ -1122,6 +1122,7 @@ class _TIMUIKItHistoryMessageListItemState
                 theme: theme);
           },
         ),
+
       /// 桌面端隐藏三个点
       if (widget.messageCanLongPres!(widget.message))
         MessageHoverControlItem(
@@ -1357,14 +1358,7 @@ class _TIMUIKItHistoryMessageListItemState
 
     return LayoutBuilder(
       builder: (context, constraints) => Container(
-        padding: EdgeInsets.only(
-            left: isSelf
-                ? 0
-                // 兼容桌面端 resizable 宽度，目前外面的宽带是 8
-                : PlatformUtils().isDesktop
-                    ? 8
-                    : 16,
-            right: isSelf ? 16 : 0),
+        padding: EdgeInsets.only(left: isSelf ? 0 : 16, right: isSelf ? 16 : 0),
         margin: widget.padding ?? const EdgeInsets.only(bottom: 20),
         child: Row(
           key: _key,

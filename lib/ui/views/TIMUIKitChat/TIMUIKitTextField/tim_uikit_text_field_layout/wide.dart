@@ -1034,18 +1034,14 @@ class _TIMUIKitTextFieldLayoutWideState
               if (widget.forbiddenText == null)
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(vertical: 4, horizontal: 12)
-                          // 兼容桌面端 resizable 宽度，目前外面的宽带是 8
-                          .copyWith(left: PlatformUtils().isDesktop ? 4 : 12),
+                      const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: generateControlBar(widget.model, theme),
                   ),
                 ),
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6)
-                    // 兼容桌面端 resizable 宽度，目前外面的宽带是 8兼容桌面端 resizable 宽度
-                    .copyWith(left: PlatformUtils().isDesktop ? 0 : 6),
+                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
                 constraints: const BoxConstraints(minHeight: 50),
                 child: Row(
                   children: [
@@ -1125,7 +1121,7 @@ class _TIMUIKitTextFieldLayoutWideState
                 Container(
                   color: hexToColor("fafafa"),
                   padding:
-                  const EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                      const EdgeInsets.only(top: 10, bottom: 10, right: 20),
                   child: Align(
                     alignment: Alignment.bottomRight,
                     child: ElevatedButton(
