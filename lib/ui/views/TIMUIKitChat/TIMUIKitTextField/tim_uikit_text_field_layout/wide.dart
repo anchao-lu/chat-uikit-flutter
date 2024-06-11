@@ -32,6 +32,7 @@ import 'package:tencent_cloud_chat_uikit/ui/utils/screen_shot.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitTextField/special_text/DefaultSpecialTextSpanBuilder.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/drag_widget.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/wide_popup.dart';
+import 'package:tencent_im_base/tencent_im_base.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
@@ -1130,12 +1131,20 @@ class _TIMUIKitTextFieldLayoutWideState
                     onPressed: () {
                       widget.onSubmitted();
                     },
-                    child: Container(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey.withOpacity(.2),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 5, vertical: 3),
-                      child: Text(
-                        TIM_t("发送"),
+                          horizontal: 30, vertical: 5),
+                      overlayColor: Colors.black.withOpacity(.3),
+                      shadowColor: Colors.transparent,
+                      //side: const BorderSide(color: Colors.red), //边框
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5.0),
                       ),
+                    ),
+                    child: Text(
+                      TIM_t("发送"),
+                      style: TextStyle(color: hexToColor("597EF7")),
                     ),
                   ),
                 ),
