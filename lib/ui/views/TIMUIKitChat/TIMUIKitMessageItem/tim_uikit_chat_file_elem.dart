@@ -407,9 +407,10 @@ class _TIMUIKitFileElemState extends TIMUIKitState<TIMUIKitFileElem> {
                 }
               },
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 72),
+                constraints: BoxConstraints(
+                    maxHeight: PlatformUtils().isDesktop ? 100 : 72),
                 child: Container(
-                  width: 237,
+                  width: PlatformUtils().isDesktop ? 260 : 237,
                   decoration: BoxDecoration(
                       border: Border.all(
                         color: theme.weakDividerColor ??
@@ -420,7 +421,9 @@ class _TIMUIKitFileElemState extends TIMUIKitState<TIMUIKitFileElem> {
                     ClipRRect(
                       borderRadius: borderRadius,
                       child: LinearProgressIndicator(
-                        minHeight: ((containerHeight) ?? 72) - 6,
+                        minHeight: ((containerHeight) ??
+                                (PlatformUtils().isDesktop ? 100 : 72)) -
+                            6,
                         value: (received == 100 ? 0 : received) / 100,
                         backgroundColor: received == 100
                             ? theme.weakBackgroundColor
@@ -448,8 +451,12 @@ class _TIMUIKitFileElemState extends TIMUIKitState<TIMUIKitFileElem> {
                                       builder: (buildContext, boxConstraints) {
                                         return CustomText(
                                           fileName,
+                                          overflow: PlatformUtils().isDesktop
+                                              ? TextOverflow.ellipsis
+                                              : null,
                                           width: boxConstraints.maxWidth,
-                                          maxLines: 1,
+                                          maxLines:
+                                              PlatformUtils().isDesktop ? 3 : 1,
                                           style: TextStyle(
                                             color: theme.darkTextColor,
                                             fontSize: 16,

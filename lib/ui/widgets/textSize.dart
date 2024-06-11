@@ -3,6 +3,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../utils/platform.dart';
+
 class TextSize {
   static Size boundingTextSize(String text, TextStyle style,
       {int maxLines = 2 ^ 31, double maxWidth = double.infinity}) {
@@ -102,7 +104,10 @@ class _ExtendTextState extends State<CustomText> {
   @override
   void initState() {
     super.initState();
-    countTextSize();
+    if (!PlatformUtils().isDesktop) {
+      countTextSize();
+    }
+    // countTextSize();
   }
 
   @override
