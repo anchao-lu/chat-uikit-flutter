@@ -83,6 +83,8 @@ dependencies:
   fijkplayer: ^0.11.0
   system_info2: ^4.0.0
   audioplayers: ^6.0.0
+  # 获取视频信息
+  video_player_win: ^2.0.0
 
 dependency_overrides:
   # ffi: ^2.0.1

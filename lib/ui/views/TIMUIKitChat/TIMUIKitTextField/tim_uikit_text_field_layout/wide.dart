@@ -36,6 +36,7 @@ import 'package:tencent_im_base/tencent_im_base.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
+import 'package:video_player/video_player.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 class DesktopControlBarItem {
@@ -762,13 +763,18 @@ class _TIMUIKitTextFieldLayoutWideState
               quality: 100,
               height: 128,
             );
+
+            final videoController = VideoPlayerController.file(file);
+            await videoController.initialize();
             MessageUtils.handleMessageError(
                 model.sendVideoMessage(
                     videoPath: savePath,
+                    duration: videoController.value.duration.inSeconds,
                     convID: convID,
                     convType: convType,
                     snapshotPath: tempPath),
                 context);
+            videoController.dispose();
           }
         } else {
           throw TypeError();
