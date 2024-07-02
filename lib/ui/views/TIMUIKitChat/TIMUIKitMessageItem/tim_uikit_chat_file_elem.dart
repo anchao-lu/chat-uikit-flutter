@@ -13,6 +13,7 @@ import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_global_model.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
+import 'package:tencent_cloud_chat_uikit/extensions/v2timmessage_extensions.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/permission.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
@@ -80,7 +81,7 @@ class _TIMUIKitFileElemState extends TIMUIKitState<TIMUIKitFileElem> {
   }
 
   Future<bool> addAdvancedMsgListenerForDownload() async {
-    if(advancedMsgListener != null){
+    if (advancedMsgListener != null) {
       return false;
     }
     advancedMsgListener = V2TimAdvancedMsgListener(
@@ -109,8 +110,8 @@ class _TIMUIKitFileElemState extends TIMUIKitState<TIMUIKitFileElem> {
             }
           } else {
             final currentProgress =
-            (messageProgress.currentSize / messageProgress.totalSize * 100)
-                .floor();
+                (messageProgress.currentSize / messageProgress.totalSize * 100)
+                    .floor();
             if (mounted && currentProgress > downloadProgress) {
               setState(() {
                 downloadProgress = currentProgress;
@@ -220,6 +221,11 @@ class _TIMUIKitFileElemState extends TIMUIKitState<TIMUIKitFileElem> {
         }
       }
     }
+
+    ///////////////////// 过期消息直接不开启下载 /////////////////////
+    if (widget.message.isExpired) return;
+    ///////////////////// 过期消息直接不开启下载 /////////////////////
+
     await model.downloadFile();
   }
 

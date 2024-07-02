@@ -10,6 +10,7 @@ import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/message/message_services.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
+import 'package:tencent_cloud_chat_uikit/extensions/v2timmessage_extensions.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/message.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/message_has_file_util.dart';
@@ -190,6 +191,10 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
   }
 
   downloadMessageDetailAndSave() async {
+    ///////////////////// 过期消息直接不开启下载 /////////////////////
+    if (widget.message.isExpired) return;
+    ///////////////////// 过期消息直接不开启下载 /////////////////////
+
     if (TencentUtils.checkString(widget.message.msgID) != null) {
       if (TencentUtils.checkString(widget.message.videoElem!.videoUrl) ==
           null) {

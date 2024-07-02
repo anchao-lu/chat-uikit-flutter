@@ -9,6 +9,7 @@ import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_global_model.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/message/message_services.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
+import 'package:tencent_cloud_chat_uikit/extensions/v2timmessage_extensions.dart';
 import 'package:tencent_cloud_chat_uikit/ui/constants/history_message_constant.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitMessageItem/TIMUIKitMessageReaction/tim_uikit_message_reaction_show_panel.dart';
@@ -81,6 +82,10 @@ class _TIMUIKitSoundElemState extends TIMUIKitState<TIMUIKitSoundElem> {
   // 语音消息连续播放新增逻辑 end
 
   downloadMessageDetailAndSave() async {
+    ///////////////////// 过期消息直接不开启下载 /////////////////////
+    if (widget.message.isExpired) return;
+    ///////////////////// 过期消息直接不开启下载 /////////////////////
+
     if (widget.message.msgID != null && widget.message.msgID != '') {
       if (widget.message.soundElem!.url == null ||
           widget.message.soundElem!.url == '') {

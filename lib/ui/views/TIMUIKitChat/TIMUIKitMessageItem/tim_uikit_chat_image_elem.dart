@@ -23,6 +23,7 @@ import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_global_model.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/message/message_services.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
+import 'package:tencent_cloud_chat_uikit/extensions/v2timmessage_extensions.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
 import 'package:tencent_cloud_chat_uikit/ui/constants/history_message_constant.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/logger.dart';
@@ -410,9 +411,17 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
                 ),
         );
       } else {
-        final imgPath = (TencentUtils.checkString(smallLocalPath) != null
+        final imgPath = originLocalPath ?? '';
+        (TencentUtils.checkString(smallLocalPath) != null
             ? smallLocalPath
             : originLocalPath)!;
+
+        final imgFile = File(imgPath);
+        debugPrint('imgFile: ${imgFile.existsSync()}');
+        debugPrint('imgFile smallLocalPath: $smallLocalPath');
+        debugPrint('imgFile originLocalPath: $originLocalPath');
+        debugPrint('imgFile imgPath: $imgPath');
+        debugPrint('imgFile statSync: ${imgFile.statSync()}');
         return Hero(
             tag: heroTag,
             child: Image.file(
@@ -481,6 +490,10 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
     debugPrint('savePath elem.imageElem1: $zeroImageLocal');
     debugPrint('savePath elem.imageElem2: $oneImageLocal');
     debugPrint('savePath elem.imageElem3: $twoImageLocal');
+
+    ///////////////////// 过期消息直接不开启下载 /////////////////////
+    if (widget.message.isExpired) return;
+    ///////////////////// 过期消息直接不开启下载 /////////////////////
 
     if (!PlatformUtils().isWeb &&
         TencentUtils.checkString(widget.message.msgID) != null) {
