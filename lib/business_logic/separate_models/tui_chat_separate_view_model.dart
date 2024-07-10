@@ -1217,10 +1217,11 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
   sendForwardMessage({
     required List<V2TimConversation> conversationList,
   }) async {
+    final selectedMessages = List.from(_multiSelectedMessageList);
     for (var conversation in conversationList) {
       final convID = conversation.groupID ?? conversation.userID ?? "";
       final convType = conversation.type;
-      for (var message in _multiSelectedMessageList) {
+      for (var message in selectedMessages) {
         final forwardMessageInfo =
             await _messageService.createForwardMessage(msgID: message.msgID!);
         final messageInfo = forwardMessageInfo!.messageInfo;
@@ -1256,13 +1257,13 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
     required List<String> abstractList,
     required BuildContext context,
   }) async {
+    final List<String> msgIDList = _multiSelectedMessageList
+        .map((e) => e.msgID ?? "")
+        .where((element) => element != "")
+        .toList();
     for (var conversation in conversationList) {
       final convID = conversation.groupID ?? conversation.userID ?? "";
       final convType = conversation.type;
-      final List<String> msgIDList = _multiSelectedMessageList
-          .map((e) => e.msgID ?? "")
-          .where((element) => element != "")
-          .toList();
       final mergerMessageInfo = await _messageService.createMergerMessage(
           msgIDList: msgIDList,
           title: title,
