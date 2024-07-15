@@ -100,11 +100,49 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
   }) {
     return Container(
       decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(5)),
-          border: Border.all(
-            width: 2,
-            color: theme?.weakDividerColor ?? Colors.grey,
-          )),
+        borderRadius: const BorderRadius.all(Radius.circular(5)),
+        border: Border.all(
+          width: 2,
+          color: theme?.weakDividerColor ?? Colors.grey,
+        ),
+      ),
+      height: height?.toDouble() ?? 170,
+      width: width?.toDouble() ?? 170,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.warning_amber_outlined,
+              color: theme?.cautionColor,
+              size: 16,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              TIM_t('图片走丢了\n看看其他的吧'),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: theme?.cautionColor),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget placeholderDisplay(
+    BuildContext context,
+    TUITheme? theme, {
+    num? height,
+    num? width,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(5)),
+        border: Border.all(
+          width: 2,
+          color: theme?.weakDividerColor ?? Colors.grey,
+        ),
+      ),
       height: height?.toDouble() ?? 170,
       width: width?.toDouble() ?? 170,
       child: Center(
@@ -398,7 +436,7 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
                   fit: BoxFit.contain,
                   cacheKey: smallImg?.uuid ?? originalImg!.uuid,
                   //////////// 调整图片 placeholder ////////////
-                  placeholder: (context, url) => errorDisplay(
+                  placeholder: (context, url) => placeholderDisplay(
                     context,
                     theme,
                     width: width,
@@ -406,7 +444,6 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
                   ),
                   // Image(image: MemoryImage(kTransparentImage)),
                   //////////// 调整图片 placeholder ////////////
-
                   fadeInDuration: const Duration(milliseconds: 100),
                 ),
         );
