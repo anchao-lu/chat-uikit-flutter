@@ -494,6 +494,15 @@ class TIMUIKitMessageTooltipState
           String targetPath =
               path.join(targetDirPath, path.split(saveTempPath).last);
 
+
+          String  temp = path.split(saveTempPath).last;
+          if (!path.split(saveTempPath).last.contains(".")) {
+            ///  没有后缀
+            if (widget.message.imageElem != null) {
+              // 是图片
+              targetPath += ".jpg";
+            }
+          }
           FileUtil.of.copyFile(saveTempPath, targetPath);
         }
 
