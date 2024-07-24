@@ -73,15 +73,7 @@ class _ForwardMessageScreenState extends TIMUIKitState<ForwardMessageScreen> {
       await widget.model
           .sendForwardMessage(conversationList: _conversationList);
     }
-    /////  新增消息转发成功提示
-    final CoreServicesImpl _coreServices = serviceLocator<CoreServicesImpl>();
-    _coreServices.callOnCallback(
-      TIMCallback(
-        type: TIMCallbackType.INFO,
-        infoRecommendText: "消息转发成功",
-      ),
-    );
-    /////  新增消息转发成功提示
+
     widget.model.updateMultiSelectStatus(false);
 
     if (widget.onClose != null) {
@@ -89,6 +81,16 @@ class _ForwardMessageScreenState extends TIMUIKitState<ForwardMessageScreen> {
     } else {
       Navigator.pop(context);
     }
+
+    /////  新增消息转发成功提示
+    final CoreServicesImpl _coreServices = serviceLocator<CoreServicesImpl>();
+    _coreServices.callOnCallback(
+      TIMCallback(
+          type: TIMCallbackType.INFO,
+          infoRecommendText: "消息转发成功",
+          infoCode: 2000),
+    );
+    /////  新增消息转发成功提示
   }
 
   @override
