@@ -24,6 +24,7 @@ import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_glo
 import 'package:tencent_cloud_chat_uikit/data_services/message/message_services.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
 import 'package:tencent_cloud_chat_uikit/extensions/v2timmessage_extensions.dart';
+import 'package:tencent_cloud_chat_uikit/kx_self/kx_util.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
 import 'package:tencent_cloud_chat_uikit/ui/constants/history_message_constant.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/logger.dart';
@@ -39,6 +40,8 @@ import 'package:tencent_cloud_chat_uikit/ui/widgets/wide_popup.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:url_launcher/url_launcher.dart';
+
+import '../../../utils/file_util.dart';
 
 class TIMUIKitImageElem extends StatefulWidget {
   final V2TimMessage message;
@@ -417,6 +420,13 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
     num? width,
   }) {
     Widget getImageWidget() {
+      ///  start  单独的图片加载逻辑
+      ///  如果是图片
+      // FileUtil.of.messageImageCachePath(
+      //     orgImgPath: messageProgress.path, msgId: messageProgress.msgID);
+
+      /// end  单独的图片加载逻辑
+
       if (isNetworkImage || _didRenderWithNet) {
         _didRenderWithNet = true;
         return Hero(
@@ -448,8 +458,7 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
                 ),
         );
       } else {
-        final imgPath = originLocalPath ?? '';
-        (TencentUtils.checkString(smallLocalPath) != null
+        final imgPath = (TencentUtils.checkString(smallLocalPath) != null
             ? smallLocalPath
             : originLocalPath)!;
 
@@ -524,9 +533,18 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
         ?.firstWhereOrNull((element) => element?.type == 2)
         ?.localUrl);
 
-    debugPrint('savePath elem.imageElem1: $zeroImageLocal');
-    debugPrint('savePath elem.imageElem2: $oneImageLocal');
-    debugPrint('savePath elem.imageElem3: $twoImageLocal');
+    debugPrint('savePath j elem.imageElem1: $zeroImageLocal');
+    debugPrint('savePath j elem.imageElem2: $oneImageLocal');
+    debugPrint('savePath j elem.imageElem3: $twoImageLocal');
+
+// start 单独的存储图片逻辑
+
+    String conV = KxUtil.of.getConversationID(message: widget.message);
+    debugPrint('savePath j conV: $conV');
+    FileUtil.of.messageImageCachePath(
+        orgImgPath: "", msgId: widget.message.msgID ?? "");
+        
+// end 单独的存储图片逻辑
 
     ///////////////////// 过期消息直接不开启下载 /////////////////////
     if (widget.message.isExpired) return;
