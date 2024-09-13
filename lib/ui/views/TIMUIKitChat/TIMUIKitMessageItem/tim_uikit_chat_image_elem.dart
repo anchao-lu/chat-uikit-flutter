@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_typing_uninitialized_variables,  unused_import
+// ignore_for_file: prefer_typing_uninitialized_variables,  unused_import, unused_local_variable
 
 import 'dart:async';
 import 'dart:convert';
@@ -10,6 +10,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
@@ -296,6 +297,16 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
     String? imgUrl,
     String? imgPath,
   }) {
+    if (widget.chatModel.chatConfig.onUseCusImgBrowserFn != null) {
+      widget.chatModel.chatConfig.onUseCusImgBrowserFn?.call(
+        isNetworkImage: isNetworkImage,
+        heroTag: heroTag,
+        imgUrl: imgUrl,
+        imgPath: imgPath,
+        message: widget.message,
+      );
+      return;
+    }
     if (isNetworkImage) {
       if (PlatformUtils().isWeb) {
         TUIKitWidePopup.showMedia(
@@ -543,7 +554,7 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
     debugPrint('savePath j conV: $conV');
     FileUtil.of.messageImageCachePath(
         orgImgPath: "", msgId: widget.message.msgID ?? "");
-        
+
 // end 单独的存储图片逻辑
 
     ///////////////////// 过期消息直接不开启下载 /////////////////////

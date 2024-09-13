@@ -266,6 +266,14 @@ class TIMUIKitChatConfig {
   final bool judgeIsCurConversation;
   //  控制桌面端图片浏览方式属性
   final bool desktopDefaultBrowser;
+  // 自定义图片浏览器
+  final Function({
+    bool isNetworkImage,
+    dynamic heroTag,
+    String? imgUrl,
+    String? imgPath,
+    V2TimMessage message,
+  })? onUseCusImgBrowserFn;
   ////////////////自定义入参 ////////////////
 
   const TIMUIKitChatConfig({
@@ -326,6 +334,7 @@ class TIMUIKitChatConfig {
     this.fileAutoDownload = true,
     this.judgeIsCurConversation = true,
     this.desktopDefaultBrowser = true,
+    this.onUseCusImgBrowserFn,
     //////////////// 自定义入参 ////////////////
   });
 }
