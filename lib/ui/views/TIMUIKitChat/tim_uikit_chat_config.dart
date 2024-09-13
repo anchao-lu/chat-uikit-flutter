@@ -268,11 +268,11 @@ class TIMUIKitChatConfig {
   final bool desktopDefaultBrowser;
   // 自定义图片浏览器
   final Function({
-    bool isNetworkImage,
+    required bool isNetworkImage,
     dynamic heroTag,
     String? imgUrl,
     String? imgPath,
-    V2TimMessage message,
+    required V2TimMessage message,
   })? onUseCusImgBrowserFn;
   ////////////////自定义入参 ////////////////
 
