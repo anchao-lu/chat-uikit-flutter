@@ -78,16 +78,22 @@ class FileUtil {
   Future<String?> messageImageCachePath({
     required String orgImgPath,
     required String msgId,
+    required String conversationId,
   }) async {
-    String tempPath =
-        (await localDocumentDir(subDir: "messageImage", create: true))?.path ??
-            "";
+    String tempPath = (await localDocumentDir(
+                subDir: "conversationId/messageImage", create: true))
+            ?.path ??
+        "";
     String suffix = path.extension(orgImgPath);
     if (tempPath.isEmpty || suffix.isEmpty) return null;
+
+    String targetPath = path.join(tempPath, suffix);
 
     debugPrint(
         'savePath hcl messageImageCachePath path: ${tempPath} suffix: ${suffix}');
 
-    return "";
+    debugPrint('savePath hcl targetPath path: ${targetPath} ');
+
+    return targetPath;
   }
 }
