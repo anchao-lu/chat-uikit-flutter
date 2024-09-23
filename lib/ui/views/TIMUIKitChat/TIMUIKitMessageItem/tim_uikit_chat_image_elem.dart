@@ -304,6 +304,13 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
         imgUrl: imgUrl,
         imgPath: imgPath,
         message: widget.message,
+        userID: widget.chatModel.conversationType == ConvType.c2c
+            ? widget.chatModel.conversationID
+            : null,
+        groupID: widget.chatModel.conversationType == ConvType.group
+            ? widget.chatModel.conversationID
+            : null,
+        isFrom: widget.isFrom,
       );
       return;
     }
