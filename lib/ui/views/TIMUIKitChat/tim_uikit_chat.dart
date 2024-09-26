@@ -189,6 +189,9 @@ class TIMUIKitChat extends StatefulWidget {
 
   final bool isDesktop;
 
+  /// 设置聊天背景图片
+  final Image? chatBgImg;
+
   TIMUIKitChat({
     Key? key,
     this.groupID,
@@ -234,6 +237,7 @@ class TIMUIKitChat extends StatefulWidget {
     this.calculateImgSizeFunc,
     this.calculateVideoSizeFunc,
     this.isDesktop = false,
+    this.chatBgImg,
     ////////////// 自定义入参 //////////////
   }) : super(key: key) {
     startTime = DateTime.now().millisecondsSinceEpoch;
@@ -539,6 +543,12 @@ class _TUIChatState extends TIMUIKitState<TIMUIKitChat> {
                   },
                   child: Stack(
                     children: [
+                      //// 聊天背景设置 start
+                      if(widget.chatBgImg != null)
+                        Positioned.fill(
+                          child: widget.chatBgImg!,
+                        ),
+                      /// end
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
