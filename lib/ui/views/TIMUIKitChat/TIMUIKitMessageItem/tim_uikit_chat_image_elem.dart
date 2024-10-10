@@ -557,12 +557,12 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
 
 // start 单独的存储图片逻辑
 
-    String conV = KxUtil.of.getConversationID(message: widget.message);
-    debugPrint('savePath j conV: $conV');
-    FileUtil.of.messageImageCachePath(
-        conversationId: conV,
-        orgImgPath: "",
-        msgId: widget.message.msgID ?? "");
+    // String conV = KxUtil.of.getConversationID(message: widget.message);
+    // debugPrint('savePath j conV: $conV');
+    // FileUtil.of.messageImageCachePath(
+    //     conversationId: conV,
+    //     orgImgPath: "",
+    //     msgId: widget.message.msgID ?? "");
 
 // end 单独的存储图片逻辑
 
