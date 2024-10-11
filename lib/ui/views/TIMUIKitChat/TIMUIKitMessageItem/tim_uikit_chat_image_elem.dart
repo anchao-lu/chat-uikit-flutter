@@ -176,15 +176,17 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
     TUITheme theme, {
     V2TimMessage? cusMsg,
   }) async {
-    ////////////// 整体逻辑已迁移 //////////////
-    /// 去内部进行比对
-    return MediaDownloadUtil.of.saveImg(
-      context,
-      theme,
-      cusMsg: cusMsg,
-      message: widget.message,
-    );
-    ////////////// 整体逻辑已迁移 //////////////
+    widget.chatModel.chatConfig.onImageLongPress
+        ?.call(widget.message, autoSave: true);
+    // ////////////// 整体逻辑已迁移 //////////////
+    // /// 去内部进行比对
+    // return MediaDownloadUtil.of.saveImg(
+    //   context,
+    //   theme,
+    //   cusMsg: cusMsg,
+    //   message: widget.message,
+    // );
+    // ////////////// 整体逻辑已迁移 //////////////
   }
 
   V2TimImage? getImageFromList(V2TimImageTypesEnum imgType) {
@@ -344,7 +346,8 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
                 : null,
             isFrom: widget.isFrom,
             onImgLongPress: (V2TimMessage msg) {
-              widget.chatModel.chatConfig.onImageLongPress?.call(msg);
+              widget.chatModel.chatConfig.onImageLongPress
+                  ?.call(msg, autoSave: false);
             },
             onDownloadImage: (msg) {
               _saveImg(theme, cusMsg: msg);
@@ -368,7 +371,7 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
                     },
                     onLongPress: () async {
                       widget.chatModel.chatConfig.onImageLongPress
-                          ?.call(widget.message);
+                          ?.call(widget.message, autoSave: false);
                     },
                   )),
         );
@@ -394,7 +397,8 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
                 : null,
             isFrom: widget.isFrom,
             onImgLongPress: (V2TimMessage msg) {
-              widget.chatModel.chatConfig.onImageLongPress?.call(msg);
+              widget.chatModel.chatConfig.onImageLongPress
+                  ?.call(widget.message, autoSave: false);
             },
             onDownloadImage: (msg) {
               _saveImg(theme, cusMsg: msg);
@@ -416,7 +420,7 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
               },
               onLongPress: () async {
                 widget.chatModel.chatConfig.onImageLongPress
-                    ?.call(widget.message);
+                    ?.call(widget.message, autoSave: false);
               },
             ),
           ),

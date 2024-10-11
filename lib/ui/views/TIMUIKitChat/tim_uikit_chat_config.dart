@@ -10,6 +10,11 @@ enum GroupReceiptAllowType { work, public, meeting }
 
 enum UrlPreviewType { none, onlyHyperlink, previewCardAndHyperlink }
 
+////  新增图片长按逻辑 start
+typedef ChatImgMessageLongPres = void Function(V2TimMessage, {bool autoSave});
+
+/// 新增图片长按逻辑 end
+
 class TimeDividerConfig {
   /// Defines the interval of adding a time divider among the two messages.
   /// [Unit]: second.
@@ -251,7 +256,7 @@ class TIMUIKitChatConfig {
   final List<String> Function()? disableForwardConversions;
 
   // 添加会话聊天图片浏览长按事件
-  final ValueChanged<V2TimMessage>? onImageLongPress;
+  final ChatImgMessageLongPres? onImageLongPress;
 
   // 因为部分视频格式官网不支持，加一个变量控制
   final bool useKangXunVideo;
