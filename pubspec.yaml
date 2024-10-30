@@ -37,7 +37,6 @@ dependencies:
   lpinyin: ^2.0.3
   transparent_image: ^2.0.1
   tencent_wechat_camera_picker: ^3.6.5+2
-  flutter_easyrefresh: ^2.2.2
   tencent_extended_text_field: ^1.0.1+2
   tencent_extended_text: ^1.0.02+1
   loading_animation_widget: ^1.2.0+4
