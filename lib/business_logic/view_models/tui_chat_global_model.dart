@@ -916,9 +916,8 @@ class TUIChatGlobalModel extends ChangeNotifier implements TIMUIKitClass {
     final TUIChatModelTools tools = serviceLocator<TUIChatModelTools>();
     List<V2TimMessage> currentHistoryMsgList = _messageListMap[convID] ?? [];
     if (messageInfo != null) {
-      final messageInfoWithSender = messageInfo.sender == null
-          ? tools.setUserInfoForMessage(messageInfo, messageInfo.id!)
-          : messageInfo;
+      final messageInfoWithSender = messageInfo.sender == null ? tools.setUserInfoForMessage(messageInfo, messageInfo.id!) : messageInfo;
+      messageInfoWithSender.status = MessageStatus.V2TIM_MSG_STATUS_SENDING;
       currentHistoryMsgList = [messageInfoWithSender, ...currentHistoryMsgList];
       setMessageList(convID, currentHistoryMsgList);
       if (loadingMessage[convID] != null &&
@@ -979,13 +978,9 @@ class TUIChatGlobalModel extends ChangeNotifier implements TIMUIKitClass {
     final V2TimMessage? messageInfo = textMessageInfo!.messageInfo;
 
     if (messageInfo != null) {
-      final messageInfoWithSender = messageInfo.sender == null
-          ? tools.setUserInfoForMessage(
-              messageInfo, messageInfo.id ?? textMessageInfo.id ?? "")
-          : messageInfo;
-
-      final hasNickName = messageBeenReplied.nickName != null &&
-          messageBeenReplied.nickName != "";
+      final messageInfoWithSender = messageInfo.sender == null ? tools.setUserInfoForMessage(messageInfo, messageInfo.id ?? textMessageInfo.id ?? "") : messageInfo;
+      messageInfoWithSender.status = MessageStatus.V2TIM_MSG_STATUS_SENDING;
+      final hasNickName = messageBeenReplied.nickName != null && messageBeenReplied.nickName != "";
       final cloudCustomData = {
         "messageReply": {
           "messageID": messageBeenReplied.msgID,

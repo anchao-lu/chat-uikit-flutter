@@ -143,8 +143,6 @@ class TIMUIKitTextFieldLayoutWide extends StatefulWidget {
   /// show send emoji icon
   final bool showSendEmoji;
 
-  final String? forbiddenText;
-
   final VoidCallback onSubmitted;
 
   final VoidCallback goDownBottom;
@@ -179,7 +177,6 @@ class TIMUIKitTextFieldLayoutWide extends StatefulWidget {
       required this.handleSendEditStatus,
       required this.handleAtText,
       this.repliedMessage,
-      this.forbiddenText,
       required this.onSubmitted,
       required this.goDownBottom,
       required this.showSendAudio,
@@ -681,7 +678,6 @@ class _TIMUIKitTextFieldLayoutWideState
 
       await plugin.getVideoThumbnail(
         srcFile: originFile.path,
-        keepAspectRatio: true,
         destFile: tempPath,
         format: 'jpeg',
         width: 128,
@@ -756,14 +752,13 @@ class _TIMUIKitTextFieldLayoutWideState
                 ".jpeg";
             await plugin.getVideoThumbnail(
               srcFile: savePath,
-              keepAspectRatio: true,
               destFile: tempPath,
               format: 'jpeg',
               width: 128,
               quality: 100,
               height: 128,
             );
-
+            ////////// 桌面端视频时长Bug start
             final videoController = VideoPlayerController.file(file);
             await videoController.initialize();
             MessageUtils.handleMessageError(
@@ -775,6 +770,7 @@ class _TIMUIKitTextFieldLayoutWideState
                     snapshotPath: tempPath),
                 context);
             videoController.dispose();
+            ////////// 桌面端视频时长Bug end
           }
         } else {
           throw TypeError();
@@ -797,65 +793,66 @@ class _TIMUIKitTextFieldLayoutWideState
     final size = fileSize ?? await ScreenshotHelper.getImageSize(filePath);
 
     TUIKitWidePopup.showPopupWindow(
-        operationKey: TUIKitWideModalOperationKey.beforeSendScreenShot,
-        context: context,
-        isDarkBackground: false,
-        width: 500,
-        height: min(500, size.height / 2 + 140),
-        title: TIM_t_para("发送给{{option1}}", "发送给$option1")(option1: option1),
-        child: (closeFunc) => Container(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                    height: min(360, size.height / 2),
-                    child: InkWell(
-                      onTap: () {
-                        launchUrl(PlatformUtils().isWeb
-                            ? Uri.parse(filePath)
-                            : Uri.file(filePath));
-                      },
-                      child: PlatformUtils().isWeb
-                          ? Image.network(
-                              filePath,
-                              height: min(360, size.height / 2),
-                            )
-                          : Image.file(
-                              File(filePath),
-                              height: min(360, size.height / 2),
-                            ),
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      OutlinedButton(
-                          onPressed: () {
-                            closeFunc();
-                          },
-                          child: Text(TIM_t("取消"))),
-                      const SizedBox(
-                        width: 20,
+      operationKey: TUIKitWideModalOperationKey.beforeSendScreenShot,
+      context: context,
+      isDarkBackground: false,
+      width: 500,
+      height: min(500, size.height / 2 + 140),
+      title: TIM_t_para("发送给{{option1}}", "发送给$option1")(option1: option1),
+      child: (closeFunc) => Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(
+              height: min(360, size.height / 2),
+              child: InkWell(
+                onTap: () {
+                  launchUrl(PlatformUtils().isWeb
+                      ? Uri.parse(filePath)
+                      : Uri.file(filePath));
+                },
+                child: PlatformUtils().isWeb
+                    ? Image.network(
+                        filePath,
+                        height: min(360, size.height / 2),
+                      )
+                    : Image.file(
+                        File(filePath),
+                        height: min(360, size.height / 2),
                       ),
-                      ElevatedButton(
-                          onPressed: () {
-                            MessageUtils.handleMessageError(
-                                widget.model.sendImageMessage(
-                                    imagePath: filePath,
-                                    imageName: fileName,
-                                    convID: widget.conversationID,
-                                    convType: widget.conversationType),
-                                context);
-                            closeFunc();
-                          },
-                          child: Text(TIM_t("发送")))
-                    ],
-                  )
-                ],
               ),
-            ));
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                OutlinedButton(
+                    onPressed: () {
+                      closeFunc();
+                    },
+                    child: Text(TIM_t("取消"))),
+                const SizedBox(
+                  width: 20,
+                ),
+                ElevatedButton(
+                    onPressed: () {
+                      MessageUtils.handleMessageError(
+                          widget.model.sendImageMessage(
+                              imagePath: filePath,
+                              imageName: fileName,
+                              convID: widget.conversationID,
+                              convType: widget.conversationType),
+                          context);
+                      closeFunc();
+                    },
+                    child: Text(TIM_t("发送")))
+              ],
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   _sendScreenShot() async {
@@ -1038,40 +1035,19 @@ class _TIMUIKitTextFieldLayoutWideState
                 height: 1,
                 child:
                     Container(color: theme.weakDividerColor ?? Colors.black12)),
-            if (widget.forbiddenText == null)
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: generateControlBar(widget.model, theme),
-                ),
-              ),
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-              constraints: const BoxConstraints(minHeight: 50),
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: generateControlBar(widget.model, theme),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
               child: Row(
                 children: [
-                  if (widget.forbiddenText != null)
-                    Expanded(
-                        child: Container(
-                      height: 35,
-                      color: widget.backgroundColor ??
-                          theme.desktopChatMessageInputBgColor,
-                      alignment: Alignment.center,
-                      child: Text(
-                        TIM_t(widget.forbiddenText!),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: theme.weakTextColor,
-                        ),
-                      ),
-                    )),
-                  if (widget.forbiddenText == null)
-                    Expanded(
-                      child: ExtendedTextField(
+                  Expanded(
+                    child: ExtendedTextField(
                         scrollController: _scrollController,
                         autofocus: true,
                         maxLines:
@@ -1119,12 +1095,12 @@ class _TIMUIKitTextFieldLayoutWideState
                                 customEmojiStickerList:
                                     widget.customEmojiStickerList,
                                 showAtBackground: true,
-                              ),
-                      ),
-                    ),
+                              )),
+                  ),
                 ],
               ),
             ),
+            ///// 桌面端发送按钮 start
             if (PlatformUtils().isDesktop)
               Container(
                 color: widget.backgroundColor ??
@@ -1155,6 +1131,7 @@ class _TIMUIKitTextFieldLayoutWideState
                   ),
                 ),
               ),
+            ///// 桌面端发送按钮 end
           ],
         ),
       ),

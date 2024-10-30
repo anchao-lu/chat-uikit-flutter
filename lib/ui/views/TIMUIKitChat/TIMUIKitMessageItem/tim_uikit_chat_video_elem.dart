@@ -284,7 +284,7 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
               //     context: context,
               //     mediaLocalPath: localVideoUrl,
               //     onClickOrigin: () => launchDesktopFile(localVideoUrl));
-            } else if (videoPath != null) {
+            } else if (videoPath != null && File(videoPath).existsSync()) {
               launchDesktopFile(videoPath);
               // todo
               // TUIKitWidePopup.showMedia(

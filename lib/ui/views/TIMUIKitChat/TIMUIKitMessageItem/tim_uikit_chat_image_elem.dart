@@ -80,7 +80,6 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
   final TUIChatGlobalModel model = serviceLocator<TUIChatGlobalModel>();
   final MessageService _messageService = serviceLocator<MessageService>();
   Widget? imageItem;
-  bool isSent = false;
 
   bool _didRenderWithNet = false;
 
@@ -624,13 +623,6 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
     initImages();
   }
 
-  bool isNeedShowLocalPath() {
-    final current = (DateTime.now().millisecondsSinceEpoch / 1000).ceil();
-    final timeStamp = widget.message.timestamp ?? current;
-    return (widget.message.isSelf ?? true) &&
-        (isSent || current - timeStamp < 300);
-  }
-
   Widget? _renderImage(
     dynamic heroTag,
     TUITheme theme, {
@@ -639,6 +631,14 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
     num? height,
     num? width,
   }) {
+    double positionRadio = 1.0;
+    if (smallImg?.width != null &&
+        smallImg?.height != null &&
+        smallImg?.width != 0 &&
+        smallImg?.height != 0) {
+      positionRadio = (smallImg!.width! / smallImg.height!);
+    }
+
     if (PlatformUtils().isWeb && widget.message.imageElem!.path != null) {
       // Displaying on Web only
       return _renderAllImage(
@@ -654,7 +654,7 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
     }
 
     try {
-      if ((isNeedShowLocalPath() &&
+      if ((widget.message.isSelf! &&
           widget.message.imageElem!.path != null &&
           widget.message.imageElem!.path!.isNotEmpty &&
           File(widget.message.imageElem!.path!).existsSync())) {
@@ -724,9 +724,6 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
   @override
   Widget tuiBuild(BuildContext context, TUIKitBuildValue value) {
     final theme = value.theme;
-    if (widget.message.status == MessageStatus.V2TIM_MSG_STATUS_SENDING) {
-      isSent = true;
-    }
     final isDesktopScreen =
         TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
     final heroTag =

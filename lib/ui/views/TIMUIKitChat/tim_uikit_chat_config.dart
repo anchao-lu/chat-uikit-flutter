@@ -252,6 +252,13 @@ class TIMUIKitChatConfig {
   /// [Default]: 400
   final double desktopStickerPanelHeight;
 
+  /// Determine whether the normal members can @All in a group chat.
+  /// If enabled, normal members can @All in a group chat.
+  /// If disabled, only the group owner or administrators can @All.
+  ///
+  /// [Default]: false
+  final bool isMemberCanAtAll;
+
   /// 添加 不能转发的会话过滤
   final List<String> Function()? disableForwardConversions;
 
@@ -273,14 +280,14 @@ class TIMUIKitChatConfig {
   final bool desktopDefaultBrowser;
   // 自定义图片浏览器
   final Function({
-  required bool isNetworkImage,
-  dynamic heroTag,
-  String? imgUrl,
-  String? imgPath,
-  required V2TimMessage message,
-  String ? userID,
-  String ? groupID,
-  String ? isFrom,
+    required bool isNetworkImage,
+    dynamic heroTag,
+    String? imgUrl,
+    String? imgPath,
+    required V2TimMessage message,
+    String? userID,
+    String? groupID,
+    String? isFrom,
   })? onUseCusImgBrowserFn;
   ////////////////自定义入参 ////////////////
 
@@ -333,6 +340,7 @@ class TIMUIKitChatConfig {
     this.additionalDesktopControlBarItems,
     this.isAllowLongPressAvatarToAt = true,
     this.isUseDefaultEmoji = false,
+    this.isMemberCanAtAll = false,
     //////////////// 自定义入参 ////////////////
     this.messageCanLongPres,
     this.onImageLongPress,
