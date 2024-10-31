@@ -33,6 +33,8 @@ import 'dart:typed_data';
 import 'package:universal_html/html.dart' as html;
 import 'package:tencent_cloud_chat_uikit/ui/utils/logger.dart';
 
+import '../../../widgets/kx_asset_picker_builder_delegate.dart';
+
 class MorePanelConfig {
   final bool showGalleryPickAction;
   final bool showCameraAction;
@@ -365,6 +367,14 @@ class _MorePanelState extends TIMUIKitState<MorePanel> {
         context);
   }
 
+  Future<PermissionState> permissionCheck() async {
+    final PermissionState ps = await PhotoManager.requestPermissionExtend();
+    if (ps != PermissionState.authorized && ps != PermissionState.limited) {
+      throw StateError('Permission state error with $ps.');
+    }
+    return ps;
+  }
+
   _sendImageMessage(TUIChatSeparateViewModel model, TUITheme theme) async {
     try {
       if (PlatformUtils().isMobile) {
@@ -410,7 +420,48 @@ class _MorePanelState extends TIMUIKitState<MorePanel> {
       final convType = widget.conversationType;
 
       if (PlatformUtils().isMobile) {
-        final pickedAssets = await AssetPicker.pickAssets(context);
+        // final pickedAssets = await AssetPicker.pickAssets(context);
+        AssetPickerConfig pickerConfig = const AssetPickerConfig();
+        final PermissionState ps = await permissionCheck();
+        final AssetPickerPageRoute<List<AssetEntity>> route =
+              AssetPickerPageRoute<List<AssetEntity>>(
+                builder: (_) => const SizedBox.shrink(),
+              );
+
+        final DefaultAssetPickerProvider provider = DefaultAssetPickerProvider(
+          maxAssets: pickerConfig.maxAssets,
+          pageSize: pickerConfig.pageSize,
+          pathThumbnailSize: pickerConfig.pathThumbnailSize,
+          selectedAssets: pickerConfig.selectedAssets,
+          requestType: pickerConfig.requestType,
+          sortPathDelegate: pickerConfig.sortPathDelegate,
+          filterOptions: pickerConfig.filterOptions,
+          initializeDelayDuration: route.transitionDuration,
+        );
+
+        final pickedAssets = await AssetPicker.pickAssetsWithDelegate(
+          context,
+          delegate: KxAssetPickerBuilderDelegate(
+            provider: provider,
+            initialPermission: ps,
+            gridCount: pickerConfig.gridCount,
+            pickerTheme: pickerConfig.pickerTheme,
+            gridThumbnailSize: pickerConfig.gridThumbnailSize,
+            previewThumbnailSize: pickerConfig.previewThumbnailSize,
+            specialPickerType: pickerConfig.specialPickerType,
+            specialItemPosition: pickerConfig.specialItemPosition,
+            specialItemBuilder: pickerConfig.specialItemBuilder,
+            loadingIndicatorBuilder: pickerConfig.loadingIndicatorBuilder,
+            selectPredicate: pickerConfig.selectPredicate,
+            shouldRevertGrid: pickerConfig.shouldRevertGrid,
+            limitedPermissionOverlayPredicate:
+                pickerConfig.limitedPermissionOverlayPredicate,
+            pathNameBuilder: pickerConfig.pathNameBuilder,
+            textDelegate: pickerConfig.textDelegate,
+            themeColor: pickerConfig.themeColor,
+            locale: Localizations.maybeLocaleOf(context),
+          ),
+        );
 
         if (pickedAssets != null) {
           for (var asset in pickedAssets) {
