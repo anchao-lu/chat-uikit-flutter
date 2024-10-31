@@ -80,7 +80,7 @@ class KxAssetPickerBuilderDelegate extends DefaultAssetPickerBuilderDelegate {
     //   shouldReversePreview: isAppleOS(context),
     // );
 
-    final AssetPickerViewerBuilderDelegate<AssetEntity, dynamic> viewerDelegate = KxAssetPickerViewerBuilderDelegate(
+    final AssetPickerViewerBuilderDelegate<AssetEntity, AssetPathEntity> viewerDelegate = KxAssetPickerViewerBuilderDelegate(
         currentIndex: effectiveIndex,
         previewAssets: current,
         provider: selected != null
