@@ -33,7 +33,7 @@ import 'dart:typed_data';
 import 'package:universal_html/html.dart' as html;
 import 'package:tencent_cloud_chat_uikit/ui/utils/logger.dart';
 
-import '../../../widgets/kx_asset_picker_builder_delegate.dart';
+import '../../../widgets/kx_asset_picker/kx_asset_picker_builder_delegate.dart';
 
 class MorePanelConfig {
   final bool showGalleryPickAction;
@@ -422,7 +422,6 @@ class _MorePanelState extends TIMUIKitState<MorePanel> {
       if (PlatformUtils().isMobile) {
         // final pickedAssets = await AssetPicker.pickAssets(context);
         AssetPickerConfig pickerConfig = const AssetPickerConfig();
-        final PermissionState ps = await permissionCheck();
         final AssetPickerPageRoute<List<AssetEntity>> route =
               AssetPickerPageRoute<List<AssetEntity>>(
                 builder: (_) => const SizedBox.shrink(),
@@ -443,7 +442,7 @@ class _MorePanelState extends TIMUIKitState<MorePanel> {
           context,
           delegate: KxAssetPickerBuilderDelegate(
             provider: provider,
-            initialPermission: ps,
+            initialPermission: PermissionState.authorized,
             gridCount: pickerConfig.gridCount,
             pickerTheme: pickerConfig.pickerTheme,
             gridThumbnailSize: pickerConfig.gridThumbnailSize,

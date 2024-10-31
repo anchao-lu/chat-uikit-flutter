@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
+import 'kx_asset_picker_viewer_builder_delegate.dart';
+
 class KxAssetPickerBuilderDelegate extends DefaultAssetPickerBuilderDelegate {
   KxAssetPickerBuilderDelegate({
     required super.provider,
@@ -64,19 +66,44 @@ class KxAssetPickerBuilderDelegate extends DefaultAssetPickerBuilderDelegate {
       selected = provider.selectedAssets;
       effectiveIndex = index;
     }
-    final List<AssetEntity>? result = await AssetPickerViewer.pushToViewer(
+    // final List<AssetEntity>? result = await AssetPickerViewer.pushToViewer(
+    //   context,
+    //   currentIndex: effectiveIndex,
+    //   previewAssets: current,
+    //   themeData: theme,
+    //   previewThumbnailSize: previewThumbnailSize,
+    //   selectPredicate: selectPredicate,
+    //   selectedAssets: selected,
+    //   selectorProvider: provider,
+    //   specialPickerType: specialPickerType,
+    //   maxAssets: provider.maxAssets,
+    //   shouldReversePreview: isAppleOS(context),
+    // );
+
+    final AssetPickerViewerBuilderDelegate<AssetEntity, dynamic> viewerDelegate = KxAssetPickerViewerBuilderDelegate(
+        currentIndex: effectiveIndex,
+        previewAssets: current,
+        provider: selected != null
+            ? AssetPickerViewerProvider<AssetEntity>(
+                selected,
+                maxAssets: provider.maxAssets,
+              )
+            : null,
+        themeData: theme,
+        previewThumbnailSize: previewThumbnailSize,
+        specialPickerType: specialPickerType,
+        selectedAssets: selected,
+        selectorProvider: provider,
+        maxAssets: provider.maxAssets,
+        shouldReversePreview: isAppleOS(context),
+        selectPredicate: selectPredicate,
+      );
+
+    final List<AssetEntity>? result = await AssetPickerViewer.pushToViewerWithDelegate(
       context,
-      currentIndex: effectiveIndex,
-      previewAssets: current,
-      themeData: theme,
-      previewThumbnailSize: previewThumbnailSize,
-      selectPredicate: selectPredicate,
-      selectedAssets: selected,
-      selectorProvider: provider,
-      specialPickerType: specialPickerType,
-      maxAssets: provider.maxAssets,
-      shouldReversePreview: isAppleOS(context),
+      delegate: viewerDelegate,
     );
+
     if (result != null) {
       Navigator.of(context).maybePop(result);
     }
