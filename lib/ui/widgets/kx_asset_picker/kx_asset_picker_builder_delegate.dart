@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
+import 'asset_picker_preview.dart';
 import 'kx_asset_picker_viewer_builder_delegate.dart';
 
 class KxAssetPickerBuilderDelegate extends DefaultAssetPickerBuilderDelegate {
@@ -34,11 +35,21 @@ class KxAssetPickerBuilderDelegate extends DefaultAssetPickerBuilderDelegate {
   ) async {
     final DefaultAssetPickerProvider provider =
         context.read<DefaultAssetPickerProvider>();
-    // - When we reached the maximum select count and the asset is not selected,
-    //   do nothing.
-    // - When the special type is WeChat Moment, pictures and videos cannot
-    //   be selected at the same time. Video select should be banned if any
-    //   pictures are selected.
+    // final List<AssetEntity>? result =
+    //     await Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+    //   return  AssetPickerPreview(
+    //     previewAssets: provider.selectedAssets,
+    //     currentIndex: 0,
+    //   );
+    // }));
+
+    // Navigator.of(context).maybePop(result);
+
+    //   // - When we reached the maximum select count and the asset is not selected,
+    //   //   do nothing.
+    //   // - When the special type is WeChat Moment, pictures and videos cannot
+    //   //   be selected at the same time. Video select should be banned if any
+    //   //   pictures are selected.
     if ((!provider.selectedAssets.contains(currentAsset) &&
             provider.selectedMaximumAssets) ||
         (isWeChatMoment &&
@@ -80,26 +91,28 @@ class KxAssetPickerBuilderDelegate extends DefaultAssetPickerBuilderDelegate {
     //   shouldReversePreview: isAppleOS(context),
     // );
 
-    final AssetPickerViewerBuilderDelegate<AssetEntity, AssetPathEntity> viewerDelegate = KxAssetPickerViewerBuilderDelegate(
-        currentIndex: effectiveIndex,
-        previewAssets: current,
-        provider: selected != null
-            ? AssetPickerViewerProvider<AssetEntity>(
-                selected,
-                maxAssets: provider.maxAssets,
-              )
-            : null,
-        themeData: theme,
-        previewThumbnailSize: previewThumbnailSize,
-        specialPickerType: specialPickerType,
-        selectedAssets: selected,
-        selectorProvider: provider,
-        maxAssets: provider.maxAssets,
-        shouldReversePreview: isAppleOS(context),
-        selectPredicate: selectPredicate,
-      );
+    final AssetPickerViewerBuilderDelegate<AssetEntity, AssetPathEntity>
+        viewerDelegate = KxAssetPickerViewerBuilderDelegate(
+      currentIndex: effectiveIndex,
+      previewAssets: current,
+      provider: selected != null
+          ? AssetPickerViewerProvider<AssetEntity>(
+              selected,
+              maxAssets: provider.maxAssets,
+            )
+          : null,
+      themeData: theme,
+      previewThumbnailSize: previewThumbnailSize,
+      specialPickerType: specialPickerType,
+      selectedAssets: selected,
+      selectorProvider: provider,
+      maxAssets: provider.maxAssets,
+      shouldReversePreview: isAppleOS(context),
+      selectPredicate: selectPredicate,
+    );
 
-    final List<AssetEntity>? result = await AssetPickerViewer.pushToViewerWithDelegate(
+    final List<AssetEntity>? result =
+        await AssetPickerViewer.pushToViewerWithDelegate(
       context,
       delegate: viewerDelegate,
     );

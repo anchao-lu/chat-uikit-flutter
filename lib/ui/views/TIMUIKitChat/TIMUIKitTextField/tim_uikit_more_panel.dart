@@ -13,6 +13,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:system_info2/system_info2.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
+import 'package:tencent_cloud_chat_uikit/ui/utils/file_util.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitTextField/tim_uikit_call_invite_list.dart';
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
@@ -33,6 +34,7 @@ import 'dart:typed_data';
 import 'package:universal_html/html.dart' as html;
 import 'package:tencent_cloud_chat_uikit/ui/utils/logger.dart';
 
+import '../../../widgets/kx_asset_picker/insta_asset_picker.dart';
 import '../../../widgets/kx_asset_picker/kx_asset_picker_builder_delegate.dart';
 
 class MorePanelConfig {
@@ -421,11 +423,16 @@ class _MorePanelState extends TIMUIKitState<MorePanel> {
 
       if (PlatformUtils().isMobile) {
         // final pickedAssets = await AssetPicker.pickAssets(context);
+
+        // Navigator.maybeOf(context)?.push<void>(
+        //   MaterialPageRoute<void>(builder: (_) => const InstaAssetPicker()),
+        // );
+
         AssetPickerConfig pickerConfig = const AssetPickerConfig();
         final AssetPickerPageRoute<List<AssetEntity>> route =
-              AssetPickerPageRoute<List<AssetEntity>>(
-                builder: (_) => const SizedBox.shrink(),
-              );
+        AssetPickerPageRoute<List<AssetEntity>>(
+          builder: (_) => const SizedBox.shrink(),
+        );
 
         final DefaultAssetPickerProvider provider = DefaultAssetPickerProvider(
           maxAssets: pickerConfig.maxAssets,
@@ -462,10 +469,18 @@ class _MorePanelState extends TIMUIKitState<MorePanel> {
           ),
         );
 
+///////// start 逻辑修改
         if (pickedAssets != null) {
           for (var asset in pickedAssets) {
             final originFile = await asset.originFile;
-            final filePath = originFile?.path;
+
+            String? filePath = asset.relativePath;
+
+            String? tempPath = (await getTemporaryDirectory()).path;
+            if (!(filePath?.contains(tempPath) ?? false)) {
+              // 不包含  temp则认为该图片没有被编辑过，则重新复制
+              filePath = originFile?.path;
+            }
             final type = asset.type;
             if (filePath != null) {
               if (type == AssetType.image) {
@@ -482,15 +497,34 @@ class _MorePanelState extends TIMUIKitState<MorePanel> {
               }
             }
           }
+
+          /////  start 删除缓存文件
+          ///
+          ///
+          Future.delayed(const Duration(seconds: 10), () async {
+            for (var asset in pickedAssets) {
+              String? filePath = asset.relativePath;
+
+              String? tempPath = (await getTemporaryDirectory()).path;
+              if (filePath?.contains(tempPath) ?? false) {
+                FileUtil.of.deleteFile(filePath!);
+              }
+            }
+          });
+
+          ///end 删除缓存文件
         }
+        ///////// end 逻辑修改
       } else {
         FilePickerResult? result =
-            await FilePicker.platform.pickFiles(type: FileType.media);
+        await FilePicker.platform.pickFiles(type: FileType.media);
         if (result != null && result.files.isNotEmpty) {
           File file = File(result.files.single.path!);
           final String savePath = file.path;
           final String type = TencentUtils.getFileType(
-                  savePath.split(".")[savePath.split(".").length - 1])
+              savePath.split(".")[savePath
+                  .split(".")
+                  .length - 1])
               .split("/")[0];
 
           if (type == "image") {
@@ -804,27 +838,27 @@ class _MorePanelState extends TIMUIKitState<MorePanel> {
                     child: widget.morePanelConfig?.actionBuilder != null
                         ? widget.morePanelConfig?.actionBuilder!(item)
                         : SizedBox(
-                            height: 94,
+                      height: 94,
+                      width: 64,
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 64,
                             width: 64,
-                            child: Column(
-                              children: [
-                                Container(
-                                  height: 64,
-                                  width: 64,
-                                  margin: const EdgeInsets.only(bottom: 4),
-                                  decoration: const BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(5))),
-                                  child: item.icon,
-                                ),
-                                Text(
-                                  item.title,
-                                  style: TextStyle(
-                                      fontSize: 12, color: theme.darkTextColor),
-                                )
-                              ],
-                            ),
-                          )))
+                            margin: const EdgeInsets.only(bottom: 4),
+                            decoration: const BoxDecoration(
+                                borderRadius:
+                                BorderRadius.all(Radius.circular(5))),
+                            child: item.icon,
+                          ),
+                          Text(
+                            item.title,
+                            style: TextStyle(
+                                fontSize: 12, color: theme.darkTextColor),
+                          )
+                        ],
+                      ),
+                    )))
                 .toList(),
           ),
         ),

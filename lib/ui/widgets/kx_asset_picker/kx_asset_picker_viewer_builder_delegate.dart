@@ -1,9 +1,14 @@
+import 'dart:math';
+
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:tencent_cloud_chat_uikit/ui/widgets/kx_asset_picker/asset_picker_preview.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:flutter/physics.dart' as physics show SpringDescription;
+
+import '../../utils/image_edit_util.dart';
 
 class KxAssetPickerViewerBuilderDelegate
     extends DefaultAssetPickerViewerBuilderDelegate {
@@ -108,36 +113,39 @@ class KxAssetPickerViewerBuilderDelegate
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: themeData,
-      child: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: themeData.appBarTheme.systemOverlayStyle ??
-            (themeData.effectiveBrightness.isDark
-                ? SystemUiOverlayStyle.light
-                : SystemUiOverlayStyle.dark),
-        child: Material(
-          color: themeData.colorScheme.onSecondary,
-          child: Stack(
-            children: <Widget>[
-              Positioned.fill(child: _pageViewBuilder(context)),
-              if (isWeChatMoment && hasVideo) ...<Widget>[
-                momentVideoBackButton(context),
-                PositionedDirectional(
-                  end: 16,
-                  bottom: context.bottomPadding + 16,
-                  child: confirmButton(context),
-                ),
-              ] else ...<Widget>[
-                appBar(context),
-                if (selectedAssets != null ||
-                    (isWeChatMoment && hasVideo && isAppleOS(context)))
-                  bottomDetailBuilder(context),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
+    return AssetPickerPreview(
+        previewAssets: selectedAssets!, currentIndex: currentIndex);
+
+    // return Theme(
+    //   data: themeData,
+    //   child: AnnotatedRegion<SystemUiOverlayStyle>(
+    //     value: themeData.appBarTheme.systemOverlayStyle ??
+    //         (themeData.effectiveBrightness.isDark
+    //             ? SystemUiOverlayStyle.light
+    //             : SystemUiOverlayStyle.dark),
+    //     child: Material(
+    //       color: themeData.colorScheme.onSecondary,
+    //       child: Stack(
+    //         children: <Widget>[
+    //           Positioned.fill(child: _pageViewBuilder(context)),
+    //           if (isWeChatMoment && hasVideo) ...<Widget>[
+    //             momentVideoBackButton(context),
+    //             PositionedDirectional(
+    //               end: 16,
+    //               bottom: context.bottomPadding + 16,
+    //               child: confirmButton(context),
+    //             ),
+    //           ] else ...<Widget>[
+    //             appBar(context),
+    //             if (selectedAssets != null ||
+    //                 (isWeChatMoment && hasVideo && isAppleOS(context)))
+    //               bottomDetailBuilder(context),
+    //           ],
+    //         ],
+    //       ),
+    //     ),
+    //   ),
+    // );
   }
 }
 

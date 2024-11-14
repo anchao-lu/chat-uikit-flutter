@@ -96,4 +96,22 @@ class FileUtil {
 
     return targetPath;
   }
+
+
+  Future<void> deleteFile(String filePath) async {
+    final file = File(filePath);
+
+    try {
+      // 检查文件是否存在
+      if (await file.exists()) {
+        // 删除文件
+        await file.delete();
+        print('文件已删除: $filePath');
+      } else {
+        print('文件不存在: $filePath');
+      }
+    } catch (e) {
+      print('删除文件时发生错误: $e');
+    }
+  }
 }
