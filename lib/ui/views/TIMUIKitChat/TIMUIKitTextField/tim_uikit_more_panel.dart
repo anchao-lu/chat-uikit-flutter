@@ -497,34 +497,16 @@ class _MorePanelState extends TIMUIKitState<MorePanel> {
               }
             }
           }
-
-          /////  start 删除缓存文件
-          ///
-          ///
-          Future.delayed(const Duration(seconds: 10), () async {
-            for (var asset in pickedAssets) {
-              String? filePath = asset.relativePath;
-
-              String? tempPath = (await getTemporaryDirectory()).path;
-              if (filePath?.contains(tempPath) ?? false) {
-                FileUtil.of.deleteFile(filePath!);
-              }
-            }
-          });
-
-          ///end 删除缓存文件
         }
         ///////// end 逻辑修改
       } else {
         FilePickerResult? result =
-        await FilePicker.platform.pickFiles(type: FileType.media);
+            await FilePicker.platform.pickFiles(type: FileType.media);
         if (result != null && result.files.isNotEmpty) {
           File file = File(result.files.single.path!);
           final String savePath = file.path;
           final String type = TencentUtils.getFileType(
-              savePath.split(".")[savePath
-                  .split(".")
-                  .length - 1])
+                  savePath.split(".")[savePath.split(".").length - 1])
               .split("/")[0];
 
           if (type == "image") {
@@ -838,27 +820,27 @@ class _MorePanelState extends TIMUIKitState<MorePanel> {
                     child: widget.morePanelConfig?.actionBuilder != null
                         ? widget.morePanelConfig?.actionBuilder!(item)
                         : SizedBox(
-                      height: 94,
-                      width: 64,
-                      child: Column(
-                        children: [
-                          Container(
-                            height: 64,
+                            height: 94,
                             width: 64,
-                            margin: const EdgeInsets.only(bottom: 4),
-                            decoration: const BoxDecoration(
-                                borderRadius:
-                                BorderRadius.all(Radius.circular(5))),
-                            child: item.icon,
-                          ),
-                          Text(
-                            item.title,
-                            style: TextStyle(
-                                fontSize: 12, color: theme.darkTextColor),
-                          )
-                        ],
-                      ),
-                    )))
+                            child: Column(
+                              children: [
+                                Container(
+                                  height: 64,
+                                  width: 64,
+                                  margin: const EdgeInsets.only(bottom: 4),
+                                  decoration: const BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(5))),
+                                  child: item.icon,
+                                ),
+                                Text(
+                                  item.title,
+                                  style: TextStyle(
+                                      fontSize: 12, color: theme.darkTextColor),
+                                )
+                              ],
+                            ),
+                          )))
                 .toList(),
           ),
         ),

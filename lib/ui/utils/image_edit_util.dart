@@ -6,6 +6,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pro_image_editor/pro_image_editor.dart' as proImg;
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
+import 'file_util.dart';
+
 class ImageEditUtil {
   static final ImageEditUtil of = ImageEditUtil._();
 
@@ -30,9 +32,31 @@ class ImageEditUtil {
             */
 
               try {
-                final path = await getTemporaryDirectory();
+                String? tempPath = (await getTemporaryDirectory()).path;
+
+                /////  start 首先 删除缓存文件
+                ///
+                // 检查目录是否存在
+                final directory = Directory(tempPath);
+                if (await directory.exists()) {
+                  // 列出所有文件
+                  List<FileSystemEntity> files = directory.listSync();
+
+                  for (var file in files) {
+                    if (file is File) {
+                      final filepath = file.path;
+                      if (filepath.contains("kx_image_edit_")) {
+                        // 是缓存文件
+                        await FileUtil.of.deleteFile(filepath);
+                        print("删除文件$filepath");
+                      }
+                    }
+                  }
+                }
+
+                ///end 删除缓存文件
                 String fileName =
-                    "${path.path}/${_getTempTitle(entity: entity)}${_getType(entity: entity)}";
+                    "$tempPath/kx_image_edit_${_getTempTitle(entity: entity)}${_getType(entity: entity)}";
                 // 创建文件路径
                 File file = File(fileName);
                 // 写入数据到文件
