@@ -96,8 +96,9 @@ class KxAssetPickerViewerBuilderDelegate
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
                   ElevatedButton(
-                    onPressed: (){}, 
-                    style: ElevatedButton.styleFrom(foregroundColor: Colors.white),
+                    onPressed: () {},
+                    style:
+                        ElevatedButton.styleFrom(foregroundColor: Colors.white),
                     child: Text('编辑'),
                   ),
                   if (provider != null || isWeChatMoment)
@@ -111,10 +112,39 @@ class KxAssetPickerViewerBuilderDelegate
     );
   }
 
+  bool get isContainImage {
+    bool flag = false;
+    for (var value in selectedAssets!) {
+      if (value.type == AssetType.image) {
+        flag = true;
+        break;
+      }
+    }
+
+    return flag;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AssetPickerPreview(
-        previewAssets: selectedAssets!, currentIndex: currentIndex);
+    return isContainImage
+        ? AssetPickerPreview(
+            previewAssets: selectedAssets!, currentIndex: currentIndex)
+        : Material(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("没有可预览的图片"),
+                const SizedBox(
+                  height: 20,
+                ),
+                ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(null);
+                    },
+                    child: const Text("点击返回"))
+              ],
+            ),
+          );
 
     // return Theme(
     //   data: themeData,

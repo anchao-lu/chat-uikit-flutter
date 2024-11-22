@@ -53,7 +53,7 @@ class _AssetPickerPreviewState extends State<AssetPickerPreview> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar.arrowBack(context,
-          actions: datas.isEmpty
+          actions: showDatas.isEmpty
               ? null
               : [
                   Theme(
@@ -63,15 +63,15 @@ class _AssetPickerPreviewState extends State<AssetPickerPreview> {
                     ),
                     child: Radio(
                       toggleable: true,
-                      value: datas[_curIndex].selectValue!,
+                      value: showDatas[_curIndex].selectValue!,
                       activeColor: Colors.green,
                       groupValue: 1,
                       hoverColor: Colors.white,
                       onChanged: (int? value) {
-                        if (datas[_curIndex].isSelect) {
-                          datas[_curIndex].selectValue = 0;
+                        if (showDatas[_curIndex].isSelect) {
+                          showDatas[_curIndex].selectValue = 0;
                         } else {
-                          datas[_curIndex].selectValue = 1;
+                          showDatas[_curIndex].selectValue = 1;
                         }
                         setState(() {});
                       },
@@ -89,7 +89,7 @@ class _AssetPickerPreviewState extends State<AssetPickerPreview> {
             child: PageView.builder(
               controller: _pageController,
               itemBuilder: (context, index) {
-                File? file = datas[index].getShowFile();
+                File? file = showDatas[index].getShowFile();
                 return file == null
                     ? Container()
                     : Container(
@@ -102,7 +102,7 @@ class _AssetPickerPreviewState extends State<AssetPickerPreview> {
                         ),
                       );
               },
-              itemCount: datas.length,
+              itemCount: showDatas.length,
               onPageChanged: (index) {
                 setState(() {
                   _curIndex = index;
@@ -128,7 +128,7 @@ class _AssetPickerPreviewState extends State<AssetPickerPreview> {
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (context, index) {
-                      File? file = datas[index].getShowFile();
+                      File? file = showDatas[index].getShowFile();
                       return GestureDetector(
                         onTap: () {
                           _onBottomTap(index);
@@ -154,7 +154,7 @@ class _AssetPickerPreviewState extends State<AssetPickerPreview> {
                         ),
                       );
                     },
-                    itemCount: datas.length,
+                    itemCount: showDatas.length,
                   ),
                 ),
                 Row(
@@ -162,14 +162,15 @@ class _AssetPickerPreviewState extends State<AssetPickerPreview> {
                   children: [
                     GestureDetector(
                       onTap: () async {
-                        final file = await datas[_curIndex].assetEntity!.file;
+                        final file =
+                            await showDatas[_curIndex].assetEntity!.file;
                         if (file != null) {
                           ImageEditUtil.of.openEdit(
                               context: context,
                               file: file,
-                              entity: datas[_curIndex].assetEntity!,
+                              entity: showDatas[_curIndex].assetEntity!,
                               tempPathCallBack: (tempPath) {
-                                datas[_curIndex].newPath = tempPath;
+                                showDatas[_curIndex].newPath = tempPath;
                                 setState(() {});
                               });
                         }
@@ -249,4 +250,8 @@ class _AssetPickerPreviewState extends State<AssetPickerPreview> {
     datas.addAll(await AssetWarpModel.transFor(widget.previewAssets));
     setState(() {});
   }
+
+  List<AssetWarpModel> get showDatas => datas.where((value) {
+        return value.assetEntity?.type == AssetType.image;
+      }).toList();
 }
