@@ -15,6 +15,15 @@ typedef ChatImgMessageLongPres = void Function(V2TimMessage, {bool autoSave});
 
 /// 新增图片长按逻辑 end
 
+
+////  新增图片 浏览 start
+typedef ChatImgViewPres = void Function(V2TimMessage);
+/// 新增图片 浏览 end
+
+////  新增图片 更多 start
+typedef ChatImgMorePres = void Function(V2TimMessage);
+/// 新增图片 更多 end
+
 class TimeDividerConfig {
   /// Defines the interval of adding a time divider among the two messages.
   /// [Unit]: second.
@@ -265,6 +274,12 @@ class TIMUIKitChatConfig {
   // 添加会话聊天图片浏览长按事件
   final ChatImgMessageLongPres? onImageLongPress;
 
+  // 添加图片浏览按键事件
+  final ChatImgViewPres? onImageViewPress;
+
+  //添加图片浏览按键事件
+  final ChatImgMorePres ? onImageMorePress;
+
   // 因为部分视频格式官网不支持，加一个变量控制
   final bool useKangXunVideo;
 
@@ -344,6 +359,8 @@ class TIMUIKitChatConfig {
     //////////////// 自定义入参 ////////////////
     this.messageCanLongPres,
     this.onImageLongPress,
+    this.onImageViewPress,
+    this.onImageMorePress,
     this.disableForwardConversions,
     this.useKangXunVideo = false,
     this.useMediaBrowser = false,

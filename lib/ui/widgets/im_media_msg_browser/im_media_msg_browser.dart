@@ -20,6 +20,8 @@ class IMMediaMsgBrowser extends StatefulWidget {
     super.key,
     this.onDownloadVideo,
     this.onImgLongPress,
+    this.onImgMorePress,
+    this.onImgViewPress,
     required this.curMsg,
     this.isFrom,
     this.userID,
@@ -33,6 +35,8 @@ class IMMediaMsgBrowser extends StatefulWidget {
   final String? groupID;
   final ValueChanged<String>? onDownloadVideo;
   final ValueChanged<V2TimMessage>? onImgLongPress;
+  final ValueChanged<V2TimMessage>? onImgViewPress;
+  final ValueChanged<V2TimMessage>? onImgMorePress;
   final ValueChanged<V2TimMessage>? onDownloadImage;
 
   @override
@@ -44,7 +48,7 @@ class IMMediaMsgBrowserState extends TIMUIKitState<IMMediaMsgBrowser>
   final _messageManager = TencentImSDKPlugin.v2TIMManager.getMessageManager();
 
   GlobalKey<ExtendedImageSlidePageState> slidePagekey =
-      GlobalKey<ExtendedImageSlidePageState>();
+  GlobalKey<ExtendedImageSlidePageState>();
   double _imageDetailY = 0;
 
   VideoPlayerController? videoPlayerController;
@@ -65,6 +69,7 @@ class IMMediaMsgBrowserState extends TIMUIKitState<IMMediaMsgBrowser>
       widget.curMsg.elemType == MessageElemType.V2TIM_ELEM_TYPE_VIDEO;
 
   bool isInit = false;
+
   bool get isTest {
     return Platform.isAndroid;
   }
@@ -141,155 +146,164 @@ class IMMediaMsgBrowserState extends TIMUIKitState<IMMediaMsgBrowser>
 
   @override
   Widget tuiBuild(BuildContext context, TUIKitBuildValue value) {
-    final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery
+        .of(context)
+        .size;
     return Material(
       color: Colors.transparent,
       shadowColor: Colors.transparent,
       child: _isFirstLoading
           ? InkWell(
-              onTap: _close,
-              child: const SizedBox.expand(
-                child: Center(
-                  child: CircularProgressIndicator(color: Colors.white),
+        onTap: _close,
+        child: const SizedBox.expand(
+          child: Center(
+            child: CircularProgressIndicator(color: Colors.white),
+          ),
+        ),
+      )
+          : ExtendedImageSlidePage(
+        key: slidePagekey,
+        slideAxis: SlideAxis.vertical,
+        slidePageBackgroundHandler: (Offset offset, Size size) {
+          double opacity = 0.0;
+          opacity = offset.distance /
+              (Offset(size.width, size.height).distance / 2.0);
+          return Colors.black
+              .withOpacity(min(1.0, max(1.0 - opacity, 0.0)));
+        },
+        slideType: SlideType.onlyImage,
+        slideEndHandler: (Offset offset, {
+          ExtendedImageSlidePageState? state,
+          ScaleEndDetails? details,
+        }) {
+          final vy = details?.velocity.pixelsPerSecond.dy ?? 0;
+          final oy = offset.dy;
+          if (vy > 300 || oy > 100) {
+            return true;
+          }
+          return null;
+        },
+        child: Stack(
+          fit: StackFit.expand,
+          children: <Widget>[
+            ExtendedImageGesturePageView.builder(
+              itemCount: _msgs.length,
+              onPageChanged: _onPageChanged,
+              controller: _pageController,
+              physics: _msgs.length > 1
+                  ? const BouncingScrollPhysics()
+                  : const NeverScrollableScrollPhysics(),
+              canScrollPage: (GestureDetails? gestureDetails) {
+                return _imageDetailY >= 0;
+              },
+              itemBuilder: (BuildContext context, int index) {
+                final msg = _msgs[index];
+                final heroTag =
+                    "${msg.msgID ?? msg.id ?? msg.timestamp ?? DateTime
+                    .now()
+                    .millisecondsSinceEpoch}${widget.isFrom}";
+
+                if (msg.videoElem != null) {
+                  return const Center(
+                    child: Text('敬请期待'),
+                  );
+                  // final videoElement = msg.videoElem;
+                  // return VideoItem(
+                  //   isInit: isInit,
+                  //   isTest: isTest,
+                  //   fijkPlayer: _fijkPlayer,
+                  //   chewieController: chewieController,
+                  //   videoUrl: videoElement?.videoUrl ?? '',
+                  //   coverUrl: videoElement?.snapshotUrl ?? '',
+                  //   onDownloadFile: widget.onDownloadFile,
+                  //   heroTag: heroTag,
+                  // );
+                } else if (msg.imageElem != null) {
+                  return ImageItem(
+                    message: msg,
+                    size: size,
+                    heroTag: heroTag,
+                    slidePagekey: slidePagekey,
+                    imageDetailY: _imageDetailY,
+                    canScaleImage: (_) => _imageDetailY == 0,
+                    onImgTap: () {
+                      if (_imageDetailY != 0) {
+                        _imageDetailY = 0;
+                      } else {
+                        _close();
+                      }
+                    },
+                    onLongPress: _onLongPress,
+                  );
+                }
+                return const SizedBox();
+              },
+            ),
+            Positioned(
+              left: 10,
+              right: 10,
+              bottom: PlatformUtils().isDesktop ? 730 / 2 : 20,
+              child: SafeArea(
+                top: false,
+                child: BottomActions(
+                  onDownload: _saveImg,
+                  onMore: (){
+                    widget.onImgMorePress?.call(widget.curMsg);
+                  },
+                  onView: (){
+                    widget.onImgViewPress?.call(widget.curMsg);
+                  },
+                  onNext: () {
+                    if (_currentIndex >= _msgs.length - 1) return;
+                    _pageController?.nextPage(
+                      duration: const Duration(microseconds: 200),
+                      curve: Curves.linear,
+                    );
+                  },
+                  onPre: () {
+                    if (_currentIndex == 0) return;
+                    _pageController?.previousPage(
+                      duration: const Duration(microseconds: 200),
+                      curve: Curves.linear,
+                    );
+                  },
                 ),
               ),
-            )
-          : ExtendedImageSlidePage(
-              key: slidePagekey,
-              slideAxis: SlideAxis.vertical,
-              slidePageBackgroundHandler: (Offset offset, Size size) {
-                double opacity = 0.0;
-                opacity = offset.distance /
-                    (Offset(size.width, size.height).distance / 2.0);
-                return Colors.black
-                    .withOpacity(min(1.0, max(1.0 - opacity, 0.0)));
-              },
-              slideType: SlideType.onlyImage,
-              slideEndHandler: (
-                Offset offset, {
-                ExtendedImageSlidePageState? state,
-                ScaleEndDetails? details,
-              }) {
-                final vy = details?.velocity.pixelsPerSecond.dy ?? 0;
-                final oy = offset.dy;
-                if (vy > 300 || oy > 100) {
-                  return true;
-                }
-                return null;
-              },
-              child: Stack(
-                fit: StackFit.expand,
-                children: <Widget>[
-                  ExtendedImageGesturePageView.builder(
-                    itemCount: _msgs.length,
-                    onPageChanged: _onPageChanged,
-                    controller: _pageController,
-                    physics: _msgs.length > 1
-                        ? const BouncingScrollPhysics()
-                        : const NeverScrollableScrollPhysics(),
-                    canScrollPage: (GestureDetails? gestureDetails) {
-                      return _imageDetailY >= 0;
-                    },
-                    itemBuilder: (BuildContext context, int index) {
-                      final msg = _msgs[index];
-                      final heroTag =
-                          "${msg.msgID ?? msg.id ?? msg.timestamp ?? DateTime.now().millisecondsSinceEpoch}${widget.isFrom}";
-
-                      if (msg.videoElem != null) {
-                        return const Center(
-                          child: Text('敬请期待'),
-                        );
-                        // final videoElement = msg.videoElem;
-                        // return VideoItem(
-                        //   isInit: isInit,
-                        //   isTest: isTest,
-                        //   fijkPlayer: _fijkPlayer,
-                        //   chewieController: chewieController,
-                        //   videoUrl: videoElement?.videoUrl ?? '',
-                        //   coverUrl: videoElement?.snapshotUrl ?? '',
-                        //   onDownloadFile: widget.onDownloadFile,
-                        //   heroTag: heroTag,
-                        // );
-                      } else if (msg.imageElem != null) {
-                        return ImageItem(
-                          message: msg,
-                          size: size,
-                          heroTag: heroTag,
-                          slidePagekey: slidePagekey,
-                          imageDetailY: _imageDetailY,
-                          canScaleImage: (_) => _imageDetailY == 0,
-                          onImgTap: () {
-                            if (_imageDetailY != 0) {
-                              _imageDetailY = 0;
-                            } else {
-                              _close();
-                            }
-                          },
-                          onLongPress: _onLongPress,
-                        );
-                      }
-                      return const SizedBox();
-                    },
-                  ),
-                  Positioned(
-                    left: 10,
-                    right: 10,
-                    bottom: PlatformUtils().isDesktop ? 730 / 2 : 0,
-                    child: SafeArea(
-                      top: false,
-                      child: BottomActions(
-                        onDownload: _saveImg,
-                        onNext: () {
-                          if (_currentIndex >= _msgs.length - 1) return;
-                          _pageController?.nextPage(
-                            duration: const Duration(microseconds: 200),
-                            curve: Curves.linear,
-                          );
-                        },
-                        onPre: () {
-                          if (_currentIndex == 0) return;
-                          _pageController?.previousPage(
-                            duration: const Duration(microseconds: 200),
-                            curve: Curves.linear,
-                          );
-                        },
-                      ),
+            ),
+            Align(
+              child: ValueListenableBuilder(
+                valueListenable: _isDownloadingImg,
+                builder: (context, isDownloadingImg, child) {
+                  return isDownloadingImg
+                      ? Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.black38,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ),
-                  Align(
-                    child: ValueListenableBuilder(
-                      valueListenable: _isDownloadingImg,
-                      builder: (context, isDownloadingImg, child) {
-                        return isDownloadingImg
-                            ? Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 10),
-                                decoration: BoxDecoration(
-                                  color: Colors.black38,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const CircularProgressIndicator(
-                                        color: Colors.white),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      TIM_t("正在下载中"),
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : const SizedBox();
-                      },
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const CircularProgressIndicator(
+                            color: Colors.white),
+                        const SizedBox(height: 4),
+                        Text(
+                          TIM_t("正在下载中"),
+                          style: const TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                  )
+                      : const SizedBox();
+                },
               ),
             ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -328,7 +342,7 @@ extension _IMMediaMsgBrowserStateApi on IMMediaMsgBrowserState {
     await _getOldMsg(widget.curMsg.msgID);
     await _getNewerMsg(widget.curMsg.msgID);
     final newIndex =
-        _msgs.indexWhere((element) => element.msgID == curMsg.msgID);
+    _msgs.indexWhere((element) => element.msgID == curMsg.msgID);
     if (newIndex != -1) {
       _currentIndex = newIndex;
       _pageController = ExtendedPageController(initialPage: newIndex);
@@ -338,9 +352,7 @@ extension _IMMediaMsgBrowserStateApi on IMMediaMsgBrowserState {
     });
   }
 
-  Future<void> _getOldMsg(
-    String? lastMsgID,
-  ) async {
+  Future<void> _getOldMsg(String? lastMsgID,) async {
     if (_isLoadingOld) return;
     if (_isOldFinished) return;
     _isLoadingOld = true;
@@ -355,7 +367,7 @@ extension _IMMediaMsgBrowserStateApi on IMMediaMsgBrowserState {
 
       _safeSetState(() {
         final curMsgIndex =
-            _msgs.indexWhere((element) => element.msgID == curMsg.msgID);
+        _msgs.indexWhere((element) => element.msgID == curMsg.msgID);
         if (curMsgIndex != -1 && !_isFirstLoading) {
           _currentIndex = curMsgIndex;
           _pageController = ExtendedPageController(initialPage: curMsgIndex);
@@ -366,9 +378,7 @@ extension _IMMediaMsgBrowserStateApi on IMMediaMsgBrowserState {
     _isLoadingOld = false;
   }
 
-  Future<void> _getNewerMsg(
-    String? lastMsgID,
-  ) async {
+  Future<void> _getNewerMsg(String? lastMsgID,) async {
     if (_isLoadingNewer) return;
     if (_isNewerFinished) return;
     _isLoadingNewer = true;
@@ -422,11 +432,11 @@ extension _IMMediaMsgBrowserStateApi on IMMediaMsgBrowserState {
 
       // 过滤被删除和撤回的消息
       final msgList = List.of((res.data?.messageList ?? []).where((element) =>
-          element.status != MessageStatus.V2TIM_MSG_STATUS_HAS_DELETED &&
+      element.status != MessageStatus.V2TIM_MSG_STATUS_HAS_DELETED &&
           element.status != MessageStatus.V2TIM_MSG_STATUS_LOCAL_REVOKED));
       return (
-        res.data?.isFinished ?? true,
-        msgList,
+      res.data?.isFinished ?? true,
+      msgList,
       );
     } catch (e) {
       debugPrint('_getMediaMsgList error: $e');
@@ -457,7 +467,7 @@ extension _IMMediaMsgBrowserStatePrivate on IMMediaMsgBrowserState {
       );
       await player.initialize();
       WidgetsBinding.instance.addPostFrameCallback(
-        (_) {
+            (_) {
           ChewieController controller = ChewieController(
             videoPlayerController: player,
             autoPlay: true,
@@ -469,7 +479,7 @@ extension _IMMediaMsgBrowserStatePrivate on IMMediaMsgBrowserState {
             ),
           );
           _safeSetState(
-            () {
+                () {
               videoPlayerController = player;
               chewieController = controller;
               isInit = true;

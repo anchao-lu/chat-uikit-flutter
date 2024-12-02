@@ -348,6 +348,14 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
               widget.chatModel.chatConfig.onImageLongPress
                   ?.call(msg, autoSave: false);
             },
+            onImgMorePress: (V2TimMessage msg) {
+              widget.chatModel.chatConfig.onImageMorePress
+                  ?.call(msg);
+            },
+            onImgViewPress: (V2TimMessage msg) {
+              widget.chatModel.chatConfig.onImageViewPress
+                  ?.call(msg);
+            },
             onDownloadImage: (msg) {
               _saveImg(theme, cusMsg: msg);
             },
@@ -398,6 +406,14 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
             onImgLongPress: (V2TimMessage msg) {
               widget.chatModel.chatConfig.onImageLongPress
                   ?.call(widget.message, autoSave: false);
+            },
+            onImgMorePress: (V2TimMessage msg) {
+              widget.chatModel.chatConfig.onImageMorePress
+                  ?.call(msg);
+            },
+            onImgViewPress: (V2TimMessage msg) {
+              widget.chatModel.chatConfig.onImageViewPress
+                  ?.call(msg);
             },
             onDownloadImage: (msg) {
               _saveImg(theme, cusMsg: msg);

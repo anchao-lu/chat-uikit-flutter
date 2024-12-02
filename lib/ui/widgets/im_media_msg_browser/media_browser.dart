@@ -16,6 +16,8 @@ class MediaBrowser {
     required String? isFrom,
     ValueChanged<String>? onDownloadVideo,
     ValueChanged<V2TimMessage>? onImgLongPress,
+    ValueChanged<V2TimMessage>? onImgViewPress,
+    ValueChanged<V2TimMessage>? onImgMorePress,
     ValueChanged<V2TimMessage>? onDownloadImage,
   }) {
     if (PlatformUtils().isDesktop) {
@@ -35,6 +37,9 @@ class MediaBrowser {
                   onDownloadVideo: onDownloadVideo,
                   onImgLongPress: onImgLongPress,
                   onDownloadImage: onDownloadImage,
+                  onImgViewPress: onImgViewPress,
+                  onImgMorePress: onImgMorePress,
+
                 ),
               ),
             );
@@ -51,6 +56,8 @@ class MediaBrowser {
             onDownloadVideo: onDownloadVideo,
             onImgLongPress: onImgLongPress,
             onDownloadImage: onDownloadImage,
+            onImgMorePress: onImgMorePress,
+            onImgViewPress: onImgViewPress,
           ),
         ),
       );

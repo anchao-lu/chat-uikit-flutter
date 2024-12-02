@@ -8,62 +8,121 @@ class BottomActions extends StatelessWidget {
     this.onDownload,
     this.onPre,
     this.onNext,
+    this.onView,
+    this.onMore,
   });
 
   final VoidCallback? onDownload;
   final VoidCallback? onPre;
   final VoidCallback? onNext;
+  final VoidCallback? onView;
+  final VoidCallback? onMore;
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        GestureDetector(
-          onTap: () {
-            if (PlatformUtils().isDesktop) {
+      mainAxisAlignment: PlatformUtils().isDesktop
+          ? MainAxisAlignment.spaceBetween
+          : MainAxisAlignment.end,
+      children:
+      PlatformUtils().isDesktop ? [
+        BottomItem(
+            onTap: () {
               onPre?.call();
-            } else {
+            },
+            iconWidget: Icon(
+              Icons.arrow_back_ios,
+              color: Colors.white,
+              size: 40,
+            )),
+        BottomItem(
+          onTap: onNext,
+          iconWidget: Icon(
+            Icons.arrow_forward_ios,
+            color: Colors.white,
+            size: 40,
+          ),
+
+        ),
+      ] : [
+        BottomItem(
+            onTap: () {
               Navigator.of(context).pop();
-            }
-          },
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 15),
-            alignment: Alignment.center,
-            decoration: const ShapeDecoration(
-              color: Colors.black12,
-              shape: CircleBorder(),
-            ),
-            width: 44,
-            height: 44,
-            child: Icon(
-              PlatformUtils().isDesktop ? Icons.arrow_back_ios : Icons.close,
+            },
+
+            iconWidget: Icon(
+              Icons.close,
               color: Colors.white,
-              size: PlatformUtils().isDesktop ? 40 : 20,
-            ),
+              size: 20,
+            )),
+        BottomItem(
+          onTap:  onDownload,
+          iconWidget: Icon(
+           Icons.arrow_downward_sharp,
+            color: Colors.white,
+            size:  20,
           ),
+
         ),
-        GestureDetector(
-          onTap: PlatformUtils().isDesktop ? onNext : onDownload,
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 15),
-            alignment: Alignment.center,
-            decoration: const ShapeDecoration(
-              color: Colors.black26,
-              shape: CircleBorder(),
-            ),
-            width: 44,
-            height: 44,
-            child: Icon(
-              PlatformUtils().isDesktop
-                  ? Icons.arrow_forward_ios
-                  : Icons.arrow_downward_sharp,
-              color: Colors.white,
-              size: PlatformUtils().isDesktop ? 40 : 20,
-            ),
+        BottomItem(
+          onTap:  onView,
+          iconWidget: Icon(
+            Icons.menu,
+            color: Colors.white,
+            size:  20,
           ),
+
         ),
-      ],
+        BottomItem(
+          onTap:  onMore,
+          iconWidget: Icon(
+            Icons.more_horiz_sharp,
+            color: Colors.white,
+            size:  20,
+          ),
+
+        ),
+      ]
+
+      ,
+
+
+    );
+  }
+}
+
+class BottomItem extends StatelessWidget {
+  const BottomItem({super.key,
+    this.onTap,
+    required this.iconWidget,
+    this.size = 44,
+  });
+
+  final VoidCallback? onTap;
+
+  final Widget iconWidget;
+
+  final double size;
+
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        onTap?.call();
+      },
+      child: Container(
+        margin: EdgeInsets.symmetric(
+            horizontal: PlatformUtils().isDesktop ? 15 : 5),
+        alignment: Alignment.center,
+        decoration: const ShapeDecoration(
+          color: Colors.black26,
+          shape: CircleBorder(),
+        ),
+        width: 44,
+        height: 44,
+        child: iconWidget,
+      ),
     );
   }
 }
