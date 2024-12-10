@@ -10,6 +10,7 @@ class BottomActions extends StatelessWidget {
     this.onNext,
     this.onView,
     this.onMore,
+    this.showMenu = true,
   });
 
   final VoidCallback? onDownload;
@@ -17,6 +18,7 @@ class BottomActions extends StatelessWidget {
   final VoidCallback? onNext;
   final VoidCallback? onView;
   final VoidCallback? onMore;
+  final bool showMenu;
 
   @override
   Widget build(BuildContext context) {
@@ -24,75 +26,69 @@ class BottomActions extends StatelessWidget {
       mainAxisAlignment: PlatformUtils().isDesktop
           ? MainAxisAlignment.spaceBetween
           : MainAxisAlignment.end,
-      children:
-      PlatformUtils().isDesktop ? [
-        BottomItem(
-            onTap: () {
-              onPre?.call();
-            },
-            iconWidget: Icon(
-              Icons.arrow_back_ios,
-              color: Colors.white,
-              size: 40,
-            )),
-        BottomItem(
-          onTap: onNext,
-          iconWidget: Icon(
-            Icons.arrow_forward_ios,
-            color: Colors.white,
-            size: 40,
-          ),
-
-        ),
-      ] : [
-        BottomItem(
-            onTap: () {
-              Navigator.of(context).pop();
-            },
-
-            iconWidget: Icon(
-              Icons.close,
-              color: Colors.white,
-              size: 20,
-            )),
-        BottomItem(
-          onTap:  onDownload,
-          iconWidget: Icon(
-           Icons.arrow_downward_sharp,
-            color: Colors.white,
-            size:  20,
-          ),
-
-        ),
-        BottomItem(
-          onTap:  onView,
-          iconWidget: Icon(
-            Icons.menu,
-            color: Colors.white,
-            size:  20,
-          ),
-
-        ),
-        BottomItem(
-          onTap:  onMore,
-          iconWidget: Icon(
-            Icons.more_horiz_sharp,
-            color: Colors.white,
-            size:  20,
-          ),
-
-        ),
-      ]
-
-      ,
-
-
+      children: PlatformUtils().isDesktop
+          ? [
+              BottomItem(
+                  onTap: () {
+                    onPre?.call();
+                  },
+                  iconWidget: const Icon(
+                    Icons.arrow_back_ios,
+                    color: Colors.white,
+                    size: 40,
+                  )),
+              BottomItem(
+                onTap: onNext,
+                iconWidget: const Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: 40,
+                ),
+              ),
+            ]
+          : [
+              BottomItem(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                  },
+                  iconWidget: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                    size: 20,
+                  )),
+              BottomItem(
+                onTap: onDownload,
+                iconWidget: const Icon(
+                  Icons.arrow_downward_sharp,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              if (showMenu)
+                BottomItem(
+                  onTap: onView,
+                  iconWidget: const Icon(
+                    Icons.menu,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              BottomItem(
+                onTap: onMore,
+                iconWidget: const Icon(
+                  Icons.more_horiz_sharp,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ],
     );
   }
 }
 
 class BottomItem extends StatelessWidget {
-  const BottomItem({super.key,
+  const BottomItem({
+    super.key,
     this.onTap,
     required this.iconWidget,
     this.size = 44,

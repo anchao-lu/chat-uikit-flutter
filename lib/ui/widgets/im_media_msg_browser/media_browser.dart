@@ -8,18 +8,17 @@ import 'im_media_msg_browser.dart';
 class MediaBrowser {
   MediaBrowser._();
 
-  static void showIMMediaMsg(
-    BuildContext context, {
-    required V2TimMessage curMsg,
-    required String? userID,
-    required String? groupID,
-    required String? isFrom,
-    ValueChanged<String>? onDownloadVideo,
-    ValueChanged<V2TimMessage>? onImgLongPress,
-    ValueChanged<V2TimMessage>? onImgViewPress,
-    ValueChanged<V2TimMessage>? onImgMorePress,
-    ValueChanged<V2TimMessage>? onDownloadImage,
-  }) {
+  static void showIMMediaMsg(BuildContext context,
+      {required V2TimMessage curMsg,
+      required String? userID,
+      required String? groupID,
+      required String? isFrom,
+      ValueChanged<String>? onDownloadVideo,
+      ValueChanged<V2TimMessage>? onImgLongPress,
+      ValueChanged<V2TimMessage>? onImgViewPress,
+      ValueChanged<V2TimMessage>? onImgMorePress,
+      ValueChanged<V2TimMessage>? onDownloadImage,
+      bool showMenu = true}) {
     if (PlatformUtils().isDesktop) {
       showDialog(
           context: context,
@@ -28,7 +27,7 @@ class MediaBrowser {
             return UnconstrainedBox(
               child: SizedBox(
                 height: defaultWideSize.height,
-                width: defaultWideSize.width*2 ,
+                width: defaultWideSize.width * 2,
                 child: IMMediaMsgBrowser(
                   curMsg: curMsg,
                   userID: userID,
@@ -39,7 +38,7 @@ class MediaBrowser {
                   onDownloadImage: onDownloadImage,
                   onImgViewPress: onImgViewPress,
                   onImgMorePress: onImgMorePress,
-
+                  showMenu: showMenu,
                 ),
               ),
             );
@@ -58,6 +57,7 @@ class MediaBrowser {
             onDownloadImage: onDownloadImage,
             onImgMorePress: onImgMorePress,
             onImgViewPress: onImgViewPress,
+            showMenu: showMenu,
           ),
         ),
       );
