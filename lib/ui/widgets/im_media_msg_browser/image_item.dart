@@ -6,6 +6,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as path;
+import 'package:tencent_cloud_chat_uikit/extensions/v2timmessage_extensions.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
 import 'package:tencent_cloud_chat_uikit/ui/constants/history_message_constant.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/logger.dart';
@@ -281,7 +282,7 @@ extension V2TimMessageImgProvider on V2TimMessage {
     return null;
   }
 
-  ImageProvider _getImgProvider({
+  ImageProvider? _getImgProvider({
     bool isNetworkImage = false,
     String? webPath,
     V2TimImage? originalImg,
@@ -295,11 +296,16 @@ extension V2TimMessageImgProvider on V2TimMessage {
             : smallLocalPath) ??
         "";
     if (isNetworkImage) {
+      if (imgUrl.isEmpty) return null;
+      if (isExpired) {
+        return null;
+      }
       return CachedNetworkImageProvider(
         imgUrl,
         cacheKey: msgID,
       );
     } else {
+      if (imgPath.isEmpty) return null;
       return FileImage(File(imgPath));
     }
   }
