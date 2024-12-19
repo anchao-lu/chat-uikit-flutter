@@ -28,6 +28,7 @@ class IMMediaMsgBrowser extends StatefulWidget {
     this.groupID,
     this.onDownloadImage,
     this.showMenu = true,
+    this.messages,
   });
 
   final V2TimMessage curMsg;
@@ -39,6 +40,8 @@ class IMMediaMsgBrowser extends StatefulWidget {
   final ValueChanged<V2TimMessage>? onImgViewPress;
   final ValueChanged<V2TimMessage>? onImgMorePress;
   final ValueChanged<V2TimMessage>? onDownloadImage;
+  final List<V2TimMessage>? messages;
+
   final bool showMenu;
 
   @override
@@ -76,6 +79,10 @@ class IMMediaMsgBrowserState extends TIMUIKitState<IMMediaMsgBrowser>
     return Platform.isAndroid;
   }
 
+  bool get isNeedLoadNetMessage {
+    return widget.messages == null || widget.messages!.isEmpty;
+  }
+
   // final FijkPlayer _fijkPlayer = FijkPlayer();
 
   void _safeSetState(void Function() fn) {
@@ -86,8 +93,20 @@ class IMMediaMsgBrowserState extends TIMUIKitState<IMMediaMsgBrowser>
 
   @override
   void initState() {
-    _msgs.add(widget.curMsg);
-    _getInitialMsgs();
+    if (isNeedLoadNetMessage) {
+      _msgs.add(widget.curMsg);
+      _getInitialMsgs();
+    } else {
+      _msgs.addAll(widget.messages!);
+      _currentIndex = _msgs.indexWhere((value){
+
+        return value.msgID==widget.curMsg.msgID;
+      });
+      if(_currentIndex==-1)_currentIndex=0;
+
+      _pageController = ExtendedPageController(initialPage: _currentIndex);
+      _isFirstLoading=false;
+    }
 
     if (_isCurMsgVideo) {
       _setVideoPlayerController(widget.curMsg.videoElem?.videoUrl ?? '');
@@ -355,6 +374,7 @@ extension _IMMediaMsgBrowserStateApi on IMMediaMsgBrowserState {
   Future<void> _getOldMsg(
     String? lastMsgID,
   ) async {
+    if (!isNeedLoadNetMessage) return;
     if (_isLoadingOld) return;
     if (_isOldFinished) return;
     _isLoadingOld = true;
@@ -385,6 +405,7 @@ extension _IMMediaMsgBrowserStateApi on IMMediaMsgBrowserState {
   ) async {
     if (_isLoadingNewer) return;
     if (_isNewerFinished) return;
+    if (!isNeedLoadNetMessage) return;
     _isLoadingNewer = true;
 
     final res = await _getMediaMsgList(

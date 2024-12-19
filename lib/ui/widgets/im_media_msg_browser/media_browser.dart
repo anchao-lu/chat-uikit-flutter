@@ -8,17 +8,20 @@ import 'im_media_msg_browser.dart';
 class MediaBrowser {
   MediaBrowser._();
 
-  static void showIMMediaMsg(BuildContext context,
-      {required V2TimMessage curMsg,
-      required String? userID,
-      required String? groupID,
-      required String? isFrom,
-      ValueChanged<String>? onDownloadVideo,
-      ValueChanged<V2TimMessage>? onImgLongPress,
-      ValueChanged<V2TimMessage>? onImgViewPress,
-      ValueChanged<V2TimMessage>? onImgMorePress,
-      ValueChanged<V2TimMessage>? onDownloadImage,
-      bool showMenu = true}) {
+  static void showIMMediaMsg(
+    BuildContext context, {
+    required V2TimMessage curMsg,
+    required String? userID,
+    required String? groupID,
+    required String? isFrom,
+    ValueChanged<String>? onDownloadVideo,
+    ValueChanged<V2TimMessage>? onImgLongPress,
+    ValueChanged<V2TimMessage>? onImgViewPress,
+    ValueChanged<V2TimMessage>? onImgMorePress,
+    ValueChanged<V2TimMessage>? onDownloadImage,
+    bool showMenu = true,
+    List<V2TimMessage>? messages,
+  }) {
     if (PlatformUtils().isDesktop) {
       showDialog(
           context: context,
@@ -29,17 +32,17 @@ class MediaBrowser {
                 height: defaultWideSize.height,
                 width: defaultWideSize.width * 2,
                 child: IMMediaMsgBrowser(
-                  curMsg: curMsg,
-                  userID: userID,
-                  groupID: groupID,
-                  isFrom: isFrom,
-                  onDownloadVideo: onDownloadVideo,
-                  onImgLongPress: onImgLongPress,
-                  onDownloadImage: onDownloadImage,
-                  onImgViewPress: onImgViewPress,
-                  onImgMorePress: onImgMorePress,
-                  showMenu: showMenu,
-                ),
+                    curMsg: curMsg,
+                    userID: userID,
+                    groupID: groupID,
+                    isFrom: isFrom,
+                    onDownloadVideo: onDownloadVideo,
+                    onImgLongPress: onImgLongPress,
+                    onDownloadImage: onDownloadImage,
+                    onImgViewPress: onImgViewPress,
+                    onImgMorePress: onImgMorePress,
+                    showMenu: showMenu,
+                    messages: messages),
               ),
             );
           });
@@ -48,17 +51,17 @@ class MediaBrowser {
         context,
         BrowserTransparentPageRoute(
           pageBuilder: (_, __, ___) => IMMediaMsgBrowser(
-            curMsg: curMsg,
-            userID: userID,
-            groupID: groupID,
-            isFrom: isFrom,
-            onDownloadVideo: onDownloadVideo,
-            onImgLongPress: onImgLongPress,
-            onDownloadImage: onDownloadImage,
-            onImgMorePress: onImgMorePress,
-            onImgViewPress: onImgViewPress,
-            showMenu: showMenu,
-          ),
+              curMsg: curMsg,
+              userID: userID,
+              groupID: groupID,
+              isFrom: isFrom,
+              onDownloadVideo: onDownloadVideo,
+              onImgLongPress: onImgLongPress,
+              onDownloadImage: onDownloadImage,
+              onImgMorePress: onImgMorePress,
+              onImgViewPress: onImgViewPress,
+              showMenu: showMenu,
+              messages: messages),
         ),
       );
     }
