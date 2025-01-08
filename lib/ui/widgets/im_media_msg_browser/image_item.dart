@@ -86,7 +86,7 @@ class ImageItem extends StatelessWidget {
                 return ExtendedImageGesture(
                   state,
                   canScaleImage: canScaleImage,
-                  imageBuilder: (Widget image) {
+                  imageBuilder: (Widget image, {imageGestureState}) {
                     return Stack(
                       children: <Widget>[
                         Positioned.fill(

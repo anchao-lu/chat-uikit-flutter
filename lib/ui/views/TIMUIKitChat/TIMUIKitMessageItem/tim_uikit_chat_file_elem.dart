@@ -145,24 +145,29 @@ class _TIMUIKitFileElemState extends TIMUIKitState<TIMUIKitFileElem> {
         widget.message.fileElem?.path ??
         '';
     File f = File(savePath);
-    if (f.existsSync() && widget.messageID != null) {
-      filePath = savePath;
-      if (downloadProgress != 100) {
-        setState(() {
-          downloadProgress = 100;
-        });
+    if (widget.messageID != null) {
+      if (f.existsSync()) {
+        filePath = savePath;
+        if (downloadProgress != 100) {
+          setState(() {
+            downloadProgress = 100;
+          });
+        }
+        if (model.getMessageProgress(widget.messageID) != 100) {
+          model.setMessageProgress(widget.messageID!, 100);
+        }
+        if (advancedMsgListener != null) {
+          TencentImSDKPlugin.v2TIMManager
+              .getMessageManager()
+              .removeAdvancedMsgListener(listener: advancedMsgListener);
+          advancedMsgListener = null;
+        }
+        return true;
+      } else {
+        model.setMessageProgress(widget.messageID!, 0);
       }
-      if (model.getMessageProgress(widget.messageID) != 100) {
-        model.setMessageProgress(widget.messageID!, 100);
-      }
-      if (advancedMsgListener != null) {
-        TencentImSDKPlugin.v2TIMManager
-            .getMessageManager()
-            .removeAdvancedMsgListener(listener: advancedMsgListener);
-        advancedMsgListener = null;
-      }
-      return true;
     }
+
     return false;
   }
 

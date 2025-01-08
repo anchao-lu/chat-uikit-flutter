@@ -44,13 +44,13 @@ class _ImageScreenState extends TIMUIKitState<ImageScreen>
   double initialScale = 1.0;
   bool isLoading = false;
 
-  GlobalKey<ExtendedImageSlidePageState> slidePagekey =
+  GlobalKey<ExtendedImageSlidePageState> slidePageKey =
       GlobalKey<ExtendedImageSlidePageState>();
   GlobalKey<ExtendedImageGestureState> extendedImageGestureKey =
       GlobalKey<ExtendedImageGestureState>();
 
   void close() {
-    slidePagekey.currentState!.popPage();
+    slidePageKey.currentState!.popPage();
     Navigator.pop(context);
   }
 
@@ -80,6 +80,10 @@ class _ImageScreenState extends TIMUIKitState<ImageScreen>
   @override
   Widget tuiBuild(BuildContext context, TUIKitBuildValue value) {
     return OrientationBuilder(builder: ((context, orientation) {
+      if (extendedImageGestureKey.currentState != null) {
+        extendedImageGestureKey.currentState!.reset();
+      }
+
       return Material(
         color: Colors.transparent,
         child: Container(
@@ -96,7 +100,7 @@ class _ImageScreenState extends TIMUIKitState<ImageScreen>
                 bottom: 0,
                 right: 0,
                 child: ExtendedImageSlidePage(
-                  key: slidePagekey,
+                  key: slidePageKey,
                   slideAxis: SlideAxis.both,
                   slidePageBackgroundHandler: (Offset offset, Size size) {
                     if (orientation == Orientation.landscape) {
@@ -126,7 +130,7 @@ class _ImageScreenState extends TIMUIKitState<ImageScreen>
                     onLongPress: widget.onLongPress,
                     child: HeroWidget(
                         tag: widget.heroTag,
-                        slidePagekey: slidePagekey,
+                        slidePagekey: slidePageKey,
                         child: ExtendedImage(
                           image: widget.imageProvider,
                           extendedImageGestureKey:
@@ -182,6 +186,7 @@ class _ImageScreenState extends TIMUIKitState<ImageScreen>
                                       1 / fitWidthScale; // fittedHeight
                                   doubleTapScales[1] = 1 / fitWidthScale;
                                 }
+
                                 return GesturedImage(state,
                                     key: extendedImageGestureKey);
                               case LoadState.failed:
@@ -191,7 +196,7 @@ class _ImageScreenState extends TIMUIKitState<ImageScreen>
                           },
                           onDoubleTap: (ExtendedImageGestureState state) {
                             ///you can use define pointerDownPosition as you can,
-                            ///default value is double tap pointer down postion.
+                            ///default value is double tap pointer down position.
                             final Offset? pointerDownPosition =
                                 state.pointerDownPosition;
                             final double? begin =

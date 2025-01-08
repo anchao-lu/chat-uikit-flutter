@@ -2,12 +2,17 @@
 
 import 'dart:convert';
 
+import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
+import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/common_utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/message.dart';
+import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
+import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitTextField/special_text/DefaultSpecialTextSpanBuilder.dart';
+import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitConversation/tim_uikit_conversation_draft_text.dart';
 import 'package:tencent_im_base/tencent_im_base.dart';
 
 typedef CustomLastMsgBuilder = Future<String?> Function(V2TimMessage lastMsg);
@@ -17,13 +22,19 @@ class TIMUIKitLastMsg extends StatefulWidget {
   final List<V2TimGroupAtInfo?> groupAtInfoList;
   final BuildContext context;
   final double fontSize;
+  bool isDisturb;
+  int unreadCount;
+  String draftText;
 
   final CustomLastMsgBuilder? lastMsgBuilder;
 
-  const TIMUIKitLastMsg({
+  TIMUIKitLastMsg({
     Key? key,
     this.lastMsg,
     required this.groupAtInfoList,
+    this.isDisturb = false,
+    this.unreadCount = 0,
+    required this.draftText,
     required this.context,
     this.fontSize = 14.0,
     ////////////// 自定义入参 //////////////
@@ -50,7 +61,8 @@ class _TIMUIKitLastMsgState extends TIMUIKitState<TIMUIKitLastMsg> {
     //////////////// 新增 status 比对：处理消息撤回的刷新逻辑 ////////////////
     if ((oldWidget.lastMsg?.msgID != widget.lastMsg?.msgID) ||
         (oldWidget.lastMsg?.id != widget.lastMsg?.id) ||
-        (oldWidget.lastMsg?.status != widget.lastMsg?.status)) {
+        (oldWidget.lastMsg?.status != widget.lastMsg?.status) ||
+        (oldWidget.unreadCount != widget.unreadCount)) {
       _getMsgElem();
     }
     //////////////// 新增 status 比对：处理消息撤回的刷新逻辑 ////////////////
@@ -92,14 +104,25 @@ class _TIMUIKitLastMsgState extends TIMUIKitState<TIMUIKitLastMsg> {
         });
       }
     } else {
-      final newText =
+      String msgShowText =
           await _getLastMsgShowText(widget.lastMsg, widget.context) ?? "";
       if (mounted) {
         setState(() {
-          groupTipsAbstractText = newText;
+          groupTipsAbstractText = msgShowText;
         });
       }
     }
+  }
+
+  String _getDisturbUnreadCountInfo() {
+    if (widget.isDisturb && widget.unreadCount > 0) {
+      final option1 = widget.unreadCount.toString();
+      String unreadCountText =
+          TIM_t_para("[{{option1}} 条]", "[$option1 条]")(option1: option1);
+      return unreadCountText;
+    }
+
+    return "";
   }
 
   Future<String?> _getLastMsgShowText(
@@ -149,47 +172,99 @@ class _TIMUIKitLastMsgState extends TIMUIKitState<TIMUIKitLastMsg> {
   }
 
   String _getAtMessage() {
+    bool atMe = false;
+    bool atAll = false;
     String msg = "";
     for (var item in widget.groupAtInfoList) {
       if (item!.atType == 1) {
-        msg = TIM_t("[有人@我] ");
-      } else {
-        msg = TIM_t("[@所有人] ");
+        atMe = true;
+        continue;
+      } else if (item!.atType == 2) {
+        atAll = true;
+        continue;
+      } else if (item!.atType == 3) {
+        atMe = true;
+        atAll = true;
+        continue;
       }
     }
+
+    if (atAll && atMe) {
+      msg = TIM_t("[@所有人][有人@我]");
+    } else if (atAll) {
+      msg = TIM_t("[@所有人]");
+    } else if (atMe) {
+      msg = TIM_t("[有人@我]");
+    }
+
     return msg;
+  }
+
+  String _getDraftShowText() {
+    final draftShowText = TIM_t("草稿");
+    return '[$draftShowText]';
   }
 
   @override
   Widget tuiBuild(BuildContext context, TUIKitBuildValue value) {
+    final isDesktopScreen =
+        TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
     final TUITheme theme = value.theme;
     final icon = _getIconByMsgStatus(context);
-    return Row(
-      children: [
-        if (icon != null)
-          Container(
-            margin: const EdgeInsets.only(right: 2),
-            child: icon,
-          ),
-        if (widget.groupAtInfoList.isNotEmpty)
-          Text(_getAtMessage(),
-              style: TextStyle(
-                  color: theme.cautionColor, fontSize: widget.fontSize)),
-        if (TencentUtils.checkString(groupTipsAbstractText) != null)
-          Expanded(
-            child: Text(
-              groupTipsAbstractText,
+    String disturbUnreadCountInfo = _getDisturbUnreadCountInfo();
+    return Row(children: [
+      if (icon != null)
+        Container(
+          margin: const EdgeInsets.only(right: 2),
+          child: icon,
+        ),
+      if (widget.groupAtInfoList.isNotEmpty)
+        Text(_getAtMessage(),
+            style: TextStyle(
+                color: theme.cautionColor, fontSize: widget.fontSize)),
+      if (widget.draftText != null && widget.draftText != "")
+        Text(_getDraftShowText(),
+            style: TextStyle(
+                color: theme.conversationItemDraftTextColor,
+                fontSize: widget.fontSize)),
+      if (disturbUnreadCountInfo != "")
+        Text(disturbUnreadCountInfo,
+            style: TextStyle(
+                color: theme.weakTextColor, fontSize: widget.fontSize)),
+      if (widget.draftText != null && widget.draftText != "")
+        Expanded(
+          child: ExtendedText(groupTipsAbstractText,
               softWrap: true,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              // height: 1,
               style: TextStyle(
-                color: theme.weakTextColor,
-                fontSize: widget.fontSize,
-              ),
-            ),
-          ),
-      ],
-    );
+                  height: 1,
+                  color: theme.weakTextColor,
+                  fontSize: widget.fontSize),
+              specialTextSpanBuilder: DefaultSpecialTextSpanBuilder(
+                isUseQQPackage: true,
+                isUseTencentCloudChatPackage: true,
+                showAtBackground: true,
+              )),
+        ),
+      if (widget.draftText == null ||
+          widget.draftText == "" &&
+              TencentUtils.checkString(groupTipsAbstractText) != null)
+        Expanded(
+          child: ExtendedText(groupTipsAbstractText,
+              softWrap: true,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                  // height: 1,
+                  color: theme.weakTextColor,
+                  fontSize: widget.fontSize),
+              specialTextSpanBuilder: DefaultSpecialTextSpanBuilder(
+                isUseQQPackage: true,
+                isUseTencentCloudChatPackage: true,
+                showAtBackground: true,
+              )),
+        )
+    ]);
   }
 }

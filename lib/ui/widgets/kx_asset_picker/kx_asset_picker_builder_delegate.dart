@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
-
-import 'asset_picker_preview.dart';
 import 'kx_asset_picker_viewer_builder_delegate.dart';
 
 class KxAssetPickerBuilderDelegate extends DefaultAssetPickerBuilderDelegate {
@@ -26,11 +24,11 @@ class KxAssetPickerBuilderDelegate extends DefaultAssetPickerBuilderDelegate {
     super.specialPickerType,
     super.keepScrollOffset = false,
   });
-  
+
   @override
   Future<void> viewAsset(
     BuildContext context,
-    int index,
+    int? index,
     AssetEntity currentAsset,
   ) async {
     final DefaultAssetPickerProvider provider =
@@ -75,7 +73,7 @@ class KxAssetPickerBuilderDelegate extends DefaultAssetPickerBuilderDelegate {
     } else {
       current = provider.currentAssets;
       selected = provider.selectedAssets;
-      effectiveIndex = index;
+      effectiveIndex = index ?? 0;
     }
     // final List<AssetEntity>? result = await AssetPickerViewer.pushToViewer(
     //   context,

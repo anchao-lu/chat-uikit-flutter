@@ -1,3 +1,29 @@
+# 4.0.1
+* Upgraded the plugin tim_ui_kit_sticker_plugin to 4.0.1.
+* Use the 'useTencentCloudChatStickerPackageOldKeys' parameter in StickerPanelConfig to control whether the emoticon is compatible with version 3.x.
+
+# 4.0.0
+## Breaking changes
+* Upgraded the plugin tim_ui_kit_sticker_plugin to 4.0.0.
+* Delete the useQQStickerPackage and unicodeEmojiList parameters in StickerPanelConfig.
+* Delete the isUseDefaultEmoji parameter in TIMUIKitChatConfig.
+* Delete the isUseDefaultEmoji parameter in each widget.
+
+## Bug Fixes
+* Solve the problem that showReplyMessage and showForwardMessage in ToolTipsConfig do not take effect after being set to false.
+
+# 3.1.0+2
+* Replace the flutter_slidable library with flutter_slidable_plus_plus to solve the compatibility issue of flutter 3.27.0 version.
+
+# 3.1.0+1
+* Upgrade the third-party library version to adapt to Android AGP 8.0.
+
+# 3.1.0
+## Bug Fixes
+* The interface for deleting messages is changed to the interface for deleting cloud messages.
+* C2C messages support read receipts
+* Fix and optimize some issues
+
 # 3.0.0
 ## Breaking Changes
 * Migrated to Flutter 3.24.0

@@ -5,6 +5,7 @@ import 'package:chewie/chewie.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_global_model.dart';
@@ -16,11 +17,7 @@ import 'package:tencent_cloud_chat_uikit/ui/widgets/video_custom_control.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoScreen extends StatefulWidget {
-  const VideoScreen(
-      {required this.message,
-      required this.heroTag,
-      required this.videoElement,
-      Key? key})
+  const VideoScreen({required this.message, required this.heroTag, required this.videoElement, Key? key})
       : super(key: key);
 
   final V2TimMessage message;
@@ -106,7 +103,9 @@ class _VideoScreenState extends TIMUIKitState<VideoScreen> {
                 : VideoPlayerController.networkUrl(
                     Uri.parse(widget.videoElement.localVideoUrl!),
                   ))
-        : ((TencentUtils.checkString(widget.videoElement.videoPath) != null || widget.message.status == MessageStatus.V2TIM_MSG_STATUS_SENDING) && File(widget.videoElement.videoPath!).existsSync())
+        : ((TencentUtils.checkString(widget.videoElement.videoPath) != null ||
+                    widget.message.status == MessageStatus.V2TIM_MSG_STATUS_SENDING) &&
+                File(widget.videoElement.videoPath!).existsSync())
             ? VideoPlayerController.file(File(widget.videoElement.videoPath!))
             : (TencentUtils.checkString(widget.videoElement.localVideoUrl) ==
                     null)
@@ -118,15 +117,14 @@ class _VideoScreenState extends TIMUIKitState<VideoScreen> {
                   ));
     await player.initialize();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      double w = getVideoWidth();
-      double h = getVideoHeight();
+      double aspectRatio = player.value.aspectRatio;
       ChewieController controller = ChewieController(
           videoPlayerController: player,
           autoPlay: true,
           looping: false,
           showControlsOnInitialize: false,
           allowPlaybackSpeedChanging: false,
-          aspectRatio: w == 0 || h == 0 ? null : w / h,
+          aspectRatio: aspectRatio,
           customControls: VideoCustomControls(downloadFn: () async {
             return await _saveVideo();
           }));
@@ -213,10 +211,9 @@ class _VideoScreenState extends TIMUIKitState<VideoScreen> {
                           HeroFlightDirection flightDirection,
                           BuildContext fromHeroContext,
                           BuildContext toHeroContext) {
-                        final Hero hero =
-                            (flightDirection == HeroFlightDirection.pop
-                                ? fromHeroContext.widget
-                                : toHeroContext.widget) as Hero;
+                        final Hero hero = (flightDirection == HeroFlightDirection.pop
+                            ? fromHeroContext.widget
+                            : toHeroContext.widget) as Hero;
 
                         return hero.child;
                       },

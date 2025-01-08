@@ -409,9 +409,9 @@ class _TUIChatState extends TIMUIKitState<TIMUIKitChat> {
     if (_getConvType() != ConvType.group) {
       return;
     }
-    final w = await TUICore.instance.raiseExtension(TUIExtensionID.joinInGroup, {GROUP_ID: widget.conversationID!});
-    if(w != _joinInGroupCallWidget){
-
+    final w = await TUICore.instance.raiseExtension(
+        TUIExtensionID.joinInGroup, {GROUP_ID: widget.conversationID!});
+    if (w != _joinInGroupCallWidget) {
       setState(() {
         _joinInGroupCallWidget = w;
       });
@@ -542,10 +542,11 @@ class _TUIChatState extends TIMUIKitState<TIMUIKitChat> {
                   child: Stack(
                     children: [
                       //// 聊天背景设置 start
-                      if(widget.chatBgImg != null)
+                      if (widget.chatBgImg != null)
                         Positioned.fill(
                           child: widget.chatBgImg!,
                         ),
+
                       /// end
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -557,7 +558,8 @@ class _TUIChatState extends TIMUIKitState<TIMUIKitChat> {
                             _renderJoinGroupApplication(
                                 filteredApplicationList.length, theme),
                           if (widget.topFixWidget != null) widget.topFixWidget!,
-                          if (_joinInGroupCallWidget != null) Center(child: _joinInGroupCallWidget!),
+                          if (_joinInGroupCallWidget != null)
+                            Center(child: _joinInGroupCallWidget!),
                           Expanded(
                               child: Container(
                             color: theme.chatBgColor,
@@ -586,8 +588,6 @@ class _TUIChatState extends TIMUIKitState<TIMUIKitChat> {
                                     textFieldController: textFieldController,
                                     customEmojiStickerList:
                                         widget.customEmojiStickerList,
-                                    isUseDefaultEmoji:
-                                        widget.config!.isUseDefaultEmoji,
                                     key: listContainerKey,
                                     isAllowScroll: true,
                                     userAvatarBuilder: widget.userAvatarBuilder,
@@ -640,8 +640,6 @@ class _TUIChatState extends TIMUIKitState<TIMUIKitChat> {
                                           controller: textFieldController,
                                           customEmojiStickerList:
                                               customImageSmallPngEmojiPackages,
-                                          isUseDefaultEmoji:
-                                              widget.config!.isUseDefaultEmoji,
                                           customStickerPanel:
                                               widget.customStickerPanel,
                                           morePanelConfig:

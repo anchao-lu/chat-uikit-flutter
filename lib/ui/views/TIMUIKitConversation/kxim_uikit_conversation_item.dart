@@ -84,6 +84,9 @@ class KXIMUIKitConversationItem extends TIMUIKitStatelessWidget {
         groupAtInfoList: groupAtInfoList,
         lastMsg: lastMsg,
         context: context,
+        isDisturb: isDisturb,
+        unreadCount: unreadCount,
+        draftText: draftText ?? "",
         lastMsgBuilder: customLastMsgBuilder,
       );
     }
