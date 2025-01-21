@@ -24,6 +24,11 @@ typedef ChatImgViewPres = void Function(V2TimMessage);
 typedef ChatImgMorePres = void Function(V2TimMessage);
 /// 新增图片 更多 end
 
+////  新增语音转文字回调 start
+typedef VoiceToWordFunction = Future<String> Function(V2TimMessage);
+
+/// 新增语音转文字回调 更多 end
+
 class TimeDividerConfig {
   /// Defines the interval of adding a time divider among the two messages.
   /// [Unit]: second.
@@ -278,7 +283,10 @@ class TIMUIKitChatConfig {
   final ChatImgViewPres? onImageViewPress;
 
   //添加图片浏览按键事件
-  final ChatImgMorePres ? onImageMorePress;
+  final ChatImgMorePres? onImageMorePress;
+
+  //新增语音转文字回调
+  final VoiceToWordFunction? onVoiceToWord;
 
   // 因为部分视频格式官网不支持，加一个变量控制
   final bool useKangXunVideo;
@@ -361,6 +369,7 @@ class TIMUIKitChatConfig {
     this.onImageLongPress,
     this.onImageViewPress,
     this.onImageMorePress,
+    this.onVoiceToWord,
     this.disableForwardConversions,
     this.useKangXunVideo = false,
     this.useMediaBrowser = false,

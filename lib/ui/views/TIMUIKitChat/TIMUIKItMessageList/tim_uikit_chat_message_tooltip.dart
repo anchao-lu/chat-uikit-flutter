@@ -521,7 +521,7 @@ class TIMUIKitMessageTooltipState
         model.translateText(widget.message);
         break;
       case 'convertVoiceToText':
-        model.convertVoiceToText(widget.message);
+        model.convertVoiceToText(widget.message, model);
         break;
       case "multiSelect":
         model.updateMultiSelectStatus(true);
