@@ -80,7 +80,7 @@ class ImageEditUtil {
                   proImg.I18nFilterEditor(bottomNavigationBarText: "滤镜"),
               emojiEditor:
                   proImg.I18nEmojiEditor(bottomNavigationBarText: "表情"),
-              paintEditor: proImg.I18nPaintingEditor(
+              paintEditor: proImg.I18nPaintEditor(
                 moveAndZoom: '缩放',
                 bottomNavigationBarText: '绘画',
                 freestyle: '自由',
