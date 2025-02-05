@@ -87,7 +87,7 @@ dependencies:
   video_player_win: ^2.0.0
 
   # 图片编辑
-  pro_image_editor: any
+  pro_image_editor: 7.2.0
 
 dependency_overrides:
   # ffi: ^2.0.1
