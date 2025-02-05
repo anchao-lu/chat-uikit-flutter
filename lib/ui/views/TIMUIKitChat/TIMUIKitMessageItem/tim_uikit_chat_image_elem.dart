@@ -175,8 +175,9 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
     TUITheme theme, {
     V2TimMessage? cusMsg,
   }) async {
+    if(cusMsg==null)return;
     widget.chatModel.chatConfig.onImageLongPress
-        ?.call(widget.message, autoSave: true);
+        ?.call(cusMsg!, autoSave: true);
     // ////////////// 整体逻辑已迁移 //////////////
     // /// 去内部进行比对
     // return MediaDownloadUtil.of.saveImg(
