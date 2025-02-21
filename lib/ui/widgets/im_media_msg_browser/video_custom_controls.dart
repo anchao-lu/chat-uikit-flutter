@@ -53,7 +53,7 @@ class _VideoCustomControlsState extends State<VideoCustomControls>
             ) ??
             const Center(
               child: Text(
-                '视频加载出错，换一个试试',
+                '视频过期或已被清理',
                 style: TextStyle(
                   color: Colors.white,
                 ),

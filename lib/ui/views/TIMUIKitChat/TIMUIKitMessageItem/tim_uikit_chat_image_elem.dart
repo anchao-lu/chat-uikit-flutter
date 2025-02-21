@@ -122,7 +122,7 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
             ),
             const SizedBox(height: 4),
             Text(
-              TIM_t('图片走丢了\n看看其他的吧'),
+              TIM_t('图片过期\n或已被清理'),
               textAlign: TextAlign.center,
               style: TextStyle(color: theme?.cautionColor),
             ),
