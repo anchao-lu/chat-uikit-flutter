@@ -71,8 +71,11 @@ class ImageEditUtil {
           configs: const proImg.ProImageEditorConfigs(
             i18n: proImg.I18n(
               various: proImg.I18nVarious(
-                loadingDialogMsg: "请稍等...",
-              ),
+                  loadingDialogMsg: "请稍等...",
+                  closeEditorWarningTitle: "关闭图片编辑?",
+                  closeEditorWarningMessage: "退出图片编辑，所做的更改将不会被保存",
+                  closeEditorWarningCancelBtn: "取消",
+                  closeEditorWarningConfirmBtn: "确认"),
               blurEditor: proImg.I18nBlurEditor(
                 bottomNavigationBarText: "模糊",
               ),
