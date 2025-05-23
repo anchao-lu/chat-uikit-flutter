@@ -3,7 +3,9 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  audioplayers_windows
   desktop_drop
+  emoji_picker_flutter
   fc_native_video_thumbnail
   file_selector_windows
   image_clipboard
@@ -11,6 +13,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   permission_handler_windows
   tencent_cloud_chat_sdk
   url_launcher_windows
+  video_player_win
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

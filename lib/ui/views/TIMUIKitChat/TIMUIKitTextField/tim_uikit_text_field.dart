@@ -77,6 +77,9 @@ class TIMUIKitInputTextField extends StatefulWidget {
   /// background color
   final Color? backgroundColor;
 
+  /// input background color
+  final Color? inputFillColor;
+
   /// control input field behavior
   final TIMUIKitInputTextFieldController? controller;
 
@@ -113,6 +116,7 @@ class TIMUIKitInputTextField extends StatefulWidget {
       this.showSendEmoji = true,
       this.showMorePanel = true,
       this.backgroundColor,
+      this.inputFillColor,
       this.controller,
       this.onChanged,
       this.isUseDefaultEmoji = false,
@@ -1025,6 +1029,7 @@ class _InputTextFieldState extends TIMUIKitState<TIMUIKitInputTextField> {
                     customStickerPanel: widget.customStickerPanel,
                     onChanged: widget.onChanged,
                     backgroundColor: widget.backgroundColor,
+                    inputFillColor: widget.inputFillColor,
                     morePanelConfig: widget.morePanelConfig,
                     repliedMessage: value,
                     currentCursor: currentCursor,

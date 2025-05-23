@@ -45,6 +45,8 @@ dependency_overrides:
   package_info_plus: ^4.0.1
   collection: ^1.17.1
   win32: 4.0.0
+  system_info2: ^4.0.0
+  photo_manager: ^3.1.0
 
 #   tencent_cloud_chat_sdk:
 #     path: /Users/wangrunlin/Documents/GitHub/im-flutter-plugin/tencent_im_sdk_plugin

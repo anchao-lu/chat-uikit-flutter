@@ -192,6 +192,12 @@ class TIMUIKitChat extends StatefulWidget {
   /// 设置聊天背景图片
   final Image? chatBgImg;
 
+  /// input background color
+  final Color? inputBgColor;
+
+  /// input background color
+  final Color? inputFillColor;
+
   TIMUIKitChat({
     Key? key,
     this.groupID,
@@ -238,6 +244,8 @@ class TIMUIKitChat extends StatefulWidget {
     this.calculateVideoSizeFunc,
     this.isDesktop = false,
     this.chatBgImg,
+    this.inputFillColor,
+    this.inputBgColor,
     ////////////// 自定义入参 //////////////
   }) : super(key: key) {
     startTime = DateTime.now().millisecondsSinceEpoch;
@@ -409,9 +417,9 @@ class _TUIChatState extends TIMUIKitState<TIMUIKitChat> {
     if (_getConvType() != ConvType.group) {
       return;
     }
-    final w = await TUICore.instance.raiseExtension(TUIExtensionID.joinInGroup, {GROUP_ID: widget.conversationID!});
-    if(w != _joinInGroupCallWidget){
-
+    final w = await TUICore.instance.raiseExtension(
+        TUIExtensionID.joinInGroup, {GROUP_ID: widget.conversationID!});
+    if (w != _joinInGroupCallWidget) {
       setState(() {
         _joinInGroupCallWidget = w;
       });
@@ -542,10 +550,11 @@ class _TUIChatState extends TIMUIKitState<TIMUIKitChat> {
                   child: Stack(
                     children: [
                       //// 聊天背景设置 start
-                      if(widget.chatBgImg != null)
+                      if (widget.chatBgImg != null)
                         Positioned.fill(
                           child: widget.chatBgImg!,
                         ),
+
                       /// end
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -557,7 +566,8 @@ class _TUIChatState extends TIMUIKitState<TIMUIKitChat> {
                             _renderJoinGroupApplication(
                                 filteredApplicationList.length, theme),
                           if (widget.topFixWidget != null) widget.topFixWidget!,
-                          if (_joinInGroupCallWidget != null) Center(child: _joinInGroupCallWidget!),
+                          if (_joinInGroupCallWidget != null)
+                            Center(child: _joinInGroupCallWidget!),
                           Expanded(
                               child: Container(
                             color: theme.chatBgColor,
@@ -628,6 +638,8 @@ class _TUIChatState extends TIMUIKitState<TIMUIKitChat> {
                                   : (widget.textFieldBuilder != null
                                       ? widget.textFieldBuilder!(context)
                                       : TIMUIKitInputTextField(
+                                          backgroundColor: widget.inputBgColor,
+                                          inputFillColor: widget.inputFillColor,
                                           chatConfig: widget.config,
                                           groupID: widget.groupID,
                                           atMemberPanelScroll:

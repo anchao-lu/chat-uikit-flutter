@@ -28,12 +28,15 @@ class SendSoundMessage extends StatefulWidget {
   /// the conversation type
   final ConvType conversationType;
 
-  const SendSoundMessage(
-      {required this.conversationID,
-      required this.conversationType,
-      Key? key,
-      required this.onDownBottom})
-      : super(key: key);
+  final Color? bgColor;
+
+  const SendSoundMessage({
+    required this.conversationID,
+    required this.conversationType,
+    Key? key,
+    required this.onDownBottom,
+    this.bgColor,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _SendSoundMessageState();
@@ -308,7 +311,9 @@ class _SendSoundMessageState extends TIMUIKitState<SendSoundMessage> {
       onLongPressCancel: onLonePressCancel,
       child: Container(
         height: 35,
-        color: isRecording ? theme.weakBackgroundColor : Colors.white,
+        color: isRecording
+            ? theme.weakBackgroundColor
+            : (widget.bgColor ?? Colors.white),
         alignment: Alignment.center,
         child: Text(
           TIM_t("按住说话"),
