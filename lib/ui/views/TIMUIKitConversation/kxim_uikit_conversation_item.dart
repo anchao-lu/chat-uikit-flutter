@@ -177,7 +177,7 @@ class KXIMUIKitConversationItem extends TIMUIKitStatelessWidget {
           ),
           Expanded(
               child: Container(
-            height: 60,
+            constraints: const BoxConstraints(minHeight: 60),
             margin: EdgeInsets.only(left: isDesktopScreen ? 10 : 12),
             padding: const EdgeInsets.only(top: 0, bottom: 0),
             child: Column(
