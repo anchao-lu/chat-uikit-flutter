@@ -460,7 +460,15 @@ class _TIMUIKitTextFieldLayoutNarrowState
           //////////////// 新增点击加号显示最近保存的图片 ////////////////
           _buildRepliedMessage(widget.repliedMessage),
           Container(
-            color: widget.backgroundColor ?? hexToColor("f5f5f6"),
+            decoration: BoxDecoration(
+              color: widget.backgroundColor ?? hexToColor("f5f5f6"),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 9,
+                ),
+              ],
+            ),
             child: Column(
               children: [
                 Container(

@@ -798,7 +798,11 @@ class _MorePanelState extends TIMUIKitState<MorePanel> {
       decoration: BoxDecoration(
         // color: hexToColor("EBF0F6"),
         border: Border(
-          top: BorderSide(width: 1, color: Colors.grey.shade300),
+          top: BorderSide(
+            width: 1,
+            color: theme.conversationItemBorderColor ??
+                CommonColor.weakDividerColor,
+          ),
         ),
       ),
       padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
