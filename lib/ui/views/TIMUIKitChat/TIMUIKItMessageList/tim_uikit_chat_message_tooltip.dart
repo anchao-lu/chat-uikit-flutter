@@ -364,7 +364,7 @@ class TIMUIKitMessageTooltipState
       widgetList = formattedTipsList
           .map(
             (item) => Material(
-              color: Colors.white,
+              color: theme.conversationItemBgColor,
               child: ItemInkWell(
                 onTap: () {
                   item.onClick();
@@ -621,7 +621,7 @@ class TIMUIKitMessageTooltipState
                     borderRadius: const BorderRadius.all(Radius.circular(10)),
                   )
                 : null,
-            color: isDesktopScreen ? null : Colors.white,
+            color: isDesktopScreen ? null : theme.chatMessageItemFromSelfBgColor,
             padding: EdgeInsets.symmetric(
                 horizontal: 8, vertical: isDesktopScreen ? 8 : 4),
             child: ConstrainedBox(

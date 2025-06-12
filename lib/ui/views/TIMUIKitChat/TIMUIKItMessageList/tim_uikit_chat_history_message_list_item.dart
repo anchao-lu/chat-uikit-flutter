@@ -952,13 +952,14 @@ class _TIMUIKItHistoryMessageListItemState extends TIMUIKitState<TIMUIKitHistory
       right: right,
       left: left,
       hasArrow: hasArrow,
-      borderColor: theme?.white ?? Colors.white,
-      backgroundColor: theme?.white ?? Colors.white,
+      borderColor: theme?.chatMessageItemFromSelfBgColor ?? Colors.white,
+      backgroundColor: theme?.chatMessageItemFromSelfBgColor ?? Colors.white,
       shadowColor: Colors.black26,
       hasShadow: isDesktopScreen ? false : true,
       borderWidth: 1.0,
       showCloseButton: ShowCloseButton.none,
       touchThroughAreaShape: ClipAreaShape.rectangle,
+      outsideBackgroundColor: Colors.transparent,
       content: TIMUIKitMessageTooltip(
         iSUseDefaultHoverBar: model.chatConfig.isUseMessageHoverBarOnDesktop &&
             widget.customMessageHoverBarOnDesktop == null,

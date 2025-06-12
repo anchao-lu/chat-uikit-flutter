@@ -36,7 +36,7 @@ class TIMUIKitMessageReactionEmojiSelectPanelState
     final List<Map<String, Object>> emojiData = messageReactionEmojiData;
     final isDesktopScreen = TUIKitScreenUtils.getFormFactor() == DeviceType.Desktop;
     return Material(
-      color: Colors.white,
+      color: theme.chatMessageItemFromSelfBgColor,
       child: ExtendedWrap(
         maxLines: widget.isShowMoreSticker ? 5 : 1,
         spacing: 18,
