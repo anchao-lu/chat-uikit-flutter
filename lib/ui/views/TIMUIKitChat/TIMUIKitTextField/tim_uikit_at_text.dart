@@ -303,7 +303,7 @@ class _AtTextMemberListState extends TIMUIKitState<AtTextMemberList> {
     final isGroupMember =
         memberInfo.role == GroupMemberRoleType.V2TIM_GROUP_MEMBER_ROLE_MEMBER;
     return Container(
-      color: Colors.white,
+      color: theme.conversationItemBgColor,
       child: Slidable(
         endActionPane: widget.canSlideDelete && isGroupMember
             ? ActionPane(
@@ -440,7 +440,7 @@ class _AtTextMemberListState extends TIMUIKitState<AtTextMemberList> {
               thickness: 1,
               indent: 74,
               endIndent: 0,
-              color: theme.weakBackgroundColor,
+              color: theme.conversationItemBorderColor ?? CommonColor.weakDividerColor,
               height: 0,
             )
           ],

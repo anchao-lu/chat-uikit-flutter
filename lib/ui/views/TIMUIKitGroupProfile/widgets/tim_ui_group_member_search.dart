@@ -22,7 +22,7 @@ class GroupMemberSearchTextField extends TIMUIKitStatelessWidget {
         (text) => onTextChange(text), const Duration(milliseconds: 300));
 
     return Container(
-      color: Colors.white,
+      color: theme.chatMessageItemFromSelfBgColor,
       child: Column(children: [
         if (!isDesktopScreen)
           Container(
