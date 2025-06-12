@@ -366,6 +366,7 @@ class _AtTextMemberListState extends TIMUIKitState<AtTextMemberList> {
                     _getShowName(memberInfo),
                     style: TextStyle(
                       fontSize: isDesktopScreen ? 14 : 16,
+                      color: theme.conversationItemTitleTextColor,
                     ),
                   ),
                   memberInfo.role ==

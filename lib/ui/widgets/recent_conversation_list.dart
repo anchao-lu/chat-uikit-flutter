@@ -54,6 +54,7 @@ class _RecentForwardListState extends TIMUIKitState<RecentForwardList> {
   }
 
   Widget _buildItem(V2TimConversation conversation) {
+    final theme = Provider.of<TUIThemeViewModel>(context).theme;
     final isDesktopScreen =
         TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
 
@@ -118,15 +119,26 @@ class _RecentForwardListState extends TIMUIKitState<RecentForwardList> {
                 Expanded(
                     child: Container(
                   alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.only(top: 10, bottom: isDesktopScreen ? 12 : 19),
-                  decoration: isDesktopScreen ? null : const BoxDecoration(
-                      border:
-                          Border(bottom: BorderSide(color: Color(0xFFDBDBDB)))),
+                  padding: EdgeInsets.only(
+                      top: 10, bottom: isDesktopScreen ? 12 : 19),
+                  decoration: isDesktopScreen
+                      ? null
+                      : BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: theme.conversationItemBorderColor ??
+                                  CommonColor.weakDividerColor,
+                            ),
+                          ),
+                        ),
                   child: Text(
                     showName,
                     // textAlign: TextAlign.center,
                     style:
-                    TextStyle(color: const Color(0xFF111111), fontSize: isDesktopScreen ? 16 : 18),
+                    TextStyle(
+                      color: theme.conversationItemTitleTextColor,
+                      fontSize: isDesktopScreen ? 16 : 18,
+                    ),
                   ),
                 ))
               ],
