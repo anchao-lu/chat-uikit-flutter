@@ -379,6 +379,7 @@ class TIMUIKitMessageTooltipState
                           : null,
                       width: 20,
                       height: 20,
+                      color: theme.darkTextColor
                     ),
                     const SizedBox(
                       height: 4,
