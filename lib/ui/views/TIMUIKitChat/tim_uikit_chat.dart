@@ -570,7 +570,9 @@ class _TUIChatState extends TIMUIKitState<TIMUIKitChat> {
                             Center(child: _joinInGroupCallWidget!),
                           Expanded(
                               child: Container(
-                            color:widget.chatBgImg!=null? theme.chatBgColor!.withOpacity(.2):theme.chatBgColor,
+                            color: widget.chatBgImg != null
+                                ? theme.chatBgColor!.withOpacity(.2)
+                                : theme.chatBgColor,
                             child: Align(
                                 key: alignKey,
                                 alignment: Alignment.topCenter,
