@@ -1,6 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_conversation.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_conversation.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_at_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_at_info.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
@@ -8,7 +12,6 @@ import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_glo
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/common_utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKItMessageList/TIMUIKitTongue/tim_uikit_chat_history_message_list_tongue.dart';
-import 'package:tencent_im_base/tencent_im_base.dart';
 import 'package:tuple/tuple.dart';
 
 class TIMUIKitHistoryMessageListTongueContainer extends StatefulWidget {
@@ -59,11 +62,18 @@ class _TIMUIKitHistoryMessageListTongueContainerState extends TIMUIKitState<TIMU
     if (offset <= 0.0 && conversationUnreadCount != 0) {
       widget.model.showLatestUnread();
     }
-    if (widget.scrollController.offset <= widget.scrollController.position.minScrollExtent && !widget.scrollController.position.outOfRange && !widget.model.haveMoreLatestData) {
+    if (widget.scrollController.offset <= widget.scrollController.position.minScrollExtent &&
+        !widget.scrollController.position.outOfRange &&
+        !widget.model.haveMoreLatestData) {
       changePositionState(HistoryMessagePosition.bottom);
-    } else if (widget.scrollController.offset <= screenHeight * 1.6 && widget.scrollController.offset > 0 && !widget.scrollController.position.outOfRange && !widget.model.haveMoreLatestData) {
+    } else if (widget.scrollController.offset <= screenHeight * 1.6 &&
+        widget.scrollController.offset > 0 &&
+        !widget.scrollController.position.outOfRange &&
+        !widget.model.haveMoreLatestData) {
       changePositionState(HistoryMessagePosition.inTwoScreen);
-    } else if (widget.scrollController.offset > screenHeight * 1.6 && !widget.scrollController.position.outOfRange && !widget.model.haveMoreLatestData) {
+    } else if (widget.scrollController.offset > screenHeight * 1.6 &&
+        !widget.scrollController.position.outOfRange &&
+        !widget.model.haveMoreLatestData) {
       changePositionState(HistoryMessagePosition.awayTwoScreen);
     }
   }
@@ -84,11 +94,11 @@ class _TIMUIKitHistoryMessageListTongueContainerState extends TIMUIKitState<TIMU
       }
     }
 
-    if ((widget.conversation.unreadCount ?? 0) > 20 && !isClickShowPrevious) {
-      return MessageListTongueType.showPrevious;
-    }
+    // if ((widget.conversation.unreadCount ?? 0) > 20 && !isClickShowPrevious) {
+    //   return MessageListTongueType.showPrevious;
+    // }
 
-    if (globalModel.unreadCountForConversation > 0) {
+    if (globalModel.unreadCountForTongue > 0) {
       return MessageListTongueType.showUnread;
     }
 
@@ -116,12 +126,12 @@ class _TIMUIKitHistoryMessageListTongueContainerState extends TIMUIKitState<TIMU
           child: TIMUIKitHistoryMessageListTongue(
             previousCount: widget.conversation.unreadCount ?? 0,
             tongueItemBuilder: widget.tongueItemBuilder,
-            unreadCount: globalModel.unreadCountForConversation,
+            unreadCount: value.item2,
             onClick: () async {
               if (groupAtInfoList != null && groupAtInfoList!.isNotEmpty) {
                 if (groupAtInfoList?.length == 1) {
                   widget.scrollToIndexBySeq(groupAtInfoList![0]!.seq);
-                  widget.model.markMessageAsRead();
+
                   setState(() {
                     groupAtInfoList = [];
                     isFinishJumpToAt = true;
@@ -133,7 +143,8 @@ class _TIMUIKitHistoryMessageListTongueContainerState extends TIMUIKitState<TIMU
                 try {
                   isClickShowPrevious = true;
                   final String? lastSeqString = widget.conversation.lastMessage?.seq;
-                  final int? lastSeq = TencentUtils.checkString(lastSeqString) != null ? int.parse(lastSeqString!) : null;
+                  final int? lastSeq =
+                      TencentUtils.checkString(lastSeqString) != null ? int.parse(lastSeqString!) : null;
                   final int? previousCount = widget.conversation.unreadCount;
                   if (lastSeq != null && previousCount != null) {
                     final targetSeq = lastSeq - previousCount;
@@ -146,7 +157,7 @@ class _TIMUIKitHistoryMessageListTongueContainerState extends TIMUIKitState<TIMU
                   // TODO: 这里后续加个弹窗提示客户，找消息失败了
                 }
                 // widget.model.loadListForSpecificMessage(seq: count);
-              } else if (value.item1 == HistoryMessagePosition.awayTwoScreen || globalModel.unreadCountForConversation > 0) {
+              } else if (value.item1 == HistoryMessagePosition.awayTwoScreen || value.item2 > 0) {
                 widget.model.showLatestUnread();
                 widget.scrollController.animateTo(
                   widget.scrollController.position.minScrollExtent,
@@ -162,9 +173,9 @@ class _TIMUIKitHistoryMessageListTongueContainerState extends TIMUIKitState<TIMU
         );
       },
       selector: (c, model) {
-        final mesageListPosition = model.getMessageListPosition(widget.model.conversationID);
-        final unreadCountForConversation = model.unreadCountForConversation;
-        return Tuple2(mesageListPosition, unreadCountForConversation);
+        final messageListPosition = model.getMessageListPosition(widget.model.conversationID);
+        final unreadCountForConversation = model.unreadCountForTongue;
+        return Tuple2(messageListPosition, unreadCountForConversation);
       },
     );
   }

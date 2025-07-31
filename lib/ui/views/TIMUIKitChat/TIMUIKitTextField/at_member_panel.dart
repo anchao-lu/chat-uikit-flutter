@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:tencent_cloud_chat_sdk/enum/group_member_filter_enum.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_member_full_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_member_full_info.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_member_search_param.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_member_search_result.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_value_callback.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
@@ -170,10 +176,12 @@ class _AtMemberPanelState extends TIMUIKitState<AtMemberPanel> {
   @override
   Widget tuiBuild(BuildContext context, TUIKitBuildValue value) {
     final theme = value.theme;
-
-    final double positionX = _chatModel.atPositionX;
-    final double positionY = _chatModel.atPositionY;
-    final int activeIndex = _chatModel.activeAtIndex;
+    final chatModal = Provider.of<TUIChatSeparateViewModel>(context);
+    final List<V2TimGroupMemberFullInfo?> groupMemberList =
+        chatModal.showAtMemberList;
+    final double positionX = chatModal.atPositionX;
+    final double positionY = chatModal.atPositionY;
+    final int activeIndex = chatModal.activeAtIndex;
 
     final keywords =
         context.watch<TUIChatSeparateViewModel>().desktopAtKeywords;
@@ -224,10 +232,9 @@ class _AtMemberPanelState extends TIMUIKitState<AtMemberPanel> {
                 final memberItem = _realMemberList[index];
                 if (memberItem == null) {
                   return AutoScrollTag(
-                    key: ValueKey(index),
-                    controller: widget.atMemberPanelScroll,
-                    index: index,
-                  );
+                      key: ValueKey(index),
+                      controller: widget.atMemberPanelScroll,
+                      index: index);
                 }
                 final showName = _getShowName(memberItem);
                 final isAtAll = memberItem.userID == "__kImSDK_MesssageAtALL__";
@@ -256,10 +263,9 @@ class _AtMemberPanelState extends TIMUIKitState<AtMemberPanel> {
                               height: 24,
                               width: 24,
                               child: Avatar(
-                                faceUrl: memberItem.faceUrl ?? "",
-                                type: 1,
-                                showName: showName,
-                              ),
+                                  faceUrl: memberItem.faceUrl ?? "",
+                                  type: 1,
+                                  showName: showName),
                             ),
                             const SizedBox(
                               width: 8,
@@ -267,7 +273,7 @@ class _AtMemberPanelState extends TIMUIKitState<AtMemberPanel> {
                             Expanded(
                               child: Text(
                                 isAtAll
-                                    ? "$showName(${_groupMemberList.length - 1})"
+                                    ? "$showName(${groupMemberList.length - 1})"
                                     : showName,
                                 softWrap: false,
                                 style: TextStyle(

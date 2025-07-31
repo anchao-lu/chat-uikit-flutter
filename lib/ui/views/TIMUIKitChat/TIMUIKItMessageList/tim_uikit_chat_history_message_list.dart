@@ -5,6 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:tencent_chat_i18n_tool/tencent_chat_i18n_tool.dart';
+import 'package:tencent_cloud_chat_sdk/enum/message_elem_type.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_conversation.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_conversation.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_at_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_at_info.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_message.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_statelesswidget.dart';
@@ -18,6 +26,7 @@ import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKItMessageLi
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKItMessageList/utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/keepalive_wrapper.dart';
 
+import 'package:tencent_cloud_chat_uikit/base_widgets/tim_callback.dart';
 import 'TIMUIKitTongue/tim_uikit_chat_history_message_list_tongue.dart';
 import 'TIMUIKitTongue/tim_uikit_chat_history_message_list_tongue_container.dart';
 
@@ -75,7 +84,7 @@ class TIMUIKitHistoryMessageList extends StatefulWidget {
   final V2TimMessage? initFindingMsg;
 
   /// use for load more message
-  final Future<void> Function(String?, LoadDirection direction, [int?])
+  final Future<bool> Function(String?, LoadDirection direction, [int?, int?])
       onLoadMore;
 
   /// configuration for list view
@@ -113,6 +122,7 @@ class _TIMUIKitHistoryMessageListState
   late TIMUIKitHistoryMessageListController _controller;
   late AutoScrollController _autoScrollController;
   LoadingPlace loadingPlace = LoadingPlace.none;
+  bool maybeHaveMoreMessageForFind = true;
 
   @override
   void initState() {
@@ -171,7 +181,7 @@ class _TIMUIKitHistoryMessageListState
         infoCode: 6660401));
   }
 
-  _onScrollToIndex(V2TimMessage targetMsg) {
+  _onScrollToIndex(V2TimMessage targetMsg) async {
     // This method called by @ messages or messages been searched, aims to jump to target message
     loadingPlace = LoadingPlace.top;
     const int singleLoadAmount = kIsWeb ? 15 : 40;
@@ -215,21 +225,22 @@ class _TIMUIKitHistoryMessageListState
         showCantFindMsg();
       }
     } else {
-      if (widget.model.haveMoreData) {
+      if (maybeHaveMoreMessageForFind) {
         // if the target message not in current message list, load more
         findingMsg = targetMsg;
         final lastMsgId = _getMessageId(widget.messageList.length - 1);
-        widget.onLoadMore(lastMsgId, LoadDirection.previous, singleLoadAmount);
+        maybeHaveMoreMessageForFind = await widget.onLoadMore(
+            lastMsgId, LoadDirection.previous, singleLoadAmount);
       } else {
         showCantFindMsg();
       }
     }
   }
 
-  _onScrollToIndexBySeq(String targetSeq) {
+  _onScrollToIndexBySeq(String targetSeq) async {
     // This method called by tongue request jumping to target @ message
     loadingPlace = LoadingPlace.top;
-    const int singleLoadAmount = 40;
+    // const int singleLoadAmount = 40;
     final msgList = widget.messageList;
     String lastSeq = "";
     for (int i = msgList.length - 1; i >= 0; i--) {
@@ -270,10 +281,14 @@ class _TIMUIKitHistoryMessageListState
         showCantFindMsg();
       }
     } else {
-      if (widget.model.haveMoreData) {
+      if (maybeHaveMoreMessageForFind) {
         findingSeq = targetSeq;
-        widget.onLoadMore(_getMessageId(widget.messageList.length - 1),
-            LoadDirection.previous, singleLoadAmount);
+        int requestCount = int.parse(lastSeq) - int.parse(targetSeq);
+        maybeHaveMoreMessageForFind = await widget.onLoadMore(
+            _getMessageId(widget.messageList.length - 1),
+            LoadDirection.previous,
+            requestCount,
+            int.parse(lastSeq));
       } else {
         showCantFindMsg();
       }
@@ -332,9 +347,9 @@ class _TIMUIKitHistoryMessageListState
 
     final messageList = widget.messageList;
     final globalModel = context.read<TUIChatGlobalModel>();
-    final receivedNewMessageList = globalModel.receivedMessageListCount;
-    final shouldShowUnreadMessage = receivedNewMessageList > 0;
-    final unreadMessageList = _getReceivedMessageList(receivedNewMessageList);
+    final receivedNewMessageCount = globalModel.receivedNewMessageCount;
+    final shouldShowUnreadMessage = receivedNewMessageCount > 0;
+    final unreadMessageList = _getReceivedMessageList(receivedNewMessageCount);
     final readMessageList = messageList
         .sublist(unreadMessageList.length, messageList.length)
         .toList();
@@ -498,7 +513,7 @@ class _TIMUIKitHistoryMessageListState
                                 }
                                 if (index == 0 &&
                                     widget.model.haveMoreLatestData == true &&
-                                    globalModel.receivedMessageListCount < 10) {
+                                    globalModel.receivedNewMessageCount < 10) {
                                   throttleFunction(index, LoadDirection.latest);
                                 }
                                 outputLogger.i(

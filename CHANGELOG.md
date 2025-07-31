@@ -1,3 +1,61 @@
+# 5.0.0
+* Migrate to Flutter 3.29.0.
+
+# 4.0.8
+* Use the OfflinePushInfo constructor, not the fromJson function.
+
+# 4.0.7
+* Fixed the issue that modifying your own adding friend permissions does not take effect.
+* Fixed the setGroupInfo exception problem.
+
+# 4.0.6
+* Solve the updateSelfInfo exception problem.
+* The success of calling the initSDK interface is determined by the code of the return value. Avoid inaccurate judgment when calling the interface multiple times.
+
+# 4.0.5
+* Upgrade tencent_cloud_chat_sdk to the minimum version 8.5.6864+6.
+* Changed the SDK interface call from getConversationListByConversaionIds to getConversationListByConversationIds.
+
+# 4.0.4
+* Remove the import of tencent_im_base plugin.
+* Upgrade tencent_cloud_chat_sdk to the minimum version 8.5.6864+4.
+* Fix compilation issues in tim_uikit_group.dart, tui_group_listener_model.dart, tui_conversation_view_model.dart.
+
+# 4.0.3
+* Fix compilation issues on Flutter 3.27.1
+
+# 4.0.2
+* Optimize the display of group notification page.
+* Optimize the display of read receipt page.
+* TIMUIKitChatController sendMessage interface supports isExcludedFromContentModeration parameter.
+* Fixed abnormal playback and recording of videos on Huawei P30.
+* Optimize the display of tips messages when they are too long.
+
+# 4.0.1
+* Upgraded the plugin tim_ui_kit_sticker_plugin to 4.0.1.
+* Add the 'useTencentCloudChatStickerPackageOldKeys' parameter in StickerPanelConfig to control whether the emoticon is compatible with version 3.x.
+
+# 4.0.0
+## Breaking changes
+* Upgraded the plugin tim_ui_kit_sticker_plugin to 4.0.0.
+* Delete the isUseDefaultEmoji parameter in TIMUIKitChatConfig.
+* Delete the isUseDefaultEmoji parameter in each widget.
+
+## Bug Fixes
+* Solve the problem that showReplyMessage and showForwardMessage in ToolTipsConfig do not take effect after being set to false.
+
+# 3.1.0+2
+* Replace the flutter_slidable library with flutter_slidable_plus_plus to solve the compatibility issue of flutter 3.27.0 version.
+
+# 3.1.0+1
+* Upgrade the third-party library version to adapt to Android AGP 8.0.
+
+# 3.1.0
+## Bug Fixes
+* The interface for deleting messages is changed to the interface for deleting cloud messages.
+* C2C messages support read receipts
+* Fix and optimize some issues
+
 # 3.0.0
 ## Breaking Changes
 * Migrated to Flutter 3.24.0

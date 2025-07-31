@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tencent_chat_i18n_tool/tencent_chat_i18n_tool.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_conversation.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_conversation.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_conversation_view_model.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
-
 import 'package:tencent_cloud_chat_uikit/ui/widgets/avatar.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/az_list_view.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/radio_button.dart';
-import 'package:tencent_im_base/tencent_im_base.dart';
-
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
+import 'package:tencent_cloud_chat_uikit/theme/tui_theme.dart';
 
 import '../../business_logic/view_models/tui_chat_global_model.dart';
+import '../../theme/color.dart';
+import '../../theme/tui_theme_view_model.dart';
+
 class RecentForwardList extends StatefulWidget {
   final bool isMultiSelect;
   final Function(List<V2TimConversation> conversationList)? onChanged;
@@ -66,7 +70,9 @@ class _RecentForwardListState extends TIMUIKitState<RecentForwardList> {
       children: [
         if (widget.isMultiSelect)
           Container(
-            padding: EdgeInsets.only(left: isDesktopScreen ? 8 : 16.0, top: isDesktopScreen ? 10 : 0),
+            padding: EdgeInsets.only(
+                left: isDesktopScreen ? 8 : 16.0,
+                top: isDesktopScreen ? 10 : 0),
             child: CheckBoxButton(
               isChecked: _selectedConversation.contains(conversation),
               onChanged: (value) {
@@ -134,8 +140,7 @@ class _RecentForwardListState extends TIMUIKitState<RecentForwardList> {
                   child: Text(
                     showName,
                     // textAlign: TextAlign.center,
-                    style:
-                    TextStyle(
+                    style: TextStyle(
                       color: theme.conversationItemTitleTextColor,
                       fontSize: isDesktopScreen ? 16 : 18,
                     ),
@@ -148,7 +153,6 @@ class _RecentForwardListState extends TIMUIKitState<RecentForwardList> {
       ],
     );
   }
-
 
   @override
   void dispose() {
@@ -177,21 +181,23 @@ class _RecentForwardListState extends TIMUIKitState<RecentForwardList> {
           memberList: showList,
           isShowIndexBar: false,
           susItemBuilder: (context, index) {
-            return isDesktopScreen ? Container() : Container(
-              height: 40,
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.only(left: 16.0),
-              color: theme.weakDividerColor,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                TIM_t("最近联系人"),
-                softWrap: true,
-                style: TextStyle(
-                  fontSize: 14.0,
-                  color: theme.weakTextColor,
-                ),
-              ),
-            );
+            return isDesktopScreen
+                ? Container()
+                : Container(
+                    height: 40,
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.only(left: 16.0),
+                    color: theme.weakDividerColor,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      TIM_t("最近联系人"),
+                      softWrap: true,
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        color: theme.weakTextColor,
+                      ),
+                    ),
+                  );
           },
           itemBuilder: (context, index) {
             final conversation = showList[index].memberInfo;

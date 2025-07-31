@@ -1,6 +1,7 @@
 import 'package:azlistview_all_platforms/azlistview_all_platforms.dart';
 import 'package:flutter/material.dart';
 import 'package:lpinyin/lpinyin.dart';
+
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_friendship_view_model.dart';
@@ -9,7 +10,14 @@ import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/avatar.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/az_list_view.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/radio_button.dart';
-import 'package:tencent_im_base/tencent_im_base.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_friend_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_friend_info.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_member_full_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_member_full_info.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_user_status.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_user_status.dart';
+import 'package:tencent_cloud_chat_uikit/theme/color.dart';
+import 'package:tencent_cloud_chat_uikit/theme/tui_theme.dart';
 
 class ContactList extends StatefulWidget {
   final List<V2TimFriendInfo> contactList;

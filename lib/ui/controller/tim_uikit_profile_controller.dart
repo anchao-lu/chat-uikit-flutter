@@ -1,7 +1,14 @@
 import 'package:flutter/cupertino.dart';
-import 'package:tencent_im_base/tencent_im_base.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_callback.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_callback.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_friend_operation_result.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_friend_operation_result.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_user_full_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_user_full_info.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_profile_view_model.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/text_input_bottom_sheet.dart';
+
+import 'package:tencent_cloud_chat_uikit/theme/tui_theme.dart';
 
 class TIMUIKitProfileController {
   late TUIProfileViewModel model;
@@ -23,8 +30,7 @@ class TIMUIKitProfileController {
   }
 
   /// add a user to block list
-  Future<List<V2TimFriendOperationResult>?> addUserToBlackList(
-      bool shouldAdd, String userID) {
+  Future<List<V2TimFriendOperationResult>?> addUserToBlackList(bool shouldAdd, String userID) {
     return model.addToBlackList(shouldAdd, userID);
   }
 
@@ -81,14 +87,33 @@ class TIMUIKitProfileController {
   }
 
   Future<V2TimCallback> updateSelfSignature(String selfSignature) {
-    return model.updateSelfSignature(selfSignature);
+    V2TimUserFullInfo userFullInfo = V2TimUserFullInfo();
+    userFullInfo.selfSignature = selfSignature;
+    return model.updateSelfInfo(userFullInfo);
   }
 
   Future<V2TimCallback> updateNickName(String nickName) {
-    return model.updateNickName(nickName);
+    V2TimUserFullInfo userFullInfo = V2TimUserFullInfo();
+    userFullInfo.nickName = nickName;
+    return model.updateSelfInfo(userFullInfo);
   }
 
+  /// 1：男 2：女
   Future<V2TimCallback> updateGender(int gender) {
-    return model.updateGender(gender);
+    V2TimUserFullInfo userFullInfo = V2TimUserFullInfo();
+    userFullInfo.gender = gender;
+    return model.updateSelfInfo(userFullInfo);
+  }
+
+  Future<V2TimCallback> updateBirthday(int birthday) {
+    V2TimUserFullInfo userFullInfo = V2TimUserFullInfo();
+    userFullInfo.birthday = birthday;
+    return model.updateSelfInfo(userFullInfo);
+  }
+
+  Future<V2TimCallback> updateAvatar(String url) {
+    V2TimUserFullInfo userFullInfo = V2TimUserFullInfo();
+    userFullInfo.faceUrl = url;
+    return model.updateSelfInfo(userFullInfo);
   }
 }

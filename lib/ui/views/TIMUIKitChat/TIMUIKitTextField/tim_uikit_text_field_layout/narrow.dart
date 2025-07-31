@@ -4,7 +4,11 @@ import 'dart:math';
 
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:tencent_chat_i18n_tool/tencent_chat_i18n_tool.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_message.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
@@ -13,11 +17,14 @@ import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_setting_
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/device_latest_pic_util.dart';
+import 'package:tencent_cloud_chat_uikit/theme/color.dart';
+import 'package:tencent_cloud_chat_uikit/theme/tui_theme.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/message.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/optimize_utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/permission.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitTextField/special_text/DefaultSpecialTextSpanBuilder.dart';
+import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitTextField/special_text/emoji_text.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitTextField/tim_uikit_send_sound_message.dart';
 import 'package:tencent_keyboard_visibility/tencent_keyboard_visibility.dart';
 import 'package:tencent_super_tooltip/tencent_super_tooltip.dart';
@@ -38,6 +45,8 @@ class TIMUIKitTextFieldLayoutNarrow extends StatefulWidget {
 
   /// Whether to use the default emoji
   final bool isUseDefaultEmoji;
+
+  final bool isUseTencentCloudChatPackageOldKeys;
 
   final TUIChatSeparateViewModel model;
 
@@ -87,6 +96,8 @@ class TIMUIKitTextFieldLayoutNarrow extends StatefulWidget {
 
   final V2TimMessage? repliedMessage;
 
+  final void Function(String)? onDeleteText;
+
   /// show send emoji icon
   final bool showSendEmoji;
 
@@ -106,6 +117,7 @@ class TIMUIKitTextFieldLayoutNarrow extends StatefulWidget {
       required this.backSpaceText,
       required this.addStickerToText,
       required this.isUseDefaultEmoji,
+      this.isUseTencentCloudChatPackageOldKeys = false,
       required this.languageType,
       required this.textEditingController,
       this.morePanelConfig,
@@ -119,6 +131,7 @@ class TIMUIKitTextFieldLayoutNarrow extends StatefulWidget {
       this.backgroundColor,
       this.inputFillColor,
       this.onChanged,
+      this.onDeleteText,
       required this.handleSendEditStatus,
       required this.handleAtText,
       required this.handleSoftKeyBoardDelete,
@@ -234,13 +247,12 @@ class _TIMUIKitTextFieldLayoutNarrowState
               },
               addCustomEmojiText: ((String singleEmojiName) {
                 String? emojiName = singleEmojiName.split('.png')[0];
-                if (widget.isUseDefaultEmoji &&
-                    widget.languageType == 'zh' &&
-                    TUIKitStickerConstData.emojiMapList[emojiName] != null &&
-                    TUIKitStickerConstData.emojiMapList[emojiName] != '') {
-                  emojiName = TUIKitStickerConstData.emojiMapList[emojiName];
+                String compatibleEmojiName = emojiName;
+                if (widget.isUseTencentCloudChatPackageOldKeys) {
+                  compatibleEmojiName = EmojiUtil.getCompatibleEmojiName(emojiName);
                 }
-                final newText = '[$emojiName]';
+
+                String newText = '[$compatibleEmojiName]';
                 widget.addStickerToText(newText);
                 setSendButton();
               }),
@@ -266,13 +278,12 @@ class _TIMUIKitTextFieldLayoutNarrowState
               },
               addCustomEmojiText: ((String singleEmojiName) {
                 String? emojiName = singleEmojiName.split('.png')[0];
-                if (widget.isUseDefaultEmoji &&
-                    widget.languageType == 'zh' &&
-                    TUIKitStickerConstData.emojiMapList[emojiName] != null &&
-                    TUIKitStickerConstData.emojiMapList[emojiName] != '') {
-                  emojiName = TUIKitStickerConstData.emojiMapList[emojiName];
+                String compatibleEmojiName = emojiName;
+                if (widget.isUseTencentCloudChatPackageOldKeys) {
+                  compatibleEmojiName = EmojiUtil.getCompatibleEmojiName(emojiName);
                 }
-                final newText = '[$emojiName]';
+
+                String newText = '[$compatibleEmojiName]';
                 widget.addStickerToText(newText);
                 setSendButton();
               }),
@@ -361,12 +372,8 @@ class _TIMUIKitTextFieldLayoutNarrowState
 
   String getAbstractMessage(V2TimMessage message) {
     final String? customAbstractMessage =
-        widget.model.abstractMessageBuilder != null
-            ? widget.model.abstractMessageBuilder!(message)
-            : null;
-    return customAbstractMessage ??
-        MessageUtils.getAbstractMessageAsync(
-            message, widget.model.groupMemberList ?? []);
+        widget.model.abstractMessageBuilder != null ? widget.model.abstractMessageBuilder!(message) : null;
+    return customAbstractMessage ?? MessageUtils.getAbstractMessageAsync(message, widget.model.groupMemberList ?? []);
   }
 
   _buildRepliedMessage(V2TimMessage? repliedMessage) {

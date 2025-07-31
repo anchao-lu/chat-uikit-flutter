@@ -1,7 +1,18 @@
 // ignore_for_file: avoid_print
 
 import 'package:flutter/material.dart';
-import 'package:tencent_im_base/tencent_im_base.dart';
+import 'package:tencent_cloud_chat_sdk/enum/friend_type_enum.dart';
+import 'package:tencent_cloud_chat_sdk/enum/receive_message_opt_enum.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_callback.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_callback.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_conversation.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_conversation.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_friend_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_friend_info.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_friend_operation_result.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_friend_operation_result.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_user_full_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_user_full_info.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/life_cycle/profile_life_cycle.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/model/profile_model.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_friendship_view_model.dart';
@@ -12,12 +23,9 @@ import 'package:tencent_cloud_chat_uikit/data_services/message/message_services.
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
 
 class TUIProfileViewModel extends ChangeNotifier {
-  final ConversationService _conversationService =
-      serviceLocator<ConversationService>();
-  final FriendshipServices _friendshipServices =
-      serviceLocator<FriendshipServices>();
-  final TUIFriendShipViewModel _friendShipViewModel =
-      serviceLocator<TUIFriendShipViewModel>();
+  final ConversationService _conversationService = serviceLocator<ConversationService>();
+  final FriendshipServices _friendshipServices = serviceLocator<FriendshipServices>();
+  final TUIFriendShipViewModel _friendShipViewModel = serviceLocator<TUIFriendShipViewModel>();
   final CoreServicesImpl _coreServices = serviceLocator<CoreServicesImpl>();
   final MessageService _messageService = serviceLocator<MessageService>();
 
@@ -53,16 +61,14 @@ class TUIProfileViewModel extends ChangeNotifier {
   }
 
   loadData({required String userID, bool isNeedConversation = true}) async {
-    if(userID.isEmpty){
+    if (userID.isEmpty) {
       return;
     }
     V2TimFriendInfo? friendUserInfo;
     V2TimConversation? conversation;
-    final userInfoList =
-        await _friendshipServices.getFriendsInfo(userIDList: [userID]);
-    final checkFriend = await _friendshipServices.checkFriend(
-        userIDList: [userID],
-        checkType: FriendTypeEnum.V2TIM_FRIEND_TYPE_SINGLE);
+    final userInfoList = await _friendshipServices.getFriendsInfo(userIDList: [userID]);
+    final checkFriend =
+        await _friendshipServices.checkFriend(userIDList: [userID], checkType: FriendTypeEnum.V2TIM_FRIEND_TYPE_SINGLE);
 
     if (checkFriend != null) {
       final res = checkFriend.first;
@@ -76,42 +82,33 @@ class TUIProfileViewModel extends ChangeNotifier {
     }
 
     if (isNeedConversation) {
-      conversation = await _conversationService.getConversation(
-          conversationID: "c2c_$userID");
+      conversation = await _conversationService.getConversation(conversationID: "c2c_$userID");
       _isDisturb = conversation?.recvOpt == 2;
     }
 
-    final friendInfo =
-        await _lifeCycle?.didGetFriendInfo(friendUserInfo) ?? friendUserInfo;
+    final friendInfo = await _lifeCycle?.didGetFriendInfo(friendUserInfo) ?? friendUserInfo;
 
     _isDisturb = conversation?.recvOpt == 2;
-    _userProfile =
-        UserProfile(friendInfo: friendInfo, conversation: conversation);
+    _userProfile = UserProfile(friendInfo: friendInfo, conversation: conversation);
 
-    _shouldAddToBlackList = _friendShipViewModel.blockList
-            .indexWhere((element) => element.userID == userID) >
-        -1;
+    _shouldAddToBlackList = _friendShipViewModel.blockList.indexWhere((element) => element.userID == userID) > -1;
 
     notifyListeners();
   }
 
   Future<V2TimCallback> pinedConversation(bool isPined, String convID) async {
-    final res = await _conversationService.pinConversation(
-        conversationID: convID, isPinned: isPined);
+    final res = await _conversationService.pinConversation(conversationID: convID, isPinned: isPined);
     _userProfile?.conversation!.isPinned = isPined;
     notifyListeners();
     return res;
   }
 
-  Future<List<V2TimFriendOperationResult>?> addToBlackList(
-      bool shouldAdd, String userID) async {
-    if (_lifeCycle?.shouldAddToBlockList != null &&
-        await _lifeCycle!.shouldAddToBlockList(userID) == false) {
+  Future<List<V2TimFriendOperationResult>?> addToBlackList(bool shouldAdd, String userID) async {
+    if (_lifeCycle?.shouldAddToBlockList != null && await _lifeCycle!.shouldAddToBlockList(userID) == false) {
       return null;
     }
     if (shouldAdd) {
-      final res =
-          await _friendshipServices.addToBlackList(userIDList: [userID]);
+      final res = await _friendshipServices.addToBlackList(userIDList: [userID]);
       if (res != null && res.isNotEmpty) {
         final result = res.first;
         if (result.resultCode == 0) {
@@ -122,15 +119,13 @@ class TUIProfileViewModel extends ChangeNotifier {
       notifyListeners();
       return res;
     } else {
-      final res =
-          await _friendshipServices.deleteFromBlackList(userIDList: [userID]);
+      final res = await _friendshipServices.deleteFromBlackList(userIDList: [userID]);
       if (res != null && res.isNotEmpty) {
         final result = res.first;
         if (result.resultCode == 0) {
           _shouldAddToBlackList = false;
-          final checkFriend = await _friendshipServices.checkFriend(
-              userIDList: [userID],
-              checkType: FriendTypeEnum.V2TIM_FRIEND_TYPE_SINGLE);
+          final checkFriend = await _friendshipServices
+              .checkFriend(userIDList: [userID], checkType: FriendTypeEnum.V2TIM_FRIEND_TYPE_SINGLE);
           if (checkFriend != null) {
             final res = checkFriend.first;
             _friendType = res.resultType;
@@ -143,27 +138,27 @@ class TUIProfileViewModel extends ChangeNotifier {
     }
   }
 
-  Future<V2TimFriendOperationResult?> deleteFriend(String userID) async {
-    if (_lifeCycle?.shouldDeleteFriend != null &&
-        await _lifeCycle!.shouldDeleteFriend(userID) == false) {
+  Future<V2TimFriendOperationResult?> deleteFriend(String userID, {bool needUpdateData = true}) async {
+    if (_lifeCycle?.shouldDeleteFriend != null && await _lifeCycle!.shouldDeleteFriend(userID) == false) {
       return null;
     }
-    final res = await _friendshipServices.deleteFromFriendList(
-        userIDList: [userID],
-        deleteType: FriendTypeEnum.V2TIM_FRIEND_TYPE_BOTH);
+    final res = await _friendshipServices
+        .deleteFromFriendList(userIDList: [userID], deleteType: FriendTypeEnum.V2TIM_FRIEND_TYPE_BOTH);
     if (res != null) {
-      loadData(userID: userID);
+      _conversationService.deleteConversation(conversationID: "c2c_$userID");
+      if (needUpdateData) {
+        loadData(userID: userID);
+      }
       return res.first;
     }
+
     return null;
   }
 
   Future<V2TimCallback> changeFriendVerificationMethod(int allowType) async {
-    final res = await _coreServices.setSelfInfo(
-      userFullInfo: V2TimUserFullInfo.fromJson(
-        {"allowType": allowType},
-      ),
-    );
+    V2TimUserFullInfo userFullInfo = V2TimUserFullInfo();
+    userFullInfo.allowType = allowType;
+    final res = await _coreServices.setSelfInfo(userFullInfo: userFullInfo);
     if (res.code == 0) {
       _userProfile?.friendInfo!.userProfile!.allowType = allowType;
       notifyListeners();
@@ -171,66 +166,21 @@ class TUIProfileViewModel extends ChangeNotifier {
     return res;
   }
 
-  // 1：男 女：2
-  Future<V2TimCallback> updateGender(int gender) async {
-    final res = await _coreServices.setSelfInfo(
-      userFullInfo: V2TimUserFullInfo.fromJson(
-        {"gender": gender},
-      ),
-    );
-    if (res.code == 0) {
-      _userProfile?.friendInfo!.userProfile!.gender = gender;
-      notifyListeners();
-    }
-
-    return res;
-  }
-
-  Future<V2TimCallback> updateNickName(String nickName) async {
-    final res = await _coreServices.setSelfInfo(
-      userFullInfo: V2TimUserFullInfo.fromJson(
-        {"nickName": nickName},
-      ),
-    );
-
-    if (res.code == 0) {
-      _userProfile?.friendInfo!.userProfile!.nickName = nickName;
-      notifyListeners();
-    }
-
-    return res;
-  }
-
-  Future<V2TimCallback> updateSelfSignature(String selfSignature) async {
-    final res = await _coreServices.setSelfInfo(
-      userFullInfo: V2TimUserFullInfo.fromJson(
-        {"selfSignature": selfSignature},
-      ),
-    );
-    if (res.code == 0) {
-      _userProfile?.friendInfo!.userProfile!.selfSignature = selfSignature;
-      notifyListeners();
-    }
-    return res;
-  }
-
   Future<V2TimFriendOperationResult?> addFriend(String userID) async {
-    if (_lifeCycle?.shouldAddFriend != null &&
-        await _lifeCycle!.shouldAddFriend(userID) == false) {
+    if (_lifeCycle?.shouldAddFriend != null && await _lifeCycle!.shouldAddFriend(userID) == false) {
       return null;
     }
-    final res = await _friendshipServices.addFriend(
-        userID: userID, addType: FriendTypeEnum.V2TIM_FRIEND_TYPE_BOTH);
+    final res = await _friendshipServices.addFriend(userID: userID, addType: FriendTypeEnum.V2TIM_FRIEND_TYPE_BOTH);
     if (res.code == 0) {
       loadData(userID: userID);
       return res.data;
     }
+
     return null;
   }
 
   Future<V2TimCallback> updateRemarks(String userID, String remark) async {
-    final res = await _friendshipServices.setFriendInfo(
-        userID: userID, friendRemark: remark);
+    final res = await _friendshipServices.setFriendInfo(userID: userID, friendRemark: remark);
 
     if (res.code == 0) {
       _userProfile?.friendInfo!.friendRemark = remark;
@@ -242,9 +192,7 @@ class TUIProfileViewModel extends ChangeNotifier {
   Future<V2TimCallback> setMessageDisturb(String userID, bool isDisturb) async {
     final res = await _messageService.setC2CReceiveMessageOpt(
         userIDList: [userID],
-        opt: isDisturb
-            ? ReceiveMsgOptEnum.V2TIM_RECEIVE_NOT_NOTIFY_MESSAGE
-            : ReceiveMsgOptEnum.V2TIM_RECEIVE_MESSAGE);
+        opt: isDisturb ? ReceiveMsgOptEnum.V2TIM_RECEIVE_NOT_NOTIFY_MESSAGE : ReceiveMsgOptEnum.V2TIM_RECEIVE_MESSAGE);
     if (res.code == 0) {
       _isDisturb = isDisturb;
     }
@@ -252,52 +200,44 @@ class TUIProfileViewModel extends ChangeNotifier {
     return res;
   }
 
-  updateUserInfo(String key, dynamic value) {
-    if (key == "nickName") {
-      _userProfile?.friendInfo!.userProfile?.nickName = value;
+  updateUserInfo(V2TimUserFullInfo userFullInfo) {
+    if (userFullInfo.nickName != null) {
+      _userProfile?.friendInfo!.userProfile?.nickName = userFullInfo.nickName;
     }
-    if (key == "faceUrl") {
-      _userProfile?.friendInfo!.userProfile?.faceUrl = value;
+    if (userFullInfo.faceUrl != null) {
+      _userProfile?.friendInfo!.userProfile?.faceUrl = userFullInfo.faceUrl;
     }
-    if (key == "nickName") {
-      _userProfile?.friendInfo!.userProfile?.nickName = value;
+    if (userFullInfo.selfSignature != null) {
+      _userProfile?.friendInfo!.userProfile?.selfSignature = userFullInfo.selfSignature;
     }
-    if (key == "selfSignature") {
-      _userProfile?.friendInfo!.userProfile?.selfSignature = value;
+    if (userFullInfo.gender != null) {
+      _userProfile?.friendInfo!.userProfile?.gender = userFullInfo.gender;
     }
-    if (key == "gender") {
-      _userProfile?.friendInfo!.userProfile?.gender = value;
+    if (userFullInfo.allowType != null) {
+      _userProfile?.friendInfo!.userProfile?.allowType = userFullInfo.allowType;
     }
-    if (key == "allowType") {
-      _userProfile?.friendInfo!.userProfile?.allowType = value;
+    if (userFullInfo.customInfo != null) {
+      _userProfile?.friendInfo!.userProfile?.customInfo = userFullInfo.customInfo;
     }
-    if (key == "customInfo") {
-      _userProfile?.friendInfo!.userProfile?.customInfo = value;
+    if (userFullInfo.role != null) {
+      _userProfile?.friendInfo!.userProfile?.role = userFullInfo.role;
     }
-    if (key == "role") {
-      _userProfile?.friendInfo!.userProfile?.role = value;
+    if (userFullInfo.level != null) {
+      _userProfile?.friendInfo!.userProfile?.level = userFullInfo.level;
     }
-    if (key == "level") {
-      _userProfile?.friendInfo!.userProfile?.level = value;
-    }
-    if (key == "birthday") {
-      _userProfile?.friendInfo!.userProfile?.birthday = value;
+    if (userFullInfo.birthday != null) {
+      _userProfile?.friendInfo!.userProfile?.birthday = userFullInfo.birthday;
     }
   }
 
-  Future<V2TimCallback> updateSelfInfo(Map<String, dynamic> newSelfInfo) async {
-    final res = await _coreServices.setSelfInfo(
-      userFullInfo: V2TimUserFullInfo.fromJson(
-        newSelfInfo,
-      ),
-    );
-    if (res.code == 0) {
-      newSelfInfo.forEach((key, value) {
-        updateUserInfo(key, value);
-      });
+  Future<V2TimCallback> updateSelfInfo(V2TimUserFullInfo userFullInfo) async {
+    final res = await _coreServices.setSelfInfo(userFullInfo: userFullInfo);
 
+    if (res.code == 0) {
+      updateUserInfo(userFullInfo);
       notifyListeners();
     }
+
     return res;
   }
 }

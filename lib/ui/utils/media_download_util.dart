@@ -5,7 +5,11 @@ import 'package:crypto/crypto.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
+import 'package:tencent_chat_i18n_tool/tencent_chat_i18n_tool.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_image.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_video_elem.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_global_model.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
@@ -14,6 +18,9 @@ import 'package:tencent_cloud_chat_uikit/ui/utils/message.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/permission.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
 import 'package:universal_html/html.dart' as html;
+
+import '../../base_widgets/tim_callback.dart';
+import '../../theme/tui_theme.dart';
 
 class MediaDownloadUtil {
   static final MediaDownloadUtil of = MediaDownloadUtil._();
@@ -197,7 +204,7 @@ extension _MediaDownloadUtilPrivate on MediaDownloadUtil {
         }
         File f = File(savePath);
         if (f.existsSync()) {
-          var result = await ImageGallerySaver.saveFile(savePath);
+          var result = await ImageGallerySaverPlus.saveFile(savePath);
 
           if (PlatformUtils().isIOS) {
             if (result['isSuccess']) {
@@ -254,7 +261,7 @@ extension _MediaDownloadUtilPrivate on MediaDownloadUtil {
       return;
     }
 
-    var result = await ImageGallerySaver.saveFile(imageUrl);
+    var result = await ImageGallerySaverPlus.saveFile(imageUrl);
 
     if (PlatformUtils().isIOS) {
       if (result['isSuccess']) {
@@ -370,7 +377,7 @@ extension _MediaDownloadUtilPrivate on MediaDownloadUtil {
         }
         File f = File(savePath);
         if (f.existsSync()) {
-          var result = await ImageGallerySaver.saveFile(savePath);
+          var result = await ImageGallerySaverPlus.saveFile(savePath);
           if (PlatformUtils().isIOS) {
             if (result['isSuccess']) {
               if (showSuccessTip) {
@@ -424,7 +431,7 @@ extension _MediaDownloadUtilPrivate on MediaDownloadUtil {
       }
       return;
     }
-    var result = await ImageGallerySaver.saveFile(savePath);
+    var result = await ImageGallerySaverPlus.saveFile(savePath);
     if (PlatformUtils().isIOS) {
       if (result['isSuccess']) {
         if (showSuccessTip) {

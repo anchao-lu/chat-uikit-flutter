@@ -16,6 +16,11 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pasteboard/pasteboard.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:tencent_chat_i18n_tool/tencent_chat_i18n_tool.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_conversation.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_conversation.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_message.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
@@ -30,14 +35,17 @@ import 'package:tencent_cloud_chat_uikit/ui/utils/optimize_utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/screen_shot.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitTextField/special_text/DefaultSpecialTextSpanBuilder.dart';
+import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitTextField/special_text/emoji_text.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/drag_widget.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/wide_popup.dart';
-import 'package:tencent_im_base/tencent_im_base.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 import 'package:video_player/video_player.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
+import 'package:tencent_cloud_chat_uikit/base_widgets/tim_callback.dart';
+import 'package:tencent_cloud_chat_uikit/theme/color.dart';
+import 'package:tencent_cloud_chat_uikit/theme/tui_theme.dart';
 
 class DesktopControlBarItem {
   final String item;
@@ -94,6 +102,8 @@ class TIMUIKitTextFieldLayoutWide extends StatefulWidget {
 
   /// Whether to use the default emoji
   final bool isUseDefaultEmoji;
+
+  final bool isCompatibleWithTencentCloudChatPackageOldKeys;
 
   final TUIChatSeparateViewModel model;
 
@@ -162,6 +172,7 @@ class TIMUIKitTextFieldLayoutWide extends StatefulWidget {
       required this.backSpaceText,
       required this.addStickerToText,
       required this.isUseDefaultEmoji,
+      this.isCompatibleWithTencentCloudChatPackageOldKeys = false,
       required this.languageType,
       required this.textEditingController,
       this.morePanelConfig,
@@ -391,16 +402,14 @@ class _TIMUIKitTextFieldLayoutWideState
                         },
                         addCustomEmojiText: ((String singleEmojiName) {
                           String? emojiName = singleEmojiName.split('.png')[0];
-                          if (widget.isUseDefaultEmoji &&
-                              widget.languageType == 'zh' &&
-                              TUIKitStickerConstData.emojiMapList[emojiName] !=
-                                  null &&
-                              TUIKitStickerConstData.emojiMapList[emojiName] !=
-                                  '') {
-                            emojiName =
-                                TUIKitStickerConstData.emojiMapList[emojiName];
+                          String compatibleEmojiName = emojiName;
+                          if (widget
+                              .isCompatibleWithTencentCloudChatPackageOldKeys) {
+                            compatibleEmojiName =
+                                EmojiUtil.getCompatibleEmojiName(emojiName);
                           }
-                          final newText = '[$emojiName]';
+
+                          String newText = '[$compatibleEmojiName]';
                           widget.addStickerToText(newText);
                           entry?.remove();
                           entry = null;
@@ -432,18 +441,14 @@ class _TIMUIKitTextFieldLayoutWideState
                             addCustomEmojiText: ((String singleEmojiName) {
                               String? emojiName =
                                   singleEmojiName.split('.png')[0];
-                              if (widget.isUseDefaultEmoji &&
-                                  widget.languageType == 'zh' &&
-                                  TUIKitStickerConstData
-                                          .emojiMapList[emojiName] !=
-                                      null &&
-                                  TUIKitStickerConstData
-                                          .emojiMapList[emojiName] !=
-                                      '') {
-                                emojiName = TUIKitStickerConstData
-                                    .emojiMapList[emojiName];
+                              String compatibleEmojiName = emojiName;
+                              if (widget
+                                  .isCompatibleWithTencentCloudChatPackageOldKeys) {
+                                compatibleEmojiName =
+                                    EmojiUtil.getCompatibleEmojiName(emojiName);
                               }
-                              final newText = '[$emojiName]';
+
+                              String newText = '[$compatibleEmojiName]';
                               widget.addStickerToText(newText);
                               entry?.remove();
                               entry = null;
@@ -1043,7 +1048,8 @@ class _TIMUIKitTextFieldLayoutWideState
               ),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+              constraints: const BoxConstraints(minHeight: 50),
               child: Row(
                 children: [
                   Expanded(
@@ -1079,13 +1085,6 @@ class _TIMUIKitTextFieldLayoutWideState
                         specialTextSpanBuilder: PlatformUtils().isWeb
                             ? null
                             : DefaultSpecialTextSpanBuilder(
-                                isUseQQPackage: (widget
-                                            .model
-                                            .chatConfig
-                                            .stickerPanelConfig
-                                            ?.useTencentCloudChatStickerPackage ??
-                                        true) ||
-                                    widget.isUseDefaultEmoji,
                                 isUseTencentCloudChatPackage: widget
                                         .model
                                         .chatConfig
@@ -1100,6 +1099,7 @@ class _TIMUIKitTextFieldLayoutWideState
                 ],
               ),
             ),
+
             ///// 桌面端发送按钮 start
             if (PlatformUtils().isDesktop)
               Container(
@@ -1131,6 +1131,7 @@ class _TIMUIKitTextFieldLayoutWideState
                   ),
                 ),
               ),
+
             ///// 桌面端发送按钮 end
           ],
         ),

@@ -7,6 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:tencent_chat_i18n_tool/tencent_chat_i18n_tool.dart';
+import 'package:tencent_cloud_chat_sdk/enum/group_member_role.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_conversation.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_conversation.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_member_full_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_member_full_info.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_message.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
@@ -180,6 +188,7 @@ class _InputTextFieldState extends TIMUIKitState<TIMUIKitInputTextField> {
             name: tccEmojiSet.icon,
           )));
     }
+
     if (stickerConfig.useQQStickerPackage) {
       final qqEmojiSet = TUIKitStickerConstData.emojiList
           .firstWhere((element) => element.name == "4349");
@@ -199,6 +208,7 @@ class _InputTextFieldState extends TIMUIKitState<TIMUIKitInputTextField> {
             name: qqEmojiSet.icon,
           )));
     }
+
     if (stickerConfig.unicodeEmojiList.isNotEmpty) {
       final defEmojiList =
           TUIKitStickerConstData.defaultUnicodeEmojiList.map((emojiItem) {
@@ -210,12 +220,12 @@ class _InputTextFieldState extends TIMUIKitState<TIMUIKitInputTextField> {
           stickerList: defEmojiList,
           menuItem: defEmojiList[0]));
     }
-    stickerPackageList.addAll(stickerConfig.customStickerPackages);
 
+    stickerPackageList.addAll(stickerConfig.customStickerPackages);
     return stickerPackageList;
   }
 
-  setCurrentCursor(int? value) {
+  _setCurrentCursor(int? value) {
     currentCursor = value;
   }
 
@@ -226,7 +236,7 @@ class _InputTextFieldState extends TIMUIKitState<TIMUIKitInputTextField> {
     return emojiRegex().hasMatch(input);
   }
 
-  void deleteStickerFromText() {
+  void _deleteStickerFromText() {
     String originalText = textEditingController.text;
 
     if (originalText == zeroWidthSpace) {
@@ -268,9 +278,21 @@ class _InputTextFieldState extends TIMUIKitState<TIMUIKitInputTextField> {
         focusNode.requestFocus();
       }
     }
+
+    if (originalText.isEmpty && textEditingController.text.isEmpty) {
+      widget.model.repliedMessage = null;
+    }
   }
 
-  void addStickerToText(String sticker) {
+  void _onDeleteText(String oldText) {
+    if (oldText.isEmpty) {
+      if (widget.model.repliedMessage != null) {
+        widget.model.repliedMessage = null;
+      }
+    }
+  }
+
+  void _addStickerToText(String sticker) {
     final currentText = textEditingController.text;
     if (currentCursor != null &&
         currentCursor! > -1 &&
@@ -303,8 +325,8 @@ class _InputTextFieldState extends TIMUIKitState<TIMUIKitInputTextField> {
     String conversationID = isTopic
         ? convID
         : ((convType ?? widget.conversationType) == ConvType.c2c
-            ? "c2c_$convID"
-            : "group_$convID");
+            ? "${TUIConversationViewModel.conversationC2CPrefix}$convID"
+            : "${TUIConversationViewModel.conversationGroupPrefix}$convID");
     String draftText = _filterU200b(text);
     return await conversationModel.setConversationDraft(
         groupID: groupID ?? widget.groupID,
@@ -314,8 +336,8 @@ class _InputTextFieldState extends TIMUIKitState<TIMUIKitInputTextField> {
         draftText: draftText);
   }
 
-// 和onSubmitted一样，只是保持焦点的不同
-  onEmojiSubmitted() {
+  // 和onSubmitted一样，只是保持焦点的不同
+  _onEmojiSubmitted() {
     lastText = "";
     final text = textEditingController.text.trim();
     final convType = widget.conversationType;
@@ -345,23 +367,33 @@ class _InputTextFieldState extends TIMUIKitState<TIMUIKitInputTextField> {
     currentCursor = null;
   }
 
-// index为emoji的index,data为baseurl+name
-  onCustomEmojiFaceSubmitted(int index, String data) {
+  // index为emoji的index,data为baseurl+name
+  _onCustomEmojiFaceSubmitted(int index, String data) {
     final convType = widget.conversationType;
 
     // This part of the code is written to adapt to the Native side requirements.
     // It extracts the substring needed to interact with Native side by splitting
     // and parsing the given data value.
+    int groupID = 1;
+    if (data.contains("yz")) {
+      groupID = 1;
+    }
+    if (data.contains("ys")) {
+      groupID = 2;
+    }
+    if (data.contains("gcs")) {
+      groupID = 3;
+    }
+
     RegExp regex = RegExp(r'assets\/custom_face_resource\/(4350|4351|4352)');
     if (regex.hasMatch(data)) {
-      index += 1;
       data = (data.split("/")[3]).split("@")[0];
     }
 
     if (widget.model.repliedMessage != null) {
       MessageUtils.handleMessageError(
           widget.model.sendFaceMessage(
-              index: index,
+              index: groupID,
               data: data,
               convID: widget.conversationID,
               convType: convType),
@@ -369,7 +401,7 @@ class _InputTextFieldState extends TIMUIKitState<TIMUIKitInputTextField> {
     } else {
       MessageUtils.handleMessageError(
           widget.model.sendFaceMessage(
-              index: index,
+              index: groupID,
               data: data,
               convID: widget.conversationID,
               convType: convType),
@@ -619,10 +651,10 @@ class _InputTextFieldState extends TIMUIKitState<TIMUIKitInputTextField> {
     }
 
     final int selfRole = widget.model.selfMemberInfo?.role ?? 0;
-    final bool canAtAll = widget.model.chatConfig.isMemberCanAtAll ? true : (selfRole == GroupMemberRoleType
-        .V2TIM_GROUP_MEMBER_ROLE_ADMIN || selfRole
-        ==
-        GroupMemberRoleType.V2TIM_GROUP_MEMBER_ROLE_OWNER);
+    final bool canAtAll = widget.model.chatConfig.isMemberCanAtAll
+        ? true
+        : (selfRole == GroupMemberRoleType.V2TIM_GROUP_MEMBER_ROLE_ADMIN ||
+            selfRole == GroupMemberRoleType.V2TIM_GROUP_MEMBER_ROLE_OWNER);
 
     if (isDesktopScreen) {
       (int, String, bool)? changedCharacterRecord =
@@ -736,6 +768,7 @@ class _InputTextFieldState extends TIMUIKitState<TIMUIKitInputTextField> {
               groupType: widget.groupType),
         ),
       );
+
       final showName = _getShowName(memberInfo);
       if (memberInfo != null) {
         mentionedMembersMap["@$showName"] = memberInfo;
@@ -743,6 +776,7 @@ class _InputTextFieldState extends TIMUIKitState<TIMUIKitInputTextField> {
         lastText = "$text$showName ";
       }
     }
+
     lastText = textEditingController.text;
   }
 
@@ -1022,12 +1056,13 @@ class _InputTextFieldState extends TIMUIKitState<TIMUIKitInputTextField> {
                 context: context,
                 defaultWidget: TIMUIKitTextFieldLayoutNarrow(
                     stickerPackageList: stickerPackageList,
-                    onEmojiSubmitted: onEmojiSubmitted,
-                    onCustomEmojiFaceSubmitted: onCustomEmojiFaceSubmitted,
-                    backSpaceText: deleteStickerFromText,
-                    addStickerToText: addStickerToText,
+                    onEmojiSubmitted: _onEmojiSubmitted,
+                    onCustomEmojiFaceSubmitted: _onCustomEmojiFaceSubmitted,
+                    backSpaceText: _deleteStickerFromText,
+                    addStickerToText: _addStickerToText,
                     customStickerPanel: widget.customStickerPanel,
                     onChanged: widget.onChanged,
+                    onDeleteText: _onDeleteText,
                     backgroundColor: widget.backgroundColor,
                     inputFillColor: widget.inputFillColor,
                     morePanelConfig: widget.morePanelConfig,
@@ -1041,7 +1076,7 @@ class _InputTextFieldState extends TIMUIKitState<TIMUIKitInputTextField> {
                     conversationType: widget.conversationType,
                     focusNode: focusNode,
                     controller: widget.controller,
-                    setCurrentCursor: setCurrentCursor,
+                    setCurrentCursor: _setCurrentCursor,
                     onCursorChange: _onCursorChange,
                     model: model,
                     handleSendEditStatus: _handleSendEditStatus,
@@ -1060,10 +1095,10 @@ class _InputTextFieldState extends TIMUIKitState<TIMUIKitInputTextField> {
                     chatConfig: widget.chatConfig ?? widget.model.chatConfig,
                     theme: theme,
                     currentConversation: widget.currentConversation,
-                    onEmojiSubmitted: onEmojiSubmitted,
-                    onCustomEmojiFaceSubmitted: onCustomEmojiFaceSubmitted,
-                    backSpaceText: deleteStickerFromText,
-                    addStickerToText: addStickerToText,
+                    onEmojiSubmitted: _onEmojiSubmitted,
+                    onCustomEmojiFaceSubmitted: _onCustomEmojiFaceSubmitted,
+                    backSpaceText: _deleteStickerFromText,
+                    addStickerToText: _addStickerToText,
                     customStickerPanel: widget.customStickerPanel,
                     onChanged: widget.onChanged,
                     backgroundColor: widget.backgroundColor,
@@ -1078,7 +1113,7 @@ class _InputTextFieldState extends TIMUIKitState<TIMUIKitInputTextField> {
                     conversationType: widget.conversationType,
                     focusNode: focusNode,
                     controller: widget.controller,
-                    setCurrentCursor: setCurrentCursor,
+                    setCurrentCursor: _setCurrentCursor,
                     onCursorChange: _onCursorChange,
                     model: model,
                     handleSendEditStatus: _handleSendEditStatus,

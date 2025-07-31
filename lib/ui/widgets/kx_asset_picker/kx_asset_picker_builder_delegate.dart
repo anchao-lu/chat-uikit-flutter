@@ -26,11 +26,11 @@ class KxAssetPickerBuilderDelegate extends DefaultAssetPickerBuilderDelegate {
     super.specialPickerType,
     super.keepScrollOffset = false,
   });
-  
+
   @override
   Future<void> viewAsset(
     BuildContext context,
-    int index,
+    int? index,
     AssetEntity currentAsset,
   ) async {
     final DefaultAssetPickerProvider provider =
@@ -75,7 +75,7 @@ class KxAssetPickerBuilderDelegate extends DefaultAssetPickerBuilderDelegate {
     } else {
       current = provider.currentAssets;
       selected = provider.selectedAssets;
-      effectiveIndex = index;
+      effectiveIndex = index ?? 0;
     }
     // final List<AssetEntity>? result = await AssetPickerViewer.pushToViewer(
     //   context,

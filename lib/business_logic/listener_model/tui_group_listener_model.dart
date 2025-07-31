@@ -3,7 +3,23 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:tencent_im_base/tencent_im_base.dart';
+import 'package:tencent_chat_i18n_tool/tencent_chat_i18n_tool.dart';
+import 'package:tencent_cloud_chat_sdk/enum/V2TimGroupListener.dart';
+import 'package:tencent_cloud_chat_sdk/enum/group_change_info_type.dart';
+import 'package:tencent_cloud_chat_sdk/manager/v2_tim_manager.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_change_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_change_info.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_info.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_info_result.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_info_result.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_member_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_member_info.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_topic_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_topic_info.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_value_callback.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_value_callback.dart';
+import 'package:tencent_cloud_chat_sdk/tencent_im_sdk_plugin.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_global_model.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/group/group_services.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
@@ -15,6 +31,8 @@ class NeedUpdate {
   final String groupID;
   final UpdateType updateType;
   final String extraData;
+  int? groupInfoSubType;
+  String? ownerID;
 
   NeedUpdate(this.groupID, this.updateType, this.extraData);
 }
@@ -36,44 +54,42 @@ class TUIGroupListenerModel extends ChangeNotifier {
   }
 
   TUIGroupListenerModel() {
-    _groupListener = V2TimGroupListener(
-      onMemberInvited: (groupID, opUser, memberList) {
-        _needUpdate = NeedUpdate(groupID, UpdateType.memberList, "");
-        notifyListeners();
-      },
-      onMemberKicked: (groupID, opUser, memberList) async {
-        if (_isLoginUserKickedFromGroup(groupID, memberList)) {
-          _deleteGroupConversation(groupID);
-        }
+    _groupListener = V2TimGroupListener(onMemberInvited: (groupID, opUser, memberList) {
+      _needUpdate = NeedUpdate(groupID, UpdateType.memberList, "");
+      notifyListeners();
+    }, onMemberKicked: (groupID, opUser, memberList) async {
+      if (_isLoginUserKickedFromGroup(groupID, memberList)) {
+        _deleteGroupConversation(groupID);
+
         final groupName = await _getGroupName(groupID);
         _needUpdate = NeedUpdate(groupID, UpdateType.kickedFromGroup, groupName);
         notifyListeners();
-      },
-      onMemberEnter: (String groupID, List<V2TimGroupMemberInfo> memberList) {
-        _needUpdate = NeedUpdate(groupID, UpdateType.memberList, "");
-        notifyListeners();
-      },
-      onMemberLeave: (String groupID, V2TimGroupMemberInfo member) {
-        _needUpdate = NeedUpdate(groupID, UpdateType.memberList, "");
-        notifyListeners();
-      },
-      onGroupInfoChanged: (groupID, changeInfos) {
-        _needUpdate = NeedUpdate(groupID, UpdateType.groupInfo, "");
-        notifyListeners();
-      },
-      onReceiveJoinApplication:
-          (String groupID, V2TimGroupMemberInfo member, String opReason) async {
-        _onReceiveJoinApplication(groupID, member, opReason);
-        chatViewModel.refreshGroupApplicationList();
-        notifyListeners();
-      },
-      onGroupDismissed: (String groupID, V2TimGroupMemberInfo opUser) async {
-        _deleteGroupConversation(groupID);
-        final groupName = await _getGroupName(groupID);
-        _needUpdate = NeedUpdate(groupID, UpdateType.groupDismissed, groupName);
-        notifyListeners();
       }
-    );
+    }, onMemberEnter: (String groupID, List<V2TimGroupMemberInfo> memberList) {
+      _needUpdate = NeedUpdate(groupID, UpdateType.memberList, "");
+      notifyListeners();
+    }, onMemberLeave: (String groupID, V2TimGroupMemberInfo member) {
+      _needUpdate = NeedUpdate(groupID, UpdateType.memberList, "");
+      notifyListeners();
+    }, onGroupInfoChanged: (groupID, changeInfos) {
+      _needUpdate = NeedUpdate(groupID, UpdateType.groupInfo, "");
+      for (V2TimGroupChangeInfo info in changeInfos) {
+        if (info.type == GroupChangeInfoType.V2TIM_GROUP_INFO_CHANGE_TYPE_OWNER) {
+          _needUpdate!.groupInfoSubType = GroupChangeInfoType.V2TIM_GROUP_INFO_CHANGE_TYPE_OWNER;
+          _needUpdate!.ownerID = info.value;
+        }
+      }
+      notifyListeners();
+    }, onReceiveJoinApplication: (String groupID, V2TimGroupMemberInfo member, String opReason) async {
+      _onReceiveJoinApplication(groupID, member, opReason);
+      chatViewModel.refreshGroupApplicationList();
+      notifyListeners();
+    }, onGroupDismissed: (String groupID, V2TimGroupMemberInfo opUser) async {
+      _deleteGroupConversation(groupID);
+      final groupName = await _getGroupName(groupID);
+      _needUpdate = NeedUpdate(groupID, UpdateType.groupDismissed, groupName);
+      notifyListeners();
+    });
   }
 
   setGroupListener() {
@@ -85,8 +101,7 @@ class TUIGroupListenerModel extends ChangeNotifier {
   }
 
   getCommunityCategoryList(String groupID) async {
-    final Map<String, String>? customInfo =
-        await getCommunityCustomInfo(groupID);
+    final Map<String, String>? customInfo = await getCommunityCustomInfo(groupID);
     if (customInfo != null) {
       final String? categoryListString = customInfo["categoryList"];
       if (categoryListString != null && categoryListString.isNotEmpty) {
@@ -97,9 +112,7 @@ class TUIGroupListenerModel extends ChangeNotifier {
 
   Future<Map<String, String>?> getCommunityCustomInfo(String groupID) async {
     V2TimValueCallback<List<V2TimGroupInfoResult>> res =
-        await TencentImSDKPlugin.v2TIMManager
-            .getGroupManager()
-            .getGroupsInfo(groupIDList: [groupID]);
+        await TencentImSDKPlugin.v2TIMManager.getGroupManager().getGroupsInfo(groupIDList: [groupID]);
     if (res.code != 0) {
       final V2TimGroupInfoResult? groupInfo = res.data?[0];
       if (groupInfo != null) {
@@ -110,10 +123,8 @@ class TUIGroupListenerModel extends ChangeNotifier {
     return null;
   }
 
-  setCommunityCategoryList(
-      String groupID, String groupType, List<String> newCategoryList) async {
-    final Map<String, String>? customInfo =
-        await getCommunityCustomInfo(groupID);
+  setCommunityCategoryList(String groupID, String groupType, List<String> newCategoryList) async {
+    final Map<String, String>? customInfo = await getCommunityCustomInfo(groupID);
     customInfo?["categoryList"] = jsonEncode(newCategoryList);
     TencentImSDKPlugin.v2TIMManager.getGroupManager().setGroupInfo(
             info: V2TimGroupInfo(
@@ -127,14 +138,11 @@ class TUIGroupListenerModel extends ChangeNotifier {
   addCategoryForTopic(String groupID, String categoryName) {
     TencentImSDKPlugin.v2TIMManager.getGroupManager().setTopicInfo(
           topicInfo: V2TimTopicInfo(customString: categoryName),
-          groupID: groupID, // 话题所在的群组id
         );
   }
 
-  _onReceiveJoinApplication(
-      String groupID, V2TimGroupMemberInfo member, String opReason) {
-    Future.delayed(const Duration(milliseconds: 500),
-        () => chatViewModel.refreshGroupApplicationList());
+  _onReceiveJoinApplication(String groupID, V2TimGroupMemberInfo member, String opReason) {
+    Future.delayed(const Duration(milliseconds: 500), () => chatViewModel.refreshGroupApplicationList());
   }
 
   Future<String> _getGroupName(String groupID) async {
@@ -159,6 +167,3 @@ class TUIGroupListenerModel extends ChangeNotifier {
     return false;
   }
 }
-
-
-

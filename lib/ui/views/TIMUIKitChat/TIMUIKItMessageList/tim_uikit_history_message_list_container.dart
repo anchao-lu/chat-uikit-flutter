@@ -5,6 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_conversation.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_conversation.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_at_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_at_info.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_member_full_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_member_full_info.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_message.dart';
+import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitTextField/tim_uikit_text_field_controller.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_global_model.dart';
@@ -13,9 +22,7 @@ import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKItMessageLi
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKItMessageList/tim_uikit_chat_history_message_list.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKItMessageList/tim_uikit_chat_history_message_list_config.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKItMessageList/tim_uikit_chat_history_message_list_item.dart';
-import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitTextField/tim_uikit_text_field_controller.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/tim_uikit_chat_config.dart';
-import 'package:tencent_im_base/tencent_im_base.dart';
 import 'package:tim_ui_kit_sticker_plugin/utils/tim_custom_face_data.dart';
 
 enum LoadingPlace {
@@ -88,9 +95,6 @@ class TIMUIKitHistoryMessageListContainer extends StatefulWidget {
   /// tool tips panel configuration, long press message will show tool tips panel
   final ToolTipsConfig? toolTipsConfig;
 
-  /// Whether to use the default emoji
-  final bool isUseDefaultEmoji;
-
   final List<CustomEmojiFaceData> customEmojiStickerList;
 
   final bool isAllowScroll;
@@ -127,7 +131,6 @@ class TIMUIKitHistoryMessageListContainer extends StatefulWidget {
     this.initFindingMsg,
     this.mainHistoryListConfig,
     this.toolTipsConfig,
-    this.isUseDefaultEmoji = false,
     this.customEmojiStickerList = const [],
     this.textFieldController,
     required this.conversation,
@@ -153,15 +156,19 @@ class _TIMUIKitHistoryMessageListContainerState
 
   List<V2TimMessage?> historyMessageList = [];
 
-  Future<void> requestForData(String? lastMsgID, LoadDirection direction,
+  Future<bool> requestForData(String? lastMsgID, LoadDirection direction,
       TUIChatSeparateViewModel model,
-      [int? count]) async {
-    if ((direction == LoadDirection.previous && model.haveMoreData) ||
+      [int? count, int? lastSeq]) async {
+    if ((direction == LoadDirection.previous) ||
         (direction == LoadDirection.latest && model.haveMoreLatestData)) {
-      await model.loadChatRecord(
-          direction: direction,
-          count: count ?? (kIsWeb ? 15 : HistoryMessageDartConstant.getCount),
-          lastMsgID: lastMsgID);
+      return await model.loadChatRecord(
+        direction: direction,
+        count: count ?? (kIsWeb ? 15 : HistoryMessageDartConstant.getCount),
+        lastMsgID: lastMsgID,
+        lastMsgSeq: lastSeq ?? -1,
+      );
+    } else {
+      return false;
     }
   }
 
@@ -213,7 +220,6 @@ class _TIMUIKitHistoryMessageListContainerState
               textFieldController: widget.textFieldController,
               userAvatarBuilder: widget.userAvatarBuilder,
               customEmojiStickerList: widget.customEmojiStickerList,
-              isUseDefaultEmoji: widget.isUseDefaultEmoji,
               topRowBuilder: _getTopRowBuilder(model),
               onScrollToIndex: _historyMessageListController.scrollToIndex,
               onScrollToIndexBegin:
@@ -238,8 +244,9 @@ class _TIMUIKitHistoryMessageListContainerState
           tongueItemBuilder: widget.tongueItemBuilder,
           initFindingMsg: widget.initFindingMsg,
           messageList: messageList,
-          onLoadMore: (String? a, LoadDirection direction, [int? b]) async {
-            return await requestForData(a, direction, model, b);
+          onLoadMore: (String? a, LoadDirection direction,
+              [int? b, int? lastSeq]) async {
+            return await requestForData(a, direction, model, b, lastSeq);
           },
         );
       },

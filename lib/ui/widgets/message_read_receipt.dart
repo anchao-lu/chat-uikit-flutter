@@ -1,11 +1,20 @@
+import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 // ignore: unused_import
 import 'package:provider/provider.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
+import 'package:tencent_chat_i18n_tool/tencent_chat_i18n_tool.dart';
+import 'package:tencent_cloud_chat_sdk/enum/get_group_message_read_member_list_filter.dart';
+import 'package:tencent_cloud_chat_sdk/enum/message_elem_type.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_member_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_member_info.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_message.dart';
+import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
+import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitTextField/special_text/DefaultSpecialTextSpanBuilder.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/message.dart';
-import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/time_ago.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitMessageItem/tim_uikit_chat_face_elem.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitMessageItem/tim_uikit_chat_file_elem.dart';
@@ -14,7 +23,8 @@ import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitMessageIt
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitMessageItem/tim_uikit_chat_video_elem.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitMessageItem/tim_uikit_merger_message_elem.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/avatar.dart';
-import 'package:tencent_im_base/tencent_im_base.dart';
+import 'package:tencent_cloud_chat_uikit/theme/color.dart';
+import 'package:tencent_cloud_chat_uikit/theme/tui_theme.dart';
 
 class MessageReadReceipt extends StatefulWidget {
   final V2TimMessage messageItem;
@@ -112,11 +122,25 @@ class _MessageReadReceiptState extends TIMUIKitState<MessageReadReceipt> {
             isFromSelf: isFromSelf,
             localCustomInt: message.localCustomInt);
       case MessageElemType.V2TIM_ELEM_TYPE_TEXT:
-        return Text(
-          message.textElem!.text!,
-          softWrap: true,
-          style: const TextStyle(fontSize: 16),
-        );
+        return ExtendedText(message.textElem!.text!,
+            softWrap: true,
+            style: const TextStyle(fontSize: 16),
+            specialTextSpanBuilder: DefaultSpecialTextSpanBuilder(
+              isUseQQPackage: widget.model.chatConfig.stickerPanelConfig
+                      ?.useQQStickerPackage ??
+                  true,
+              isUseTencentCloudChatPackage: widget.model.chatConfig
+                      .stickerPanelConfig?.useTencentCloudChatStickerPackage ??
+                  true,
+              isUseTencentCloudChatPackageOldKeys: widget
+                      .model
+                      .chatConfig
+                      .stickerPanelConfig
+                      ?.useTencentCloudChatStickerPackageOldKeys ??
+                  false,
+              showAtBackground: true,
+              checkHttpLink: true,
+            ));
       // return Text(message.textElem!.text!);
       case MessageElemType.V2TIM_ELEM_TYPE_FACE:
         return TIMUIKitFaceElem(
@@ -230,33 +254,40 @@ class _MessageReadReceiptState extends TIMUIKitState<MessageReadReceipt> {
         color: isDesktopScreen ? null : Colors.white,
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+            // The top part of the message content
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height / 2,
+              ),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(MessageUtils.getDisplayName(widget.messageItem)),
-                      const SizedBox(
-                        width: 8,
+                      Row(
+                        children: [
+                          Text(MessageUtils.getDisplayName(widget.messageItem)),
+                          const SizedBox(width: 8),
+                          Text(
+                            TimeAgo().getTimeForMessage(
+                                widget.messageItem.timestamp ?? 0),
+                            softWrap: true,
+                            style: TextStyle(
+                                fontSize: 12, color: theme.weakTextColor),
+                          )
+                        ],
                       ),
-                      Text(
-                        TimeAgo().getTimeForMessage(
-                            widget.messageItem.timestamp ?? 0),
-                        softWrap: true,
-                        style:
-                            TextStyle(fontSize: 12, color: theme.weakTextColor),
-                      )
+                      const SizedBox(height: 6),
+                      // message content
+                      _getMsgItem(widget.messageItem),
                     ],
                   ),
-                  const SizedBox(
-                    height: 6,
-                  ),
-                  _getMsgItem(widget.messageItem)
-                ],
+                ),
               ),
             ),
+            // divider
             Container(
               height: 8,
               color: theme.weakBackgroundColor,
@@ -341,31 +372,122 @@ class _MessageReadReceiptState extends TIMUIKitState<MessageReadReceipt> {
                               CommonColor.weakDividerColor))),
             ),
             Expanded(
-                child: IndexedStack(
-              index: currentIndex,
-              children: [
-                ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: readMemberList.length,
-                    itemBuilder: (context, index) {
-                      if (!readMemberIsFinished &&
-                          index == readMemberList.length - 5) {
-                        _getReadMemberList();
-                      }
-                      return _memberItemBuilder(readMemberList[index], theme);
-                    }),
-                ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: unreadMemberList.length,
-                    itemBuilder: (context, index) {
-                      if (!unreadMemberIsFinished &&
-                          index == unreadMemberList.length - 5) {
-                        _getUnreadMemberList();
-                      }
-                      return _memberItemBuilder(unreadMemberList[index], theme);
-                    }),
-              ],
-            )),
+              child: Column(
+                children: [
+                  // read/unread switch button
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        flex: 1,
+                        child: InkWell(
+                          onTap: () {
+                            currentIndex = 0;
+                            setState(() {});
+                          },
+                          child: Container(
+                            height: isDesktopScreen ? 40 : 50.0,
+                            alignment: Alignment.bottomCenter,
+                            padding: EdgeInsets.only(
+                                bottom: isDesktopScreen ? 8 : 12),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border(
+                                    bottom: BorderSide(
+                                        width: 2,
+                                        color: currentIndex == 0
+                                            ? theme.primaryColor!
+                                            : Colors.white))),
+                            child: Text(
+                              TIM_t_para("{{option1}}人已读", "$option1人已读")(
+                                  option1: option1),
+                              style: TextStyle(
+                                color: currentIndex != 0
+                                    ? theme.weakTextColor
+                                    : Colors.black,
+                                fontSize: isDesktopScreen ? 14 : 18,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: InkWell(
+                          onTap: () {
+                            currentIndex = 1;
+                            setState(() {});
+                          },
+                          child: Container(
+                            alignment: Alignment.bottomCenter,
+                            height: isDesktopScreen ? 40 : 50.0,
+                            padding: EdgeInsets.only(
+                                bottom: isDesktopScreen ? 8 : 12),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border(
+                                    bottom: BorderSide(
+                                        width: 2,
+                                        color: currentIndex == 1
+                                            ? theme.primaryColor!
+                                            : Colors.white))),
+                            child: Text(
+                              TIM_t_para("{{option2}}人未读", "$option2人未读")(
+                                  option2: option2),
+                              style: TextStyle(
+                                color: currentIndex != 1
+                                    ? theme.weakTextColor
+                                    : Colors.black,
+                                fontSize: isDesktopScreen ? 14 : 18,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    height: 1,
+                    decoration: BoxDecoration(
+                        border: Border(
+                            bottom: BorderSide(
+                                color: theme.weakDividerColor ??
+                                    CommonColor.weakDividerColor))),
+                  ),
+                  // member list
+                  Expanded(
+                    child: IndexedStack(
+                      index: currentIndex,
+                      children: [
+                        ListView.builder(
+                          shrinkWrap: false,
+                          itemCount: readMemberList.length,
+                          itemBuilder: (context, index) {
+                            if (!readMemberIsFinished &&
+                                index == readMemberList.length - 5) {
+                              _getReadMemberList();
+                            }
+                            return _memberItemBuilder(
+                                readMemberList[index], theme);
+                          },
+                        ),
+                        ListView.builder(
+                          shrinkWrap: false,
+                          itemCount: unreadMemberList.length,
+                          itemBuilder: (context, index) {
+                            if (!unreadMemberIsFinished &&
+                                index == unreadMemberList.length - 5) {
+                              _getUnreadMemberList();
+                            }
+                            return _memberItemBuilder(
+                                unreadMemberList[index], theme);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       );

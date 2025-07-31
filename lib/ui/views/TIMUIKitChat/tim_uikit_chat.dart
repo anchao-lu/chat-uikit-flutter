@@ -6,6 +6,18 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:tencent_chat_i18n_tool/tencent_chat_i18n_tool.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_conversation.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_conversation.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_application.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_application.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_at_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_at_info.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_member_full_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_member_full_info.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_message.dart';
+import 'package:tencent_cloud_chat_sdk/tencent_im_sdk_plugin.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/life_cycle/chat_life_cycle.dart';
@@ -20,12 +32,13 @@ import 'package:tencent_cloud_chat_uikit/ui/constants/history_message_constant.d
 import 'package:tencent_cloud_chat_uikit/ui/controller/tim_uikit_chat_controller.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/frame.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/logger.dart';
-import 'package:tencent_cloud_chat_uikit/ui/utils/optimize_utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitTextField/at_member_panel.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/tim_uikit_multi_select_panel.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/tim_uikit_send_file.dart';
-
+import 'package:tencent_cloud_chat_uikit/theme/color.dart';
+import 'package:tencent_cloud_chat_uikit/theme/tui_theme.dart';
+import 'package:tencent_cloud_chat_uikit/theme/tui_theme_view_model.dart';
 import 'TIMUIKItMessageList/TIMUIKitTongue/tim_uikit_chat_history_message_list_tongue.dart';
 import 'TIMUIKItMessageList/tim_uikit_chat_history_message_list_config.dart';
 import 'TIMUIKItMessageList/tim_uikit_history_message_list_container.dart';
@@ -598,8 +611,6 @@ class _TUIChatState extends TIMUIKitState<TIMUIKitChat> {
                                     textFieldController: textFieldController,
                                     customEmojiStickerList:
                                         widget.customEmojiStickerList,
-                                    isUseDefaultEmoji:
-                                        widget.config!.isUseDefaultEmoji,
                                     key: listContainerKey,
                                     isAllowScroll: true,
                                     userAvatarBuilder: widget.userAvatarBuilder,
@@ -654,8 +665,6 @@ class _TUIChatState extends TIMUIKitState<TIMUIKitChat> {
                                           controller: textFieldController,
                                           customEmojiStickerList:
                                               customImageSmallPngEmojiPackages,
-                                          isUseDefaultEmoji:
-                                              widget.config!.isUseDefaultEmoji,
                                           customStickerPanel:
                                               widget.customStickerPanel,
                                           morePanelConfig:

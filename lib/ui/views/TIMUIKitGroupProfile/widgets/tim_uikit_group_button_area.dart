@@ -1,26 +1,29 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:tencent_chat_i18n_tool/tencent_chat_i18n_tool.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_member_full_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_member_full_info.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_statelesswidget.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_group_profile_model.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/core/tim_uikit_wide_modal_operation_key.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
 import 'package:tencent_cloud_chat_uikit/ui/controller/tim_uikit_chat_controller.dart';
-
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/wide_popup.dart';
+import 'package:tencent_cloud_chat_uikit/base_widgets/tim_callback.dart';
+import 'package:tencent_cloud_chat_uikit/theme/color.dart';
+import '/theme/tui_theme.dart';
 
 class GroupProfileButtonArea extends TIMUIKitStatelessWidget {
   final String groupID;
   final TUIGroupProfileModel model;
   final sdkInstance = TIMUIKitCore.getSDKInstance();
   final coreInstance = TIMUIKitCore.getInstance();
-  final TIMUIKitChatController _timuiKitChatController =
-      TIMUIKitChatController();
+  final TIMUIKitChatController _timuiKitChatController = TIMUIKitChatController();
 
-  GroupProfileButtonArea(this.groupID, this.model, {Key? key})
-      : super(key: key);
+  GroupProfileButtonArea(this.groupID, this.model, {Key? key}) : super(key: key);
 
   final _operationList = [
     {"label": TIM_t("清空消息"), "id": "clearHistory"},
@@ -30,8 +33,7 @@ class GroupProfileButtonArea extends TIMUIKitStatelessWidget {
   ];
 
   _clearHistory(BuildContext context, theme) async {
-    final isDesktopScreen =
-        TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
+    final isDesktopScreen = TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
 
     if (isDesktopScreen) {
       TUIKitWidePopup.showSecondaryConfirmDialog(
@@ -42,16 +44,13 @@ class GroupProfileButtonArea extends TIMUIKitStatelessWidget {
           onCancel: () {},
           onConfirm: () async {
             if (PlatformUtils().isWeb) {
-              final res = await sdkInstance
-                  .getConversationManager()
-                  .deleteConversation(conversationID: "group_$groupID");
+              final res =
+                  await sdkInstance.getConversationManager().deleteConversation(conversationID: "group_$groupID");
               if (res.code == 0) {
                 _timuiKitChatController.clearHistory(groupID);
               }
             } else {
-              final res = await sdkInstance
-                  .getMessageManager()
-                  .clearGroupHistoryMessage(groupID: groupID);
+              final res = await sdkInstance.getMessageManager().clearGroupHistoryMessage(groupID: groupID);
               if (res.code == 0) {
                 _timuiKitChatController.clearHistory(groupID);
               }
@@ -78,16 +77,13 @@ class GroupProfileButtonArea extends TIMUIKitStatelessWidget {
                     context,
                   );
                   if (PlatformUtils().isWeb) {
-                    final res = await sdkInstance
-                        .getConversationManager()
-                        .deleteConversation(conversationID: "group_$groupID");
+                    final res =
+                        await sdkInstance.getConversationManager().deleteConversation(conversationID: "group_$groupID");
                     if (res.code == 0) {
                       _timuiKitChatController.clearHistory(groupID);
                     }
                   } else {
-                    final res = await sdkInstance
-                        .getMessageManager()
-                        .clearGroupHistoryMessage(groupID: groupID);
+                    final res = await sdkInstance.getMessageManager().clearGroupHistoryMessage(groupID: groupID);
                     if (res.code == 0) {
                       _timuiKitChatController.clearHistory(groupID);
                     }
@@ -107,8 +103,7 @@ class GroupProfileButtonArea extends TIMUIKitStatelessWidget {
   }
 
   _quitGroup(BuildContext context, TUITheme theme) async {
-    final isDesktopScreen =
-        TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
+    final isDesktopScreen = TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
 
     if (isDesktopScreen) {
       TUIKitWidePopup.showSecondaryConfirmDialog(
@@ -120,9 +115,8 @@ class GroupProfileButtonArea extends TIMUIKitStatelessWidget {
           onConfirm: () async {
             final res = await sdkInstance.quitGroup(groupID: groupID);
             if (res.code == 0) {
-              final deleteConvRes = await sdkInstance
-                  .getConversationManager()
-                  .deleteConversation(conversationID: "group_$groupID");
+              final deleteConvRes =
+                  await sdkInstance.getConversationManager().deleteConversation(conversationID: "group_$groupID");
               if (deleteConvRes.code == 0) {
                 model.lifeCycle?.didLeaveGroup();
               }
@@ -151,9 +145,8 @@ class GroupProfileButtonArea extends TIMUIKitStatelessWidget {
                   );
                   final res = await sdkInstance.quitGroup(groupID: groupID);
                   if (res.code == 0) {
-                    final deleteConvRes = await sdkInstance
-                        .getConversationManager()
-                        .deleteConversation(conversationID: "group_$groupID");
+                    final deleteConvRes =
+                        await sdkInstance.getConversationManager().deleteConversation(conversationID: "group_$groupID");
                     if (deleteConvRes.code == 0) {
                       model.lifeCycle?.didLeaveGroup();
                     }
@@ -177,8 +170,7 @@ class GroupProfileButtonArea extends TIMUIKitStatelessWidget {
   }
 
   _dismissGroup(BuildContext context, theme) async {
-    final isDesktopScreen =
-        TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
+    final isDesktopScreen = TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
 
     if (isDesktopScreen) {
       TUIKitWidePopup.showSecondaryConfirmDialog(
@@ -190,9 +182,7 @@ class GroupProfileButtonArea extends TIMUIKitStatelessWidget {
           onConfirm: () async {
             final res = await sdkInstance.dismissGroup(groupID: groupID);
             if (res.code == 0) {
-              await sdkInstance
-                  .getConversationManager()
-                  .deleteConversation(conversationID: "group_$groupID");
+              await sdkInstance.getConversationManager().deleteConversation(conversationID: "group_$groupID");
               model.lifeCycle?.didLeaveGroup();
             }
           });
@@ -216,9 +206,7 @@ class GroupProfileButtonArea extends TIMUIKitStatelessWidget {
                 onPressed: () async {
                   final res = await sdkInstance.dismissGroup(groupID: groupID);
                   if (res.code == 0) {
-                    await sdkInstance
-                        .getConversationManager()
-                        .deleteConversation(conversationID: "group_$groupID");
+                    await sdkInstance.getConversationManager().deleteConversation(conversationID: "group_$groupID");
                     model.lifeCycle?.didLeaveGroup();
                   }
                 },
@@ -236,8 +224,7 @@ class GroupProfileButtonArea extends TIMUIKitStatelessWidget {
   }
 
   _transmitOwner(BuildContext context, String groupID) async {
-    final isDesktopScreen =
-        TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
+    final isDesktopScreen = TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
 
     if (isDesktopScreen) {
       TUIKitWidePopup.showPopupWindow(
@@ -256,9 +243,7 @@ class GroupProfileButtonArea extends TIMUIKitStatelessWidget {
           onSelectedMember: (selectedMember) async {
             if (selectedMember.isNotEmpty) {
               final userID = selectedMember.first.userID;
-              await sdkInstance
-                  .getGroupManager()
-                  .transferGroupOwner(groupID: groupID, userID: userID);
+              await sdkInstance.getGroupManager().transferGroupOwner(groupID: groupID, userID: userID);
             }
           },
         ),
@@ -275,29 +260,23 @@ class GroupProfileButtonArea extends TIMUIKitStatelessWidget {
       );
       if (selectedMember != null) {
         final userID = selectedMember.first.userID;
-        await sdkInstance
-            .getGroupManager()
-            .transferGroupOwner(groupID: groupID, userID: userID);
+        await sdkInstance.getGroupManager().transferGroupOwner(groupID: groupID, userID: userID);
       }
     }
   }
 
-  List<Widget> _renderGroupOperation(
-      BuildContext context, TUITheme theme, bool isOwner, String groupType) {
-    final isDesktopScreen =
-        TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
+  List<Widget> _renderGroupOperation(BuildContext context, TUITheme theme, bool isOwner, String groupType) {
+    final isDesktopScreen = TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
     return _operationList
         .where((element) {
           if (!isOwner) {
             return ["quitGroup", "clearHistory"].contains(element["id"]);
           } else {
             if (groupType == "Work") {
-              return ["clearHistory", "quitGroup", "transimitOwner"]
-                  .contains(element["id"]);
+              return ["clearHistory", "quitGroup", "transimitOwner"].contains(element["id"]);
             }
             if (groupType != "Work") {
-              return ["clearHistory", "dismissGroup", "transimitOwner"]
-                  .contains(element["id"]);
+              return ["clearHistory", "dismissGroup", "transimitOwner"].contains(element["id"]);
             }
             return true;
           }
@@ -336,10 +315,8 @@ class GroupProfileButtonArea extends TIMUIKitStatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 15),
                   decoration: BoxDecoration(
                       color: Colors.white,
-                      border: Border(
-                          bottom: BorderSide(
-                              color: theme.weakDividerColor ??
-                                  CommonColor.weakDividerColor))),
+                      border:
+                          Border(bottom: BorderSide(color: theme.weakDividerColor ?? CommonColor.weakDividerColor))),
                   child: Text(
                     e["label"]!,
                     style: TextStyle(color: theme.cautionColor, fontSize: 17),
@@ -354,8 +331,7 @@ class GroupProfileButtonArea extends TIMUIKitStatelessWidget {
     final theme = value.theme;
     final groupInfo = model.groupInfo;
 
-    final isDesktopScreen =
-        TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
+    final isDesktopScreen = TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
     if (isDesktopScreen) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -363,10 +339,7 @@ class GroupProfileButtonArea extends TIMUIKitStatelessWidget {
           spacing: 28,
           children: [
             ..._renderGroupOperation(
-                context,
-                theme,
-                groupInfo?.owner == coreInstance.loginUserInfo?.userID,
-                groupInfo?.groupType ?? "")
+                context, theme, groupInfo?.owner == coreInstance.loginUserInfo?.userID, groupInfo?.groupType ?? "")
           ],
         ),
       );
@@ -375,10 +348,7 @@ class GroupProfileButtonArea extends TIMUIKitStatelessWidget {
     return Column(
       children: [
         ..._renderGroupOperation(
-            context,
-            theme,
-            groupInfo?.owner == coreInstance.loginUserInfo?.userID,
-            groupInfo?.groupType ?? "")
+            context, theme, groupInfo?.owner == coreInstance.loginUserInfo?.userID, groupInfo?.groupType ?? "")
       ],
     );
   }

@@ -1,4 +1,4 @@
-import 'package:tencent_im_base/tencent_im_base.dart';
+import 'package:tencent_chat_i18n_tool/tools/i18n_tool.dart';
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 
 class IntlCameraPickerTextDelegate extends CameraPickerTextDelegate {

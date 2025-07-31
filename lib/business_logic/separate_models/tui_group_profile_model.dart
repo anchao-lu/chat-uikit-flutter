@@ -1,6 +1,29 @@
 // ignore_for_file: unnecessary_getters_setters, avoid_print
 
 import 'package:flutter/cupertino.dart';
+import 'package:tencent_cloud_chat_sdk/enum/group_member_filter_enum.dart';
+import 'package:tencent_cloud_chat_sdk/enum/group_member_role.dart';
+import 'package:tencent_cloud_chat_sdk/enum/group_member_role_enum.dart';
+import 'package:tencent_cloud_chat_sdk/enum/group_type.dart';
+import 'package:tencent_cloud_chat_sdk/enum/receive_message_opt_enum.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_callback.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_callback.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_conversation.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_conversation.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_friend_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_friend_info.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_info.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_member_full_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_member_full_info.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_member_operation_result.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_member_operation_result.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_member_search_param.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_member_search_param.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_member_search_result.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_member_search_result.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_value_callback.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_value_callback.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/life_cycle/group_profile_life_cycle.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/conversation/conversation_services.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/core/core_services_implements.dart';
@@ -9,7 +32,6 @@ import 'package:tencent_cloud_chat_uikit/data_services/group/group_services.dart
 import 'package:tencent_cloud_chat_uikit/data_services/message/message_services.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/logger.dart';
-import 'package:tencent_im_base/tencent_im_base.dart';
 
 class TUIGroupProfileModel extends ChangeNotifier {
   final CoreServicesImpl _coreServices = serviceLocator<CoreServicesImpl>();
@@ -25,7 +47,7 @@ class TUIGroupProfileModel extends ChangeNotifier {
   List<V2TimGroupMemberFullInfo?>? _groupMemberList;
   String _groupMemberListSeq = "0";
   V2TimGroupInfo? _groupInfo;
-  Function(String userID, TapDownDetails? tapDetails)? onClickUser;
+  Function(V2TimGroupMemberFullInfo groupMemberFullInfo, TapDownDetails? tapDetails)? onClickUser;
 
   GroupProfileLifeCycle? get lifeCycle => _lifeCycle;
 
@@ -95,12 +117,17 @@ class TUIGroupProfileModel extends ChangeNotifier {
     if (seq == null || seq == "" || seq == "0") {
       _groupMemberList?.clear();
     }
-    final res = await _groupServices.getGroupMemberList(groupID: groupID, filter: GroupMemberFilterTypeEnum.V2TIM_GROUP_MEMBER_FILTER_ALL, count: count, nextSeq: seq ?? _groupMemberListSeq);
+    final res = await _groupServices.getGroupMemberList(
+        groupID: groupID,
+        filter: GroupMemberFilterTypeEnum.V2TIM_GROUP_MEMBER_FILTER_ALL,
+        count: count,
+        nextSeq: seq ?? _groupMemberListSeq);
     final groupMemberListRes = res.data;
     if (res.code == 0 && groupMemberListRes != null) {
       final groupMemberListTemp = groupMemberListRes.memberInfoList ?? [];
       // TODO
-      outputLogger.i("loadGroupMemberListfinish,groupMemberListTemp, ${groupMemberListRes.nextSeq},  ${groupMemberListTemp.length}");
+      outputLogger.i(
+          "loadGroupMemberListfinish,groupMemberListTemp, ${groupMemberListRes.nextSeq},  ${groupMemberListTemp.length}");
       _groupMemberList = [...?_groupMemberList, ...groupMemberListTemp];
       _groupMemberListSeq = groupMemberListRes.nextSeq ?? "0";
     }
@@ -123,14 +150,18 @@ class TUIGroupProfileModel extends ChangeNotifier {
   }
 
   setMessageDisturb(bool value) async {
-    final res = await _messageService.setGroupReceiveMessageOpt(groupID: _groupID, opt: value ? ReceiveMsgOptEnum.V2TIM_RECEIVE_NOT_NOTIFY_MESSAGE : ReceiveMsgOptEnum.V2TIM_RECEIVE_MESSAGE);
+    final res = await _messageService.setGroupReceiveMessageOpt(
+        groupID: _groupID,
+        opt: value ? ReceiveMsgOptEnum.V2TIM_RECEIVE_NOT_NOTIFY_MESSAGE : ReceiveMsgOptEnum.V2TIM_RECEIVE_MESSAGE);
     if (res.code == 0) {
-      conversation?.recvOpt = (value ? ReceiveMsgOptEnum.V2TIM_RECEIVE_NOT_NOTIFY_MESSAGE : ReceiveMsgOptEnum.V2TIM_RECEIVE_MESSAGE).index;
+      conversation?.recvOpt =
+          (value ? ReceiveMsgOptEnum.V2TIM_RECEIVE_NOT_NOTIFY_MESSAGE : ReceiveMsgOptEnum.V2TIM_RECEIVE_MESSAGE).index;
     }
     notifyListeners();
   }
 
-  Future<V2TimValueCallback<V2GroupMemberInfoSearchResult>> searchGroupMember(V2TimGroupMemberSearchParam searchParam) async {
+  Future<V2TimValueCallback<V2GroupMemberInfoSearchResult>> searchGroupMember(
+      V2TimGroupMemberSearchParam searchParam) async {
     final res = await _groupServices.searchGroupMembers(searchParam: searchParam);
 
     if (res.code == 0) {}
@@ -141,7 +172,9 @@ class TUIGroupProfileModel extends ChangeNotifier {
     if (_groupInfo != null) {
       String? originalGroupName = _groupInfo?.groupName;
       _groupInfo?.groupName = groupName;
-      final response = await _groupServices.setGroupInfo(info: V2TimGroupInfo.fromJson({"groupID": _groupID, "groupType": _groupInfo!.groupType, "groupName": groupName}));
+      V2TimGroupInfo v2timGroupInfo = V2TimGroupInfo(groupID: _groupID, groupType: _groupInfo!.groupType);
+      v2timGroupInfo.groupName = groupName;
+      final response = await _groupServices.setGroupInfo(info: v2timGroupInfo);
       if (response.code != 0) {
         _groupInfo?.groupName = originalGroupName;
       }
@@ -153,7 +186,9 @@ class TUIGroupProfileModel extends ChangeNotifier {
 
   setGroupNotification(String notification) async {
     if (_groupInfo != null) {
-      final response = await _groupServices.setGroupInfo(info: V2TimGroupInfo.fromJson({"groupID": _groupID, "groupType": _groupInfo!.groupType, "notification": notification}));
+      V2TimGroupInfo v2timGroupInfo = V2TimGroupInfo(groupID: _groupID, groupType: _groupInfo!.groupType);
+      v2timGroupInfo.notification = notification;
+      final response = await _groupServices.setGroupInfo(info: v2timGroupInfo);
       if (response.code == 0) {
         notifyListeners();
         _groupInfo?.notification = notification;
@@ -195,7 +230,9 @@ class TUIGroupProfileModel extends ChangeNotifier {
     if (_groupInfo != null) {
       int? originalAddopt = _groupInfo?.groupAddOpt;
       _groupInfo?.groupAddOpt = addOpt;
-      final response = await _groupServices.setGroupInfo(info: V2TimGroupInfo.fromJson({"groupID": _groupID, "groupType": _groupInfo!.groupType, "groupAddOpt": addOpt}));
+      V2TimGroupInfo v2timGroupInfo = V2TimGroupInfo(groupID: _groupID, groupType: _groupInfo!.groupType);
+      v2timGroupInfo.groupAddOpt = addOpt;
+      final response = await _groupServices.setGroupInfo(info: v2timGroupInfo);
       if (response.code != 0) {
         _groupInfo?.groupAddOpt = originalAddopt;
       }
@@ -206,7 +243,8 @@ class TUIGroupProfileModel extends ChangeNotifier {
   }
 
   Future<V2TimCallback> setMemberToNormal(String userID) async {
-    final res = await _groupServices.setGroupMemberRole(groupID: _groupID, userID: userID, role: GroupMemberRoleTypeEnum.V2TIM_GROUP_MEMBER_ROLE_MEMBER);
+    final res = await _groupServices.setGroupMemberRole(
+        groupID: _groupID, userID: userID, role: GroupMemberRoleTypeEnum.V2TIM_GROUP_MEMBER_ROLE_MEMBER);
     if (res.code == 0) {
       final targetIndex = _groupMemberList!.indexWhere((e) => e!.userID == userID);
       if (targetIndex != -1) {
@@ -220,7 +258,8 @@ class TUIGroupProfileModel extends ChangeNotifier {
   }
 
   Future<V2TimCallback> setMemberToAdmin(String userID) async {
-    final res = await _groupServices.setGroupMemberRole(groupID: _groupID, userID: userID, role: GroupMemberRoleTypeEnum.V2TIM_GROUP_MEMBER_ROLE_ADMIN);
+    final res = await _groupServices.setGroupMemberRole(
+        groupID: _groupID, userID: userID, role: GroupMemberRoleTypeEnum.V2TIM_GROUP_MEMBER_ROLE_ADMIN);
     if (res.code == 0) {
       final targetIndex = _groupMemberList!.indexWhere((e) => e!.userID == userID);
       if (targetIndex != -1) {
@@ -231,6 +270,34 @@ class TUIGroupProfileModel extends ChangeNotifier {
       notifyListeners();
     }
     return res;
+  }
+
+  void onOwnerChanged(String? userID) {
+    if (userID == null) {
+      return;
+    }
+
+    // 把之前的群主更新为普通成员
+    final preOwnerIndex =
+        _groupMemberList!.indexWhere((e) => e!.role == GroupMemberRoleType.V2TIM_GROUP_MEMBER_ROLE_OWNER);
+    if (preOwnerIndex != -1) {
+      final preOwnerElem = _groupMemberList![preOwnerIndex];
+      preOwnerElem?.role = GroupMemberRoleType.V2TIM_GROUP_MEMBER_ROLE_MEMBER;
+
+      print("preOwnerUserID: ${preOwnerElem?.userID}");
+    }
+
+    // 设置新的群主
+    final targetIndex = _groupMemberList!.indexWhere((e) => e!.userID == userID);
+    if (targetIndex != -1) {
+      final targetElem = _groupMemberList![targetIndex];
+      targetElem?.role = GroupMemberRoleType.V2TIM_GROUP_MEMBER_ROLE_OWNER;
+      _groupMemberList![targetIndex] = targetElem;
+
+      print("newOwnerUserID: ${targetElem?.userID}");
+    }
+
+    notifyListeners();
   }
 
   bool canInviteMember() {
@@ -257,7 +324,9 @@ class TUIGroupProfileModel extends ChangeNotifier {
   Future<V2TimCallback?> setMuteAll(bool muteAll) async {
     if (_groupInfo != null) {
       _groupInfo?.isAllMuted = muteAll;
-      final response = await _groupServices.setGroupInfo(info: V2TimGroupInfo.fromJson({"groupID": _groupInfo!.groupID, "groupType": _groupInfo!.groupType, "isAllMuted": muteAll}));
+      V2TimGroupInfo v2timGroupInfo = V2TimGroupInfo(groupID: _groupID, groupType: _groupInfo!.groupType);
+      v2timGroupInfo.isAllMuted = muteAll;
+      final response = await _groupServices.setGroupInfo(info: v2timGroupInfo);
       if (response.code != 0) {
         _groupInfo?.isAllMuted = muteAll;
       }

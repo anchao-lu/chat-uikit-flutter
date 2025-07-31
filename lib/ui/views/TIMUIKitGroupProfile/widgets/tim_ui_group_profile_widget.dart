@@ -1,16 +1,20 @@
 import 'package:flutter/cupertino.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_conversation.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_conversation.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_group_info.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
-import 'package:tencent_im_base/tencent_im_base.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitGroupProfile/widgets/tim_ui_group_search_msg.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitGroupProfile/widgets/tim_uikit_group_add_opt.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitGroupProfile/widgets/tim_uikit_group_detail_card.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitGroupProfile/widgets/tim_uikit_group_manage.dart';
-import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitGroupProfile/widgets/tim_uikit_group_member_tile.dart';
+import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitGroupProfile/widgets/tim_uikit_group_member_title.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitGroupProfile/widgets/tim_uikit_group_message_disturb.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitGroupProfile/widgets/tim_uikit_group_name_card.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitGroupProfile/widgets/tim_uikit_group_notification.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitGroupProfile/widgets/tim_uikit_group_pin_conversation.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitGroupProfile/widgets/tim_uikit_group_type.dart';
+import 'package:tencent_cloud_chat_uikit/theme/tui_theme.dart';
 
 class TIMUIKitGroupProfileWidget {
   static Widget detailCard(
@@ -27,7 +31,7 @@ class TIMUIKitGroupProfileWidget {
   }
 
   static Widget memberTile() {
-    return GroupMemberTile();
+    return GroupMemberTitle();
   }
 
   static Widget groupNotification({

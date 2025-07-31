@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
 
 import 'browser_page_routes.dart';

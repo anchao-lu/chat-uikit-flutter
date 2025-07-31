@@ -3,18 +3,24 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:tencent_chat_i18n_tool/tencent_chat_i18n_tool.dart';
+import 'package:tencent_cloud_chat_sdk/enum/message_elem_type.dart';
+import 'package:tencent_cloud_chat_sdk/enum/message_status.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_message.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_model_tools.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/common_utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitTextField/special_text/DefaultSpecialTextSpanBuilder.dart';
 import 'package:extended_text/extended_text.dart';
-import 'package:tencent_im_base/tencent_im_base.dart';
+import 'package:tencent_cloud_chat_uikit/base_widgets/tim_callback.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_global_model.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
+import 'package:tencent_cloud_chat_uikit/theme/tui_theme.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitMessageItem/TIMUIKitMessageReaction/tim_uikit_message_reaction_show_panel.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitMessageItem/main.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitMessageItem/tim_uikit_chat_face_elem.dart';
@@ -37,7 +43,6 @@ class TIMUIKitReplyElem extends StatefulWidget {
   final EdgeInsetsGeometry? textPadding;
   final TUIChatSeparateViewModel chatModel;
   final bool? isShowMessageReaction;
-  final bool isUseDefaultEmoji;
   final List<CustomEmojiFaceData> customEmojiStickerList;
 
   const TIMUIKitReplyElem({
@@ -51,7 +56,6 @@ class TIMUIKitReplyElem extends StatefulWidget {
     this.isShowMessageReaction,
     this.backgroundColor,
     this.textPadding,
-    this.isUseDefaultEmoji = false,
     this.customEmojiStickerList = const [],
     required this.chatModel,
   }) : super(key: key);
@@ -68,14 +72,10 @@ class _TIMUIKitReplyElemState extends TIMUIKitState<TIMUIKitReplyElem> {
 
   MessageRepliedData? _getRepliedMessage() {
     try {
-      final CloudCustomData messageCloudCustomData = CloudCustomData.fromJson(
-          json.decode(
-              TencentUtils.checkString(widget.message.cloudCustomData) != null
-                  ? widget.message.cloudCustomData!
-                  : "{}"));
+      final CloudCustomData messageCloudCustomData = CloudCustomData.fromJson(json.decode(
+          TencentUtils.checkString(widget.message.cloudCustomData) != null ? widget.message.cloudCustomData! : "{}"));
       if (messageCloudCustomData.messageReply != null) {
-        final MessageRepliedData repliedMessage =
-            MessageRepliedData.fromJson(messageCloudCustomData.messageReply!);
+        final MessageRepliedData repliedMessage = MessageRepliedData.fromJson(messageCloudCustomData.messageReply!);
         return repliedMessage;
       }
       return null;
@@ -94,15 +94,14 @@ class _TIMUIKitReplyElemState extends TIMUIKitState<TIMUIKitReplyElem> {
       }
 
       final messageID = cloudCustomData.messageID;
-      if(PlatformUtils().isWeb){
+      if (PlatformUtils().isWeb) {
         return;
       }
       V2TimMessage? message = await widget.chatModel.findMessage(messageID);
       if (message == null) {
         try {
           final RepliedMessageAbstract repliedMessageAbstract =
-              RepliedMessageAbstract.fromJson(
-                  jsonDecode(cloudCustomData.messageAbstract));
+              RepliedMessageAbstract.fromJson(jsonDecode(cloudCustomData.messageAbstract));
           if (repliedMessageAbstract.isNotEmpty) {
             message = V2TimMessage(
                 elemType: 0,
@@ -129,25 +128,19 @@ class _TIMUIKitReplyElemState extends TIMUIKitState<TIMUIKitReplyElem> {
     return Text(text,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-            fontSize: 12,
-            color: theme?.weakTextColor,
-            fontWeight: FontWeight.w400));
+        style: TextStyle(fontSize: 12, color: theme?.weakTextColor, fontWeight: FontWeight.w400));
   }
 
   _renderMessageSummary(TUITheme? theme) {
     try {
       final RepliedMessageAbstract repliedMessageAbstract =
-          RepliedMessageAbstract.fromJson(
-              jsonDecode(repliedMessage?.messageAbstract ?? ""));
+          RepliedMessageAbstract.fromJson(jsonDecode(repliedMessage?.messageAbstract ?? ""));
       if (TencentUtils.checkString(repliedMessageAbstract.summary) != null) {
         return _defaultRawMessageText(repliedMessageAbstract.summary!, theme);
       }
-      return _defaultRawMessageText(
-          repliedMessage?.messageAbstract ?? TIM_t("[未知消息]"), theme);
+      return _defaultRawMessageText(repliedMessage?.messageAbstract ?? TIM_t("[未知消息]"), theme);
     } catch (e) {
-      return _defaultRawMessageText(
-          repliedMessage?.messageAbstract ?? TIM_t("[未知消息]"), theme);
+      return _defaultRawMessageText(repliedMessage?.messageAbstract ?? TIM_t("[未知消息]"), theme);
     }
   }
 
@@ -182,16 +175,13 @@ class _TIMUIKitReplyElemState extends TIMUIKitState<TIMUIKitReplyElem> {
     final isAdminRevoke = revokeStatus.$2;
 
     if (isRevokedMsg) {
-      return _defaultRawMessageText(
-          isAdminRevoke ? TIM_t("[消息被管理员撤回]") : TIM_t("[消息被撤回]"), theme);
+      return _defaultRawMessageText(isAdminRevoke ? TIM_t("[消息被管理员撤回]") : TIM_t("[消息被撤回]"), theme);
     }
 
     final messageType = message.elemType;
     final isSelf = message.isSelf ?? true;
     final customAbstractMessage =
-        widget.chatModel.abstractMessageBuilder != null
-            ? widget.chatModel.abstractMessageBuilder!(message)
-            : null;
+        widget.chatModel.abstractMessageBuilder != null ? widget.chatModel.abstractMessageBuilder!(message) : null;
     if (customAbstractMessage != null) {
       return _defaultRawMessageText(
         customAbstractMessage,
@@ -224,15 +214,9 @@ class _TIMUIKitReplyElemState extends TIMUIKitState<TIMUIKitReplyElem> {
             isShowJump: false);
       case MessageElemType.V2TIM_ELEM_TYPE_IMAGE:
         return TIMUIKitImageElem(
-            chatModel: widget.chatModel,
-            message: message,
-            isFrom: "reply",
-            isShowMessageReaction: false);
+            chatModel: widget.chatModel, message: message, isFrom: "reply", isShowMessageReaction: false);
       case MessageElemType.V2TIM_ELEM_TYPE_VIDEO:
-        return TIMUIKitVideoElem(message,
-            chatModel: widget.chatModel,
-            isFrom: "reply",
-            isShowMessageReaction: false);
+        return TIMUIKitVideoElem(message, chatModel: widget.chatModel, isFrom: "reply", isShowMessageReaction: false);
       case MessageElemType.V2TIM_ELEM_TYPE_LOCATION:
         return _defaultRawMessageText(TIM_t("[位置]"), theme);
       case MessageElemType.V2TIM_ELEM_TYPE_MERGER:
@@ -264,8 +248,7 @@ class _TIMUIKitReplyElemState extends TIMUIKitState<TIMUIKitReplyElem> {
   }
 
   _showJumpColor() {
-    if ((widget.chatModel.jumpMsgID != widget.message.msgID) &&
-        (widget.message.msgID?.isNotEmpty ?? true)) {
+    if ((widget.chatModel.jumpMsgID != widget.message.msgID) && (widget.message.msgID?.isNotEmpty ?? true)) {
       return;
     }
     isShining = true;
@@ -289,27 +272,21 @@ class _TIMUIKitReplyElemState extends TIMUIKitState<TIMUIKitReplyElem> {
   }
 
   void _jumpToRawMsg() {
-    if (rawMessage?.timestamp != null) {
+    if (rawMessage?.status != MessageStatus.V2TIM_MSG_STATUS_LOCAL_REVOKED && rawMessage?.timestamp != null) {
       widget.scrollToIndex(rawMessage);
     } else {
-      onTIMCallback(TIMCallback(
-          type: TIMCallbackType.INFO,
-          infoRecommendText: TIM_t("无法定位到原消息"),
-          infoCode: 6660401));
+      onTIMCallback(TIMCallback(type: TIMCallbackType.INFO, infoRecommendText: TIM_t("无法定位到原消息")));
     }
   }
 
   Widget? _renderPreviewWidget() {
     // If the link preview info from [localCustomData] is available, use it to render the preview card.
     // Otherwise, it will returns null.
-    if (widget.message.localCustomData != null &&
-        widget.message.localCustomData!.isNotEmpty) {
+    if (widget.message.localCustomData != null && widget.message.localCustomData!.isNotEmpty) {
       try {
         final String localJSON = widget.message.localCustomData!;
-        final LocalCustomDataModel? localPreviewInfo =
-            LocalCustomDataModel.fromMap(json.decode(localJSON));
-        if (localPreviewInfo != null &&
-            !localPreviewInfo.isLinkPreviewEmpty()) {
+        final LocalCustomDataModel? localPreviewInfo = LocalCustomDataModel.fromMap(json.decode(localJSON));
+        if (localPreviewInfo != null && !localPreviewInfo.isLinkPreviewEmpty()) {
           return Container(
             margin: const EdgeInsets.only(top: 8),
             child:
@@ -330,16 +307,14 @@ class _TIMUIKitReplyElemState extends TIMUIKitState<TIMUIKitReplyElem> {
   @override
   Widget tuiBuild(BuildContext context, TUIKitBuildValue value) {
     final theme = value.theme;
-    final isDesktopScreen =
-        TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
+    final isDesktopScreen = TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
     if (widget.isShowJump) {
       if (!isShining) {
         Future.delayed(Duration.zero, () {
           _showJumpColor();
         });
       } else {
-        if ((widget.chatModel.jumpMsgID == widget.message.msgID) &&
-            (widget.message.msgID?.isNotEmpty ?? false)) {
+        if ((widget.chatModel.jumpMsgID == widget.message.msgID) && (widget.message.msgID?.isNotEmpty ?? false)) {
           widget.clearJump();
         }
       }
@@ -348,13 +323,11 @@ class _TIMUIKitReplyElemState extends TIMUIKitState<TIMUIKitReplyElem> {
     final isFromSelf = widget.message.isSelf ?? true;
 
     final defaultStyle = isFromSelf
-        ? (theme.chatMessageItemFromSelfBgColor ??
-            theme.lightPrimaryMaterialColor.shade50)
+        ? (theme.chatMessageItemFromSelfBgColor ?? theme.lightPrimaryMaterialColor.shade50)
         : (theme.chatMessageItemFromOthersBgColor);
 
-    final backgroundColor = isShowJumpState
-        ? const Color.fromRGBO(245, 166, 35, 1)
-        : (defaultStyle ?? widget.backgroundColor);
+    final backgroundColor =
+        isShowJumpState ? const Color.fromRGBO(245, 166, 35, 1) : (defaultStyle ?? widget.backgroundColor);
 
     final borderRadius = isFromSelf
         ? const BorderRadius.only(
@@ -368,27 +341,22 @@ class _TIMUIKitReplyElemState extends TIMUIKitState<TIMUIKitReplyElem> {
             bottomLeft: Radius.circular(10),
             bottomRight: Radius.circular(10));
     final textWithLink = LinkPreviewEntry.getHyperlinksText(
-        widget.message.textElem?.text ?? "",
-        widget.chatModel.chatConfig.isSupportMarkdownForTextMessage,
+        widget.message.textElem?.text ?? "", widget.chatModel.chatConfig.isSupportMarkdownForTextMessage,
         onLinkTap: widget.chatModel.chatConfig.onTapLink,
-        isUseQQPackage: (widget.chatModel.chatConfig.stickerPanelConfig
-                    ?.useTencentCloudChatStickerPackage ??
-                true) ||
-            widget.isUseDefaultEmoji,
-        isUseTencentCloudChatPackage: widget.chatModel.chatConfig
-                .stickerPanelConfig?.useTencentCloudChatStickerPackage ??
-            true,
+        isUseQQPackage: widget.chatModel.chatConfig.stickerPanelConfig?.useQQStickerPackage ?? true,
+        isUseTencentCloudChatPackage:
+            widget.chatModel.chatConfig.stickerPanelConfig?.useTencentCloudChatStickerPackage ?? true,
+        isUseTencentCloudChatPackageOldKeys:
+            widget.chatModel.chatConfig.stickerPanelConfig?.useTencentCloudChatStickerPackageOldKeys ?? false,
         customEmojiStickerList: widget.customEmojiStickerList,
-        isEnableTextSelection:
-            widget.chatModel.chatConfig.isEnableTextSelection ?? false);
+        isEnableTextSelection: widget.chatModel.chatConfig.isEnableTextSelection ?? false);
     return Container(
       padding: widget.textPadding ?? EdgeInsets.all(isDesktopScreen ? 12 : 10),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: widget.borderRadius ?? borderRadius,
       ),
-      constraints:
-          BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.6),
+      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.6),
       child: GestureDetector(
         onTap: _jumpToRawMsg,
         child: Column(
@@ -400,20 +368,13 @@ class _TIMUIKitReplyElemState extends TIMUIKitState<TIMUIKitReplyElem> {
               constraints: const BoxConstraints(minWidth: 120),
               decoration: const BoxDecoration(
                   color: Color.fromRGBO(68, 68, 68, 0.05),
-                  border: Border(
-                      left: BorderSide(
-                          color: Color.fromRGBO(68, 68, 68, 0.1), width: 2))),
+                  border: Border(left: BorderSide(color: Color.fromRGBO(68, 68, 68, 0.1), width: 2))),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    repliedMessage != null
-                        ? "${repliedMessage!.messageSender}:"
-                        : "",
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: theme.weakTextColor,
-                        fontWeight: FontWeight.w500),
+                    repliedMessage != null ? "${repliedMessage!.messageSender}:" : "",
+                    style: TextStyle(fontSize: 12, color: theme.weakTextColor, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(
                     height: 4,
@@ -437,33 +398,22 @@ class _TIMUIKitReplyElemState extends TIMUIKitState<TIMUIKitReplyElem> {
                 : ExtendedText(widget.message.textElem?.text ?? "",
                     softWrap: true,
                     style: widget.fontStyle ??
-                        TextStyle(
-                            fontSize: isDesktopScreen ? 14 : 16,
-                            height: widget.chatModel.chatConfig.textHeight),
+                        TextStyle(fontSize: isDesktopScreen ? 14 : 16, height: widget.chatModel.chatConfig.textHeight),
                     specialTextSpanBuilder: DefaultSpecialTextSpanBuilder(
-                      isUseQQPackage: (widget
-                                  .chatModel
-                                  .chatConfig
-                                  .stickerPanelConfig
-                                  ?.useTencentCloudChatStickerPackage ??
-                              true) ||
-                          widget.isUseDefaultEmoji,
-                      isUseTencentCloudChatPackage: widget
-                              .chatModel
-                              .chatConfig
-                              .stickerPanelConfig
-                              ?.useTencentCloudChatStickerPackage ??
-                          true,
+                      isUseQQPackage: widget.chatModel.chatConfig.stickerPanelConfig?.useQQStickerPackage ?? true,
+                      isUseTencentCloudChatPackage:
+                          widget.chatModel.chatConfig.stickerPanelConfig?.useTencentCloudChatStickerPackage ?? true,
+                      isUseTencentCloudChatPackageOldKeys:
+                          widget.chatModel.chatConfig.stickerPanelConfig?.useTencentCloudChatStickerPackageOldKeys ??
+                              false,
                       customEmojiStickerList: widget.customEmojiStickerList,
                       showAtBackground: true,
                     )),
             // If the link preview info is available, render the preview card.
             if (_renderPreviewWidget() != null &&
-                widget.chatModel.chatConfig.urlPreviewType ==
-                    UrlPreviewType.previewCardAndHyperlink)
+                widget.chatModel.chatConfig.urlPreviewType == UrlPreviewType.previewCardAndHyperlink)
               _renderPreviewWidget()!,
-            if (widget.isShowMessageReaction ?? true)
-              TIMUIKitMessageReactionShowPanel(message: widget.message)
+            if (widget.isShowMessageReaction ?? true) TIMUIKitMessageReactionShowPanel(message: widget.message)
           ],
         ),
       ),

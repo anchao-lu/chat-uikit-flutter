@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:flutter_slidable_plus_plus/flutter_slidable_plus_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:tencent_chat_i18n_tool/tools/i18n_tool.dart';
+import 'package:tencent_cloud_chat_sdk/enum/group_member_filter_enum.dart';
+import 'package:tencent_cloud_chat_sdk/enum/group_member_role.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_info.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_member_full_info.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_member_search_param.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_member_search_result.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_value_callback.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/group/group_services.dart';
@@ -10,7 +18,10 @@ import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitGroupProfile/widgets/tim_ui_group_member_search.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/avatar.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/radio_button.dart';
-import 'package:tencent_im_base/tencent_im_base.dart';
+
+import '../../../../theme/color.dart';
+import '../../../../theme/tui_theme.dart';
+import '../../../../theme/tui_theme_view_model.dart';
 
 class AtText extends StatefulWidget {
   final String? groupID;
@@ -441,7 +452,8 @@ class _AtTextMemberListState extends TIMUIKitState<AtTextMemberList> {
               thickness: 1,
               indent: 74,
               endIndent: 0,
-              color: theme.conversationItemBorderColor ?? CommonColor.weakDividerColor,
+              color: theme.conversationItemBorderColor ??
+                  CommonColor.weakDividerColor,
               height: 0,
             )
           ],

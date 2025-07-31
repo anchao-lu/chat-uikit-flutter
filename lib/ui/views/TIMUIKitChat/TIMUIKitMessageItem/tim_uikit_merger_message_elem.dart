@@ -1,15 +1,22 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:tencent_chat_i18n_tool/tencent_chat_i18n_tool.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_merger_elem.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_merger_elem.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_message.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/core/tim_uikit_wide_modal_operation_key.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKItMessageList/tim_uikit_chat_history_message_list_item.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/merger_message_screen.dart';
+import 'package:tencent_cloud_chat_uikit/base_widgets/tim_callback.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/wide_popup.dart';
-import 'package:tencent_im_base/tencent_im_base.dart';
+import 'package:tencent_cloud_chat_uikit/theme/color.dart';
+import 'package:tencent_cloud_chat_uikit/theme/tui_theme.dart';
 import 'TIMUIKitMessageReaction/tim_uikit_message_reaction_show_panel.dart';
 
 class TIMUIKitMergerElem extends StatefulWidget {
@@ -76,8 +83,7 @@ class TIMUIKitMergerElemState extends TIMUIKitState<TIMUIKitMergerElem> {
   _handleTap(BuildContext context, TUIChatSeparateViewModel model) async {
     try {
       if (widget.messageID != "") {
-        final isDesktopScreen =
-            TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
+        final isDesktopScreen = TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
 
         if (isDesktopScreen) {
           TUIKitWidePopup.showPopupWindow(
@@ -89,9 +95,7 @@ class TIMUIKitMergerElemState extends TIMUIKitState<TIMUIKitMergerElem> {
             child: (onClose) => Scrollbar(
               controller: _scrollController,
               child: MergerMessageScreen(
-                  messageItemBuilder: widget.messageItemBuilder,
-                  model: model,
-                  msgID: widget.messageID),
+                  messageItemBuilder: widget.messageItemBuilder, model: model, msgID: widget.messageID),
             ),
           );
         } else {
@@ -99,17 +103,12 @@ class TIMUIKitMergerElemState extends TIMUIKitState<TIMUIKitMergerElem> {
               context,
               MaterialPageRoute(
                 builder: (context) => MergerMessageScreen(
-                    messageItemBuilder: widget.messageItemBuilder,
-                    model: model,
-                    msgID: widget.messageID),
+                    messageItemBuilder: widget.messageItemBuilder, model: model, msgID: widget.messageID),
               ));
         }
       }
     } catch (e) {
-      onTIMCallback(TIMCallback(
-          type: TIMCallbackType.INFO,
-          infoRecommendText: TIM_t("无法定位到原消息"),
-          infoCode: 6660401));
+      onTIMCallback(TIMCallback(type: TIMCallbackType.INFO, infoRecommendText: TIM_t("无法定位到原消息"), infoCode: 6660401));
     }
   }
 
@@ -129,12 +128,9 @@ class TIMUIKitMergerElemState extends TIMUIKitState<TIMUIKitMergerElem> {
         _showJumpColor();
       });
     }
-    final isDesktopScreen =
-        TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
+    final isDesktopScreen = TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
     return Container(
-      constraints: BoxConstraints(
-          maxWidth:
-              MediaQuery.of(context).size.width * (isDesktopScreen ? 0.3 : 0.6)),
+      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * (isDesktopScreen ? 0.3 : 0.6)),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(
@@ -216,8 +212,7 @@ class TIMUIKitMergerElemState extends TIMUIKitState<TIMUIKitMergerElem> {
                   fontSize: 10,
                 ),
               ),
-              if (widget.isShowMessageReaction ?? true)
-                TIMUIKitMessageReactionShowPanel(message: widget.message)
+              if (widget.isShowMessageReaction ?? true) TIMUIKitMessageReactionShowPanel(message: widget.message)
             ],
           ),
         ),

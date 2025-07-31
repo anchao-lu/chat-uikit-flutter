@@ -8,6 +8,16 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:open_file/open_file.dart';
+import 'package:tencent_chat_i18n_tool/tencent_chat_i18n_tool.dart';
+import 'package:tencent_cloud_chat_sdk/enum/V2TimAdvancedMsgListener.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_file_elem.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_file_elem.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_message.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message_download_progress.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_message_download_progress.dart';
+import 'package:tencent_cloud_chat_sdk/tencent_im_sdk_plugin.dart';
+import 'package:tencent_cloud_chat_uikit/base_widgets/tim_callback.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
@@ -15,6 +25,8 @@ import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_glo
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
 import 'package:tencent_cloud_chat_uikit/extensions/v2timmessage_extensions.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
+import 'package:tencent_cloud_chat_uikit/theme/color.dart';
+import 'package:tencent_cloud_chat_uikit/theme/tui_theme.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/permission.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitMessageItem/TIMUIKitMessageReaction/tim_uikit_message_reaction_wrapper.dart';
@@ -144,25 +156,31 @@ class _TIMUIKitFileElemState extends TIMUIKitState<TIMUIKitFileElem> {
         TencentUtils.checkString(widget.message.fileElem!.localUrl) ??
         widget.message.fileElem?.path ??
         '';
+
     File f = File(savePath);
-    if (f.existsSync() && widget.messageID != null) {
-      filePath = savePath;
-      if (downloadProgress != 100) {
-        setState(() {
-          downloadProgress = 100;
-        });
+    if (widget.messageID != null) {
+      if (f.existsSync()) {
+        filePath = savePath;
+        if (downloadProgress != 100) {
+          setState(() {
+            downloadProgress = 100;
+          });
+        }
+        if (model.getMessageProgress(widget.messageID) != 100) {
+          model.setMessageProgress(widget.messageID!, 100);
+        }
+        if (advancedMsgListener != null) {
+          TencentImSDKPlugin.v2TIMManager
+              .getMessageManager()
+              .removeAdvancedMsgListener(listener: advancedMsgListener);
+          advancedMsgListener = null;
+        }
+        return true;
+      } else {
+        model.setMessageProgress(widget.messageID!, 0);
       }
-      if (model.getMessageProgress(widget.messageID) != 100) {
-        model.setMessageProgress(widget.messageID!, 100);
-      }
-      if (advancedMsgListener != null) {
-        TencentImSDKPlugin.v2TIMManager
-            .getMessageManager()
-            .removeAdvancedMsgListener(listener: advancedMsgListener);
-        advancedMsgListener = null;
-      }
-      return true;
     }
+
     return false;
   }
 

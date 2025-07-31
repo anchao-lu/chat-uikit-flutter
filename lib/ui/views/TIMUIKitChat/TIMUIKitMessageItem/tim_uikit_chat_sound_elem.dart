@@ -1,8 +1,11 @@
 import 'dart:async';
 
-// import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_message.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_sound_elem.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_sound_elem.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
@@ -13,7 +16,6 @@ import 'package:tencent_cloud_chat_uikit/extensions/v2timmessage_extensions.dart
 import 'package:tencent_cloud_chat_uikit/ui/constants/history_message_constant.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitMessageItem/TIMUIKitMessageReaction/tim_uikit_message_reaction_show_panel.dart';
-import 'package:tencent_im_base/tencent_im_base.dart';
 
 class TIMUIKitSoundElem extends StatefulWidget {
   final V2TimMessage message;

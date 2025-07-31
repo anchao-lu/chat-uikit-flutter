@@ -6,6 +6,9 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as path;
+import 'package:tencent_chat_i18n_tool/tools/i18n_tool.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_image.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart';
 import 'package:tencent_cloud_chat_uikit/extensions/v2timmessage_extensions.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
 import 'package:tencent_cloud_chat_uikit/ui/constants/history_message_constant.dart';
@@ -86,7 +89,7 @@ class ImageItem extends StatelessWidget {
                 return ExtendedImageGesture(
                   state,
                   canScaleImage: canScaleImage,
-                  imageBuilder: (Widget image) {
+                  imageBuilder: (image, {imageGestureState}) {
                     return Stack(
                       children: <Widget>[
                         Positioned.fill(

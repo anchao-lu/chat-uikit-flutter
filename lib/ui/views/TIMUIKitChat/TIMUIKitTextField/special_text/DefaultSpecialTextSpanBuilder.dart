@@ -11,8 +11,10 @@ class DefaultSpecialTextSpanBuilder extends SpecialTextSpanBuilder {
   DefaultSpecialTextSpanBuilder({
     this.isUseQQPackage = false,
     this.isUseTencentCloudChatPackage = false,
+    this.isUseTencentCloudChatPackageOldKeys = false,
     this.customEmojiStickerList = const [],
     this.showAtBackground = false,
+    this.checkHttpLink = true,
   });
 
   /// whether show background for @somebody
@@ -22,13 +24,15 @@ class DefaultSpecialTextSpanBuilder extends SpecialTextSpanBuilder {
 
   final bool isUseTencentCloudChatPackage;
 
+  final bool isUseTencentCloudChatPackageOldKeys;
+
+  final bool checkHttpLink;
+
   final List<CustomEmojiFaceData> customEmojiStickerList;
 
   @override
   SpecialText? createSpecialText(String flag,
-      {TextStyle? textStyle,
-      SpecialTextGestureTapCallback? onTap,
-      int? index}) {
+      {TextStyle? textStyle, SpecialTextGestureTapCallback? onTap, int? index}) {
     if (flag == '') {
       return null;
     }
@@ -37,12 +41,12 @@ class DefaultSpecialTextSpanBuilder extends SpecialTextSpanBuilder {
     if (isStart(flag, EmojiText.flag)) {
       return EmojiText(textStyle,
           isUseTencentCloudChatPackage: isUseTencentCloudChatPackage,
-          start: index! - (EmojiText.flag.length - 1),
+          isUseTencentCloudChatPackageOldKeys: isUseTencentCloudChatPackageOldKeys,
           isUseQQPackage: isUseQQPackage,
+          start: index! - (EmojiText.flag.length - 1),
           customEmojiStickerList: customEmojiStickerList);
-    } else if (isStart(flag, HttpText.flag)) {
-      return HttpText(textStyle, onTap,
-          start: index! - (HttpText.flag.length - 1));
+    } else if (isStart(flag, HttpText.flag) && checkHttpLink) {
+      return HttpText(textStyle, onTap, start: index! - (HttpText.flag.length - 1));
     }
     return null;
   }

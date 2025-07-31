@@ -2,7 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
+import 'package:tencent_cloud_chat_sdk/enum/message_elem_type.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
+import 'package:tencent_chat_i18n_tool/tencent_chat_i18n_tool.dart';
+import 'package:tencent_cloud_chat_sdk/enum/message_status.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_statelesswidget.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_global_model.dart';
@@ -13,12 +17,15 @@ import 'package:tencent_cloud_chat_uikit/ui/utils/message_has_file_util.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/forward_message_screen.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/wide_popup.dart';
-import 'package:tencent_im_base/tencent_im_base.dart';
-
 import '../../../data_services/core/core_services_implements.dart';
 import '../../../data_services/services_locatar.dart';
+import 'package:tencent_cloud_chat_uikit/base_widgets/tim_callback.dart';
+import 'package:tencent_cloud_chat_uikit/theme/color.dart';
+import 'package:tencent_cloud_chat_uikit/theme/tui_theme.dart';
 
 class MultiSelectPanel extends TIMUIKitStatelessWidget {
+  final int forwardMsgNumLimit = 30;
+
   final ConvType conversationType;
 
   MultiSelectPanel({Key? key, required this.conversationType})
@@ -26,7 +33,7 @@ class MultiSelectPanel extends TIMUIKitStatelessWidget {
 
   _handleForwardMessage(BuildContext context, bool isMergerForward,
       TUIChatSeparateViewModel model) {
-    for (var message in model.multiSelectedMessageList) {
+    for (var message in model.getSelectedMessageList()) {
       if (model.chatConfig.messageCanLongPres != null) {
         if (!model.chatConfig.messageCanLongPres!(message)) {
           final CoreServicesImpl _coreServices =
@@ -40,6 +47,37 @@ class MultiSelectPanel extends TIMUIKitStatelessWidget {
       }
     }
 
+    // 是否有选中消息
+    if (model.getSelectedMessageList().isEmpty) {
+      onTIMCallback(TIMCallback(
+          type: TIMCallbackType.INFO, infoRecommendText: TIM_t("请选择要操作的消息！")));
+      return;
+    }
+
+    for (var v2TimMessage in model.getSelectedMessageList()) {
+      // 失败消息不支持转发
+      if (v2TimMessage.status == MessageStatus.V2TIM_MSG_STATUS_SEND_FAIL) {
+        onTIMCallback(TIMCallback(
+            type: TIMCallbackType.INFO,
+            infoRecommendText: TIM_t("发送失败消息不支持转发！")));
+        return;
+      }
+
+      // 投票消息不支持转发
+      if (model.isVoteMessage(v2TimMessage)) {
+        onTIMCallback(TIMCallback(
+            type: TIMCallbackType.INFO,
+            infoRecommendText: TIM_t("投票消息不支持转发！")));
+        return;
+      }
+    }
+
+    // 逐条转发限制在 30 条以内
+    if (!isMergerForward &&
+        model.getSelectedMessageList().length > forwardMsgNumLimit) {
+      _showForwardLimitDialog(context);
+      return;
+    }
     Navigator.push(
         context,
         MaterialPageRoute(
@@ -50,9 +88,36 @@ class MultiSelectPanel extends TIMUIKitStatelessWidget {
                 )));
   }
 
+  // 弹出逐条转发超限的对话框
+  Future<bool?> _showForwardLimitDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return CupertinoAlertDialog(
+          title: Text(TIM_t("转发消息过多，暂不支持逐条转发")),
+          actions: [
+            CupertinoDialogAction(
+              child: Text(TIM_t("确定")),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+            ),
+            CupertinoDialogAction(
+              child: Text(TIM_t("取消")),
+              isDestructiveAction: true,
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   _handleForwardMessageWide(BuildContext context, bool isMergerForward,
       TUIChatSeparateViewModel model) {
-    for (var message in model.multiSelectedMessageList) {
+    for (var message in model.getSelectedMessageList()) {
       if (model.chatConfig.messageCanLongPres != null) {
         if (!model.chatConfig.messageCanLongPres!(message)) {
           final CoreServicesImpl _coreServices =
@@ -111,10 +176,11 @@ class MultiSelectPanel extends TIMUIKitStatelessWidget {
       ),
     );
 
-    final List<V2TimMessage> imgMsgs = List.from(model.multiSelectedMessageList
+    final List<V2TimMessage> imgMsgs = List.from(model
+        .getSelectedMessageList()
         .where((msg) => msg.elemType == MessageElemType.V2TIM_ELEM_TYPE_IMAGE));
     final List<V2TimMessage> videoMsgs = List.from(model
-        .multiSelectedMessageList
+        .getSelectedMessageList()
         .where((msg) => msg.elemType == MessageElemType.V2TIM_ELEM_TYPE_VIDEO));
     if (imgMsgs.isEmpty && videoMsgs.isEmpty) {
       onTIMCallback(
@@ -215,10 +281,11 @@ class MultiSelectPanel extends TIMUIKitStatelessWidget {
       ),
     );
 
-    final List<V2TimMessage> imgMsgs = List.from(model.multiSelectedMessageList
+    final List<V2TimMessage> imgMsgs = List.from(model
+        .getSelectedMessageList()
         .where((msg) => msg.elemType == MessageElemType.V2TIM_ELEM_TYPE_IMAGE));
     final List<V2TimMessage> videoMsgs = List.from(model
-        .multiSelectedMessageList
+        .getSelectedMessageList()
         .where((msg) => msg.elemType == MessageElemType.V2TIM_ELEM_TYPE_VIDEO));
     if (imgMsgs.isEmpty && videoMsgs.isEmpty) {
       onTIMCallback(
@@ -418,7 +485,8 @@ class MultiSelectPanel extends TIMUIKitStatelessWidget {
                 ),
                 Text(TIM_t("逐条转发"),
                     style: TextStyle(
-                        color: theme.conversationItemTitleTextColor, fontSize: 12))
+                        color: theme.conversationItemTitleTextColor,
+                        fontSize: 12))
               ],
             ),
             Column(
@@ -435,7 +503,8 @@ class MultiSelectPanel extends TIMUIKitStatelessWidget {
                 Text(
                   TIM_t("合并转发"),
                   style: TextStyle(
-                      color: theme.conversationItemTitleTextColor, fontSize: 12),
+                      color: theme.conversationItemTitleTextColor,
+                      fontSize: 12),
                 )
               ],
             ),
@@ -455,7 +524,8 @@ class MultiSelectPanel extends TIMUIKitStatelessWidget {
                 Text(
                   TIM_t("下载"),
                   style: TextStyle(
-                      color: theme.conversationItemTitleTextColor, fontSize: 12),
+                      color: theme.conversationItemTitleTextColor,
+                      fontSize: 12),
                 )
               ],
             ),
@@ -506,7 +576,8 @@ class MultiSelectPanel extends TIMUIKitStatelessWidget {
                 ),
                 Text(TIM_t("删除"),
                     style: TextStyle(
-                        color: theme.conversationItemTitleTextColor, fontSize: 12))
+                        color: theme.conversationItemTitleTextColor,
+                        fontSize: 12))
               ],
             ),
           ],

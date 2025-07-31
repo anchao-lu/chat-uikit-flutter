@@ -5,6 +5,9 @@ import 'package:chewie/chewie.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tencent_cloud_chat_sdk/enum/message_status.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_video_elem.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_global_model.dart';
@@ -106,7 +109,10 @@ class _VideoScreenState extends TIMUIKitState<VideoScreen> {
                 : VideoPlayerController.networkUrl(
                     Uri.parse(widget.videoElement.localVideoUrl!),
                   ))
-        : ((TencentUtils.checkString(widget.videoElement.videoPath) != null || widget.message.status == MessageStatus.V2TIM_MSG_STATUS_SENDING) && File(widget.videoElement.videoPath!).existsSync())
+        : ((TencentUtils.checkString(widget.videoElement.videoPath) != null ||
+                    widget.message.status ==
+                        MessageStatus.V2TIM_MSG_STATUS_SENDING) &&
+                File(widget.videoElement.videoPath!).existsSync())
             ? VideoPlayerController.file(File(widget.videoElement.videoPath!))
             : (TencentUtils.checkString(widget.videoElement.localVideoUrl) ==
                     null)

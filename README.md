@@ -1,8 +1,12 @@
+# It is recommended to download the source code from [pub.dev](https://pub.dev/packages/tencent_cloud_chat_uikit/versions)
+
 ## Product Introduction
 You only need to integrate Chat SDK to easily gain chat, conversation, group capabilities, and you can also communicate with other products such as whiteboards through signaling messages. Chat can cover various business scenarios, support the access and use of various platforms, and fully meet the communication needs.
 
 ## Check Out Our Sample Apps
 This document introduces how to quickly run the Chat demo on the iOS platform.
+[<img src="https://im.sdk.qcloud.com/tools/resource/GitHubResource/build_flutter_chat_app.png" width="800"/>](https://www.youtube.com/watch?v=lawzmfW9vls)
+
 For the other platforms, please refer to document：
 - [**chat-uikit-android**](https://github.com/TencentCloud/chat-uikit-android)
 - [**chat-uikit-ios**](https://github.com/TencentCloud/chat-uikit-ios)

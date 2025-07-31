@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tencent_chat_i18n_tool/tencent_chat_i18n_tool.dart';
+import 'package:tencent_cloud_chat_sdk/enum/friend_type_enum.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_user_full_info.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_user_full_info.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/core/tim_uikit_wide_modal_operation_key.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/wide_popup.dart';
-import 'package:tencent_im_base/tencent_im_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/life_cycle/add_friend_life_cycle.dart';
@@ -11,9 +14,9 @@ import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_self_inf
 import 'package:tencent_cloud_chat_uikit/data_services/core/core_services_implements.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/friendShip/friendship_services.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
-
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitAddFriend/tim_uikit_send_application.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/avatar.dart';
+import 'package:tencent_cloud_chat_uikit/theme/tui_theme.dart';
 
 class TIMUIKitAddFriend extends StatefulWidget {
   final bool? isShowDefaultGroup;
@@ -42,39 +45,27 @@ class TIMUIKitAddFriend extends StatefulWidget {
 class _TIMUIKitAddFriendState extends TIMUIKitState<TIMUIKitAddFriend> {
   final TextEditingController _controller = TextEditingController();
   final CoreServicesImpl _coreServicesImpl = serviceLocator<CoreServicesImpl>();
-  final FriendshipServices _friendshipServices =
-      serviceLocator<FriendshipServices>();
-  final TUISelfInfoViewModel _selfInfoViewModel =
-      serviceLocator<TUISelfInfoViewModel>();
+  final FriendshipServices _friendshipServices = serviceLocator<FriendshipServices>();
+  final TUISelfInfoViewModel _selfInfoViewModel = serviceLocator<TUISelfInfoViewModel>();
   final FocusNode _focusNode = FocusNode();
   bool isFocused = false;
   bool showResult = false;
   List<V2TimUserFullInfo>? searchResult;
 
-  Widget _searchResultItemBuilder(
-      V2TimUserFullInfo friendInfo, TUITheme theme) {
-    final isDesktopScreen =
-        TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
+  Widget _searchResultItemBuilder(V2TimUserFullInfo friendInfo, TUITheme theme) {
+    final isDesktopScreen = TUIKitScreenUtils.getFormFactor(context) == DeviceType.Desktop;
 
     final faceUrl = friendInfo.faceUrl ?? "";
     final userID = friendInfo.userID ?? "";
     final String showName =
-        ((friendInfo.nickName != null && friendInfo.nickName!.isNotEmpty)
-                ? friendInfo.nickName
-                : userID) ??
-            "";
+        ((friendInfo.nickName != null && friendInfo.nickName!.isNotEmpty) ? friendInfo.nickName : userID) ?? "";
     return InkWell(
       onTap: () async {
-        final checkFriend = await _friendshipServices.checkFriend(
-            userIDList: [userID],
-            checkType: FriendTypeEnum.V2TIM_FRIEND_TYPE_SINGLE);
+        final checkFriend = await _friendshipServices
+            .checkFriend(userIDList: [userID], checkType: FriendTypeEnum.V2TIM_FRIEND_TYPE_SINGLE);
         if (checkFriend != null) {
           final res = checkFriend.first;
           if (res.resultCode == 0 && res.resultType != 0) {
-            onTIMCallback(TIMCallback(
-                type: TIMCallbackType.INFO,
-                infoRecommendText: TIM_t("该用户已是好友"),
-                infoCode: 6660102));
             widget.onTapAlreadyFriendsItem(userID);
             return;
           }
@@ -128,9 +119,7 @@ class _TIMUIKitAddFriendState extends TIMUIKitState<TIMUIKitAddFriend> {
               children: [
                 Text(
                   showName,
-                  style: TextStyle(
-                      color: theme.darkTextColor,
-                      fontSize: isDesktopScreen ? 16 : 18),
+                  style: TextStyle(color: theme.darkTextColor, fontSize: isDesktopScreen ? 16 : 18),
                 ),
                 const SizedBox(
                   height: 4,
@@ -147,16 +136,14 @@ class _TIMUIKitAddFriendState extends TIMUIKitState<TIMUIKitAddFriend> {
     );
   }
 
-  List<Widget> _searchResultBuilder(
-      List<V2TimUserFullInfo>? searchResult, TUITheme theme) {
+  List<Widget> _searchResultBuilder(List<V2TimUserFullInfo>? searchResult, TUITheme theme) {
     final noResult = searchResult == null || searchResult.isEmpty;
     if (noResult) {
       return [
         Container(
           margin: const EdgeInsets.only(top: 20),
           child: Center(
-            child: Text(TIM_t("该用户不存在"),
-                style: TextStyle(color: theme.weakTextColor, fontSize: 14)),
+            child: Text(TIM_t("该用户不存在"), style: TextStyle(color: theme.weakTextColor, fontSize: 14)),
           ),
         )
       ];

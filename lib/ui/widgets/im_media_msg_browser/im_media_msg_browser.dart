@@ -5,9 +5,14 @@ import 'package:chewie/chewie.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tencent_chat_i18n_tool/tools/i18n_tool.dart';
+import 'package:tencent_cloud_chat_sdk/enum/history_msg_get_type_enum.dart';
+import 'package:tencent_cloud_chat_sdk/enum/message_elem_type.dart';
+import 'package:tencent_cloud_chat_sdk/enum/message_status.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart';
+import 'package:tencent_cloud_chat_sdk/tencent_im_sdk_plugin.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
-import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/im_media_msg_browser/image_item.dart';
 import 'package:video_player/video_player.dart';
@@ -98,14 +103,13 @@ class IMMediaMsgBrowserState extends TIMUIKitState<IMMediaMsgBrowser>
       _getInitialMsgs();
     } else {
       _msgs.addAll(widget.messages!);
-      _currentIndex = _msgs.indexWhere((value){
-
-        return value.msgID==widget.curMsg.msgID;
+      _currentIndex = _msgs.indexWhere((value) {
+        return value.msgID == widget.curMsg.msgID;
       });
-      if(_currentIndex==-1)_currentIndex=0;
+      if (_currentIndex == -1) _currentIndex = 0;
 
       _pageController = ExtendedPageController(initialPage: _currentIndex);
-      _isFirstLoading=false;
+      _isFirstLoading = false;
     }
 
     if (_isCurMsgVideo) {

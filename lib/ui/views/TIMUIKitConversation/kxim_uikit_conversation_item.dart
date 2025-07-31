@@ -1,6 +1,9 @@
 // ignore_for_file: empty_catches
 
 import 'package:flutter/material.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_group_at_info.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_user_status.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_statelesswidget.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
@@ -9,7 +12,9 @@ import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitConversation/tim_uikit
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitConversation/tim_uikit_conversation_last_msg.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/avatar.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/unread_message.dart';
-import 'package:tencent_im_base/tencent_im_base.dart';
+
+import '../../../theme/color.dart';
+import '../../../theme/tui_theme.dart';
 
 typedef LastMessageBuilder = Widget? Function(
     V2TimMessage? lastMsg, List<V2TimGroupAtInfo?> groupAtInfoList);
@@ -85,6 +90,7 @@ class KXIMUIKitConversationItem extends TIMUIKitStatelessWidget {
         lastMsg: lastMsg,
         context: context,
         lastMsgBuilder: customLastMsgBuilder,
+        draftText: draftText ?? "",
       );
     }
 

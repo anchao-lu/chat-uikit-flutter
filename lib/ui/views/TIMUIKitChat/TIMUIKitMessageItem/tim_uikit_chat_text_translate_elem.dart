@@ -1,13 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
-
+import 'package:tencent_chat_i18n_tool/tencent_chat_i18n_tool.dart';
+import 'package:tencent_cloud_chat_sdk/enum/message_elem_type.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_message.dart';
+import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
-import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitTextField/special_text/DefaultSpecialTextSpanBuilder.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/link_preview/link_preview_entry.dart';
 
@@ -22,7 +25,6 @@ class TIMUIKitTextTranslationElem extends StatefulWidget {
   final EdgeInsetsGeometry? textPadding;
   final TUIChatSeparateViewModel chatModel;
   final bool? isShowMessageReaction;
-  final bool isUseDefaultEmoji;
   final List<CustomEmojiFaceData> customEmojiStickerList;
 
   const TIMUIKitTextTranslationElem(
@@ -37,7 +39,6 @@ class TIMUIKitTextTranslationElem extends StatefulWidget {
       this.backgroundColor,
       this.textPadding,
       required this.chatModel,
-      this.isUseDefaultEmoji = false,
       this.customEmojiStickerList = const []})
       : super(key: key);
 
@@ -124,13 +125,15 @@ class _TIMUIKitTextTranslationElemState
     final textWithLink = LinkPreviewEntry.getHyperlinksText(translateText ?? "",
         widget.chatModel.chatConfig.isSupportMarkdownForTextMessage,
         onLinkTap: widget.chatModel.chatConfig.onTapLink,
-        isUseQQPackage: (widget.chatModel.chatConfig.stickerPanelConfig
-                    ?.useTencentCloudChatStickerPackage ??
-                true) ||
-            widget.isUseDefaultEmoji,
+        isUseQQPackage: widget
+                .chatModel.chatConfig.stickerPanelConfig?.useQQStickerPackage ??
+            true,
         isUseTencentCloudChatPackage: widget.chatModel.chatConfig
                 .stickerPanelConfig?.useTencentCloudChatStickerPackage ??
             true,
+        isUseTencentCloudChatPackageOldKeys: widget.chatModel.chatConfig
+                .stickerPanelConfig?.useTencentCloudChatStickerPackageOldKeys ??
+            false,
         customEmojiStickerList: widget.customEmojiStickerList,
         isEnableTextSelection:
             widget.chatModel.chatConfig.isEnableTextSelection ?? false);
@@ -159,9 +162,8 @@ class _TIMUIKitTextTranslationElemState
               ),
           specialTextSpanBuilder: DefaultSpecialTextSpanBuilder(
             isUseQQPackage: (widget.chatModel.chatConfig.stickerPanelConfig
-                        ?.useTencentCloudChatStickerPackage ??
-                    true) ||
-                widget.isUseDefaultEmoji,
+                    ?.useTencentCloudChatStickerPackage ??
+                true),
             isUseTencentCloudChatPackage: widget.chatModel.chatConfig
                     .stickerPanelConfig?.useTencentCloudChatStickerPackage ??
                 true,
@@ -204,19 +206,21 @@ class _TIMUIKitTextTranslationElemState
                                 fontSize: isDesktopScreen ? 14 : 16,
                                 height: widget.chatModel.chatConfig.textHeight),
                         specialTextSpanBuilder: DefaultSpecialTextSpanBuilder(
-                          isUseQQPackage: (widget
-                                      .chatModel
-                                      .chatConfig
-                                      .stickerPanelConfig
-                                      ?.useTencentCloudChatStickerPackage ??
-                                  true) ||
-                              widget.isUseDefaultEmoji,
+                          isUseQQPackage: widget.chatModel.chatConfig
+                                  .stickerPanelConfig?.useQQStickerPackage ??
+                              true,
                           isUseTencentCloudChatPackage: widget
                                   .chatModel
                                   .chatConfig
                                   .stickerPanelConfig
                                   ?.useTencentCloudChatStickerPackage ??
                               true,
+                          isUseTencentCloudChatPackageOldKeys: widget
+                                  .chatModel
+                                  .chatConfig
+                                  .stickerPanelConfig
+                                  ?.useTencentCloudChatStickerPackageOldKeys ??
+                              false,
                           customEmojiStickerList: widget.customEmojiStickerList,
                           showAtBackground: true,
                         )),

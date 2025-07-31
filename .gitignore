@@ -8,7 +8,10 @@
 .buildlog/
 .history
 .svn/
+
 migrate_working_dir/
+.script/
+*/node_module/*
 
 # IntelliJ related
 *.iml
@@ -19,7 +22,10 @@ migrate_working_dir/
 # The .vscode folder contains launch configuration and tasks you configure in
 # VS Code which you may wish to be included in version control, so this line
 # is commented out by default.
+
 #.vscode/
+.vscode/
+
 
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -31,7 +37,13 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+
 /example/lib/config/
+
+# build
+package_src/build/
+
+# Web related
 
 # Symbolication related
 app.*.symbols
@@ -44,6 +56,18 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+
 pubspec.lock
 ios/Podfile.lock
 lib/gen/
+
+local.properties
+
+*.cxx/
+
+# FVM Version Cache
+.fvm/
+.fvmrc
+No newline at end of file
+.gradle/
+

@@ -4,25 +4,30 @@ import 'package:tim_ui_kit_sticker_plugin/constant/emoji.dart';
 import 'package:tim_ui_kit_sticker_plugin/utils/tim_custom_face_data.dart';
 
 ///emoji/image text
+// 合并后
 class EmojiText extends SpecialText {
   EmojiText(TextStyle? textStyle,
       {this.start,
-      this.isUseTencentCloudChatPackage = false,
       this.isUseQQPackage = false,
+      this.isUseTencentCloudChatPackage = false,
+      this.isUseTencentCloudChatPackageOldKeys = false,
       this.customEmojiStickerList = const []})
       : super(EmojiText.flag, ']', textStyle);
   static const String flag = '[';
   final int? start;
   final bool isUseQQPackage;
   final bool isUseTencentCloudChatPackage;
+  final bool isUseTencentCloudChatPackageOldKeys;
   final List<CustomEmojiFaceData> customEmojiStickerList;
 
   @override
   InlineSpan finishText() {
     final String key = toString();
     final EmojiUtil emojiUtil = EmojiUtil(
-        isUseTencentCloudChatPackage: isUseTencentCloudChatPackage,
         isUseQQPackage: isUseQQPackage,
+        isUseTencentCloudChatPackage: isUseTencentCloudChatPackage,
+        isUseTencentCloudChatPackageOldKeys:
+            isUseTencentCloudChatPackageOldKeys,
         customEmojiStickerList: customEmojiStickerList);
 
     if (emojiUtil.emojiMap.containsKey(key)) {
@@ -75,6 +80,7 @@ class EmojiUtil {
   EmojiUtil._internal(
       {required this.isUseQQPackage,
       required this.isUseTencentCloudChatPackage,
+      required this.isUseTencentCloudChatPackageOldKeys,
       required this.customEmojiStickerList}) {
     _emojiMap.addAll(loadDefaultEmojis());
 
@@ -85,6 +91,7 @@ class EmojiUtil {
 
   final bool isUseQQPackage;
   final bool isUseTencentCloudChatPackage;
+  final bool isUseTencentCloudChatPackageOldKeys;
   final List<CustomEmojiFaceData> customEmojiStickerList;
 
   // Load the default emojis into a Map
@@ -93,20 +100,33 @@ class EmojiUtil {
     for (final emojiGroup in TUIKitStickerConstData.emojiList) {
       final groupName = emojiGroup.name;
       final keyList = [];
-      if ((isUseQQPackage && groupName == "4349") ||
-          (isUseTencentCloudChatPackage && groupName == "tcc1")) {
+      if (isUseQQPackage && groupName == "4349") {
         for (final emoji in emojiGroup.list) {
           String emojiName = emoji.split('.png')[0];
           defaultEmojiMap['[$emojiName]'] =
               '$_emojiFilePath/$groupName/$emojiName.png';
           keyList.add('[$emojiName]');
 
-          if (groupName == "4349") {
-            final zhKey = TUIKitStickerConstData.emojiMapList[emojiName];
-            defaultEmojiMap['[$zhKey]'] =
-                '$_emojiFilePath/$groupName/$emojiName.png';
-            keyList.add('[$zhKey]');
+          final zhKey = TUIKitStickerConstData.emoji4349ZhMapList[emojiName];
+          defaultEmojiMap['[$zhKey]'] =
+              '$_emojiFilePath/$groupName/$emojiName.png';
+          keyList.add('[$zhKey]');
+        }
+        _emojiKeyCategoryMap[groupName] = keyList;
+      }
+
+      if (isUseTencentCloudChatPackage && groupName == "tcc1") {
+        for (final emoji in emojiGroup.list) {
+          String emojiName = emoji.split('.png')[0];
+          String compatibleEmojiName = emojiName;
+          if (isUseTencentCloudChatPackageOldKeys) {
+            // use old emoji keys in 3.x version
+            compatibleEmojiName = getCompatibleEmojiName(emojiName);
           }
+
+          defaultEmojiMap['[$compatibleEmojiName]'] =
+              '$_emojiFilePath/$groupName/$emojiName.png';
+          keyList.add('[$compatibleEmojiName]');
         }
         _emojiKeyCategoryMap[groupName] = keyList;
       }
@@ -151,10 +171,28 @@ class EmojiUtil {
   factory EmojiUtil(
       {bool isUseQQPackage = false,
       bool isUseTencentCloudChatPackage = false,
+      bool isUseTencentCloudChatPackageOldKeys = false,
       List<CustomEmojiFaceData> customEmojiStickerList = const []}) {
     return _instance ??= EmojiUtil._internal(
         isUseQQPackage: isUseQQPackage,
         customEmojiStickerList: customEmojiStickerList,
-        isUseTencentCloudChatPackage: isUseTencentCloudChatPackage);
+        isUseTencentCloudChatPackage: isUseTencentCloudChatPackage,
+        isUseTencentCloudChatPackageOldKeys:
+            isUseTencentCloudChatPackageOldKeys);
+  }
+
+  static String getCompatibleEmojiName(String emojiName) {
+    String compatibleEmojiName = emojiName;
+    try {
+      compatibleEmojiName = emojiName.split('_')[1];
+      // 对特殊字符串 Ok 进行处理
+      if (compatibleEmojiName == 'Ok') {
+        compatibleEmojiName = 'OK';
+      }
+    } catch (e) {
+      print(e);
+    }
+
+    return compatibleEmojiName;
   }
 }

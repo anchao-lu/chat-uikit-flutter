@@ -1,16 +1,21 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:tencent_chat_i18n_tool/tencent_chat_i18n_tool.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_conversation.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_conversation.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_global_model.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_self_info_view_model.dart';
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
-import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
-
 import 'package:tencent_cloud_chat_uikit/ui/utils/message.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/screen_utils.dart';
 import 'package:tencent_cloud_chat_uikit/ui/widgets/recent_conversation_list.dart';
-
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
+import 'package:tencent_cloud_chat_uikit/theme/tui_theme.dart';
+
+import '../../base_widgets/tim_callback.dart';
+import '../../tencent_cloud_chat_uikit.dart';
 
 GlobalKey<_ForwardMessageScreenState> forwardMessageScreenKey = GlobalKey();
 
@@ -53,7 +58,7 @@ class _ForwardMessageScreenState extends TIMUIKitState<ForwardMessageScreen> {
   }
 
   List<String> _getAbstractList() {
-    return widget.model.multiSelectedMessageList.map((e) {
+    return widget.model.getSelectedMessageList().map((e) {
       final sender = (e.nickName != null && e.nickName!.isNotEmpty)
           ? e.nickName
           : e.sender;
@@ -62,6 +67,11 @@ class _ForwardMessageScreenState extends TIMUIKitState<ForwardMessageScreen> {
   }
 
   handleForwardMessage() async {
+    var confirmResult = await _showConfirmForwardDialog(context);
+    if (confirmResult == null) {
+      return;
+    }
+
     if (widget.isMergerForward) {
       await widget.model.sendMergerMessage(
         conversationList: _conversationList,
@@ -91,6 +101,33 @@ class _ForwardMessageScreenState extends TIMUIKitState<ForwardMessageScreen> {
           infoCode: 2000),
     );
     /////  新增消息转发成功提示
+  }
+
+  // 弹出转发确认对话框
+  Future<bool?> _showConfirmForwardDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return CupertinoAlertDialog(
+          title: Text(TIM_t("您确定进行转发吗？")),
+          actions: [
+            CupertinoDialogAction(
+              child: Text(TIM_t("确定")),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+            ),
+            CupertinoDialogAction(
+              child: Text(TIM_t("取消")),
+              isDestructiveAction: true,
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override

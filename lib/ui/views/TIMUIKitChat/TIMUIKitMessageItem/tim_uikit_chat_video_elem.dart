@@ -5,6 +5,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:open_file/open_file.dart';
+import 'package:tencent_chat_i18n_tool/tencent_chat_i18n_tool.dart';
+import 'package:tencent_cloud_chat_sdk/enum/message_status.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_message.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_video_elem.dart'
+    if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_video_elem.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_cloud_chat_uikit/base_widgets/tim_ui_kit_state.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/separate_models/tui_chat_separate_view_model.dart';
@@ -12,6 +18,7 @@ import 'package:tencent_cloud_chat_uikit/data_services/message/message_services.
 import 'package:tencent_cloud_chat_uikit/data_services/services_locatar.dart';
 import 'package:tencent_cloud_chat_uikit/extensions/v2timmessage_extensions.dart';
 import 'package:tencent_cloud_chat_uikit/tencent_cloud_chat_uikit.dart';
+import 'package:tencent_cloud_chat_uikit/theme/tui_theme.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/message.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/message_has_file_util.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
@@ -112,11 +119,25 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
     if ((stateElement.snapshotUrl == null || stateElement.snapshotUrl == '') &&
         (stateElement.snapshotPath == null ||
             stateElement.snapshotPath == '')) {
-      return _loadingDisplay(
-        context,
-        theme,
-        height: height.toDouble(),
-        width: width.toDouble(),
+      return Container(
+        decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(Radius.circular(5)),
+            border: Border.all(
+              width: 1,
+              color: Colors.black12,
+            )),
+        height: double.parse(height.toString()),
+        child: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              LoadingAnimationWidget.staggeredDotsWave(
+                color: theme.weakTextColor ?? Colors.grey,
+                size: 28,
+              )
+            ],
+          ),
+        ),
       );
     }
     return (!PlatformUtils().isWeb && stateElement.snapshotUrl == null ||
@@ -219,8 +240,6 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
               imageType: 0,
               isSnapshot: false);
         }
-
-        // 下载封面图
         if (TencentUtils.checkString(
                     widget.message.videoElem!.localSnapshotUrl) ==
                 null ||
@@ -369,79 +388,64 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
                     positionRadio = (stateElement.snapshotWidth! /
                         stateElement.snapshotHeight!);
                   }
-                  final child = Stack(
-                    children: <Widget>[
-                      if (positionRadio != null &&
-                          (stateElement.snapshotUrl != null ||
-                              stateElement.snapshotUrl != null))
-                        AspectRatio(
-                          aspectRatio: positionRadio,
-                          child: Container(
-                            decoration:
-                                const BoxDecoration(color: Colors.transparent),
-                          ),
-                        ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: generateSnapshot(
-                              theme,
-                              size?.height ??
-                                  stateElement.snapshotHeight ??
-                                  170,
-                              size?.width ?? 170,
-                            ),
-                          )
-                        ],
-                      ),
-                      if (widget.message.status !=
-                                  MessageStatus.V2TIM_MSG_STATUS_SENDING &&
+                  return ConstrainedBox(
+                      constraints: BoxConstraints(
+                          maxWidth: PlatformUtils().isWeb
+                              ? 300
+                              : constraints.maxWidth * 0.5,
+                          maxHeight: min(constraints.maxHeight * 0.8, 300),
+                          minHeight: 20,
+                          minWidth: 20),
+                      child: Stack(
+                        children: <Widget>[
+                          if (positionRadio != null &&
                               (stateElement.snapshotUrl != null ||
-                                  stateElement.snapshotPath != null) &&
-                              stateElement.videoPath != null ||
-                          stateElement.videoUrl != null)
-                        Positioned.fill(
-                          // alignment: Alignment.center,
-                          child: Center(
-                              child: PlatformUtils().isDesktop
-                                  ? _getWindowView()
-                                  : Image.asset('images/play.png',
+                                  stateElement.snapshotUrl != null))
+                            AspectRatio(
+                              aspectRatio: positionRadio,
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                    color: Colors.transparent),
+                              ),
+                            ),
+                          Row(
+                            children: [
+                              Expanded(
+                                  child: generateSnapshot(
+                                theme,
+                                size?.height ??
+                                    stateElement.snapshotHeight ??
+                                    170,
+                                size?.width ?? 170,
+                              ))
+                            ],
+                          ),
+                          if (widget.message.status !=
+                                      MessageStatus.V2TIM_MSG_STATUS_SENDING &&
+                                  (stateElement.snapshotUrl != null ||
+                                      stateElement.snapshotPath != null) &&
+                                  stateElement.videoPath != null ||
+                              stateElement.videoUrl != null)
+                            Positioned.fill(
+                              // alignment: Alignment.center,
+                              child: Center(
+                                  child: Image.asset('images/play.png',
                                       package: 'tencent_cloud_chat_uikit',
                                       height: 64)),
-                        ),
-                      if (widget.message.videoElem?.duration != null &&
-                          widget.message.videoElem!.duration! > 0)
-                        Positioned(
-                            right: 10,
-                            bottom: 10,
-                            child: Text(
-                                MessageUtils.formatVideoTime(
-                                        widget.message.videoElem!.duration!)
-                                    .toString(),
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 12))),
-                    ],
-                  );
-
-                  if (size != null &&
-                      size != Size.zero &&
-                      size != Size.infinite) {
-                    return SizedBox(
-                      width: size.width,
-                      height: size.height,
-                      child: child,
-                    );
-                  }
-                  return ConstrainedBox(
-                    constraints: BoxConstraints(
-                        maxWidth: PlatformUtils().isWeb
-                            ? 300
-                            : constraints.maxWidth * 0.5,
-                        maxHeight: min(constraints.maxHeight * 0.8, 300),
-                        minHeight: 20,
-                        minWidth: 20),
-                    child: child,
-                  );
+                            ),
+                          if (widget.message.videoElem?.duration != null &&
+                              widget.message.videoElem!.duration! > 0)
+                            Positioned(
+                                right: 10,
+                                bottom: 10,
+                                child: Text(
+                                    MessageUtils.formatVideoTime(
+                                            widget.message.videoElem!.duration!)
+                                        .toString(),
+                                    style: const TextStyle(
+                                        color: Colors.white, fontSize: 12))),
+                        ],
+                      ));
                 }),
               ))),
     );
