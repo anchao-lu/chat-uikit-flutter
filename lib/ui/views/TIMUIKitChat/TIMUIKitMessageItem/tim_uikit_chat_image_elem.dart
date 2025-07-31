@@ -458,6 +458,8 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
     V2TimImage? smallImg,
     String? smallLocalPath,
     String? originLocalPath,
+    num? height,
+    num? width,
   }) {
     Widget getImageWidget() {
       ///  start  单独的图片加载逻辑
@@ -477,21 +479,50 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
                 : CachedNetworkImage(
                     alignment: Alignment.topCenter,
                     imageUrl: webPath ?? smallImg?.url ?? originalImg!.url!,
-                    errorWidget: (context, error, stackTrace) =>
-                        errorPage(theme),
+                    errorWidget: (context, error, stackTrace) => errorDisplay(
+                      context,
+                      theme,
+                      width: width,
+                      height: height,
+                    ),
                     fit: BoxFit.contain,
                     cacheKey: smallImg?.uuid ?? originalImg!.uuid,
-                    placeholder: (context, url) =>
-                        Image(image: MemoryImage(kTransparentImage)),
+                    //////////// 调整图片 placeholder ////////////
+                    placeholder: (context, url) => placeholderDisplay(
+                      context,
+                      theme,
+                      width: width,
+                      height: height,
+                    ),
+                    // Image(image: MemoryImage(kTransparentImage)),
+                    //////////// 调整图片 placeholder ////////////
                     fadeInDuration: const Duration(milliseconds: 0),
                   ));
       } else {
         final imgPath = (TencentUtils.checkString(smallLocalPath) != null
             ? smallLocalPath
             : originLocalPath)!;
+
+        final imgFile = File(imgPath);
+        debugPrint('imgFile: ${imgFile.existsSync()}');
+        debugPrint('imgFile smallLocalPath: $smallLocalPath');
+        debugPrint('imgFile originLocalPath: $originLocalPath');
+        debugPrint('imgFile imgPath: $imgPath');
+        debugPrint('imgFile statSync: ${imgFile.statSync()}');
         return Hero(
             tag: heroTag,
-            child: Image.file(File(imgPath), fit: BoxFit.contain));
+            child: Image.file(
+              File(imgPath),
+              fit: BoxFit.contain,
+              //////////// 增加图片 errorBuilder ////////////
+              errorBuilder: (context, error, stackTrace) => errorDisplay(
+                context,
+                theme,
+                width: width,
+                height: height,
+              ),
+              //////////// 增加图片 errorBuilder ////////////
+            ));
       }
     }
 
@@ -623,8 +654,14 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
     initImages();
   }
 
-  Widget? _renderImage(dynamic heroTag, TUITheme theme,
-      {V2TimImage? originalImg, V2TimImage? smallImg}) {
+  Widget? _renderImage(
+    dynamic heroTag,
+    TUITheme theme, {
+    V2TimImage? originalImg,
+    V2TimImage? smallImg,
+    num? height,
+    num? width,
+  }) {
     double positionRadio = 1.0;
     if (smallImg?.width != null &&
         smallImg?.height != null &&
@@ -727,6 +764,31 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
         message: widget.message,
         child: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
+          double maxWidth = constraints.maxWidth * 0.5;
+          double minWidth = 64;
+          double maxHeight = 256;
+
+          Size? size = widget.calculateSizeFunc?.call(
+            minWidth,
+            maxWidth,
+            0,
+            maxHeight,
+          );
+          if (size != null && size != Size.zero && size != Size.infinite) {
+            return SizedBox(
+              width: size.width,
+              height: size.height,
+              child: _renderImage(
+                heroTag,
+                theme,
+                originalImg: originalImg,
+                smallImg: smallImg,
+                height: size.height,
+                width: size.width,
+              ),
+            );
+          }
+
           return ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: constraints.maxWidth * (isDesktopScreen ? 0.4 : 0.5),
