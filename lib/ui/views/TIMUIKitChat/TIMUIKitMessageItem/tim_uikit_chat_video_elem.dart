@@ -89,11 +89,7 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
     );
   }
 
-  Widget generateSnapshot(
-    TUITheme theme,
-    num height,
-    num width,
-  ) {
+  Widget generateSnapshot(TUITheme theme, int height) {
     if (!PlatformUtils().isWeb) {
       final current = (DateTime.now().millisecondsSinceEpoch / 1000).ceil();
       final timeStamp = widget.message.timestamp ?? current;
@@ -103,14 +99,8 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
           File imgF = File(stateElement.snapshotPath!);
           bool isExist = imgF.existsSync();
           if (isExist) {
-            return Image.file(
-              File(stateElement.snapshotPath!),
-              fit: BoxFit.fitWidth,
-              //////////// 增加图片 errorBuilder ////////////
-              errorBuilder: (context, error, stackTrace) =>
-                  errorDisplay(theme, height),
-              //////////// 增加图片 errorBuilder ////////////
-            );
+            return Image.file(File(stateElement.snapshotPath!),
+                fit: BoxFit.fitWidth);
           }
         }
       }
@@ -143,72 +133,15 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
     return (!PlatformUtils().isWeb && stateElement.snapshotUrl == null ||
             widget.message.status == MessageStatus.V2TIM_MSG_STATUS_SENDING)
         ? (stateElement.snapshotPath!.isNotEmpty
-            ? Image.file(
-                File(stateElement.snapshotPath!),
-                fit:
-                    BoxFit.fitWidth, //////////// 增加图片 errorBuilder ////////////
-                errorBuilder: (context, error, stackTrace) =>
-                    errorDisplay(theme, height),
-                //////////// 增加图片 errorBuilder ////////////
-              )
-            : Image.file(
-                File(stateElement.localSnapshotUrl!),
-                fit:
-                    BoxFit.fitWidth, //////////// 增加图片 errorBuilder ////////////
-                errorBuilder: (context, error, stackTrace) =>
-                    errorDisplay(theme, height),
-                //////////// 增加图片 errorBuilder ////////////
-              ))
+            ? Image.file(File(stateElement.snapshotPath!), fit: BoxFit.fitWidth)
+            : Image.file(File(stateElement.localSnapshotUrl!),
+                fit: BoxFit.fitWidth))
         : (PlatformUtils().isWeb ||
                 stateElement.localSnapshotUrl == null ||
                 stateElement.localSnapshotUrl == "")
-            ? PlatformUtils().isWeb
-                ? Image.network(
-                    stateElement.snapshotUrl!,
-                    fit: BoxFit.fitWidth,
-                    //////////// 增加图片 loadingBuilder ////////////
-                    loadingBuilder: (context, child, loadingProgress) =>
-                        loadingProgress != null &&
-                                loadingProgress.cumulativeBytesLoaded ==
-                                    loadingProgress.expectedTotalBytes
-                            ? const SizedBox()
-                            : _loadingDisplay(
-                                context,
-                                theme,
-                                height: height.toDouble(),
-                                width: width.toDouble(),
-                              ),
-                    //////////// 增加图片 loadingBuilder ////////////
-                    //////////// 增加图片 errorBuilder ////////////
-                    errorBuilder: (context, error, stackTrace) =>
-                        errorDisplay(theme, height),
-                    //////////// 增加图片 errorBuilder ////////////
-                  )
-                : CachedNetworkImage(
-                    alignment: Alignment.topCenter,
-                    imageUrl: stateElement.snapshotUrl!,
-                    errorWidget: (context, error, stackTrace) =>
-                        errorDisplay(theme, height),
-                    fit: BoxFit.contain,
-                    cacheKey: stateElement.UUID,
-                    //////////// 调整封面 placeholder ////////////
-                    placeholder: (context, url) => _loadingDisplay(
-                      context,
-                      theme,
-                      height: height.toDouble(),
-                      width: width.toDouble(),
-                    ),
-                    //////////// 调整封面 placeholder ////////////
-                    fadeInDuration: const Duration(milliseconds: 100),
-                  )
-            : Image.file(
-                File(stateElement.localSnapshotUrl!),
-                fit: BoxFit.fitWidth,
-                //////////// 增加图片 errorBuilder ////////////
-                errorBuilder: (context, error, stackTrace) =>
-                    errorDisplay(theme, height),
-                //////////// 增加图片 errorBuilder ////////////
-              );
+            ? Image.network(stateElement.snapshotUrl!, fit: BoxFit.fitWidth)
+            : Image.file(File(stateElement.localSnapshotUrl!),
+                fit: BoxFit.fitWidth);
   }
 
   downloadMessageDetailAndSave() async {
@@ -374,12 +307,12 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
                   double minWidth = 20;
                   double maxHeight = min(constraints.maxHeight * 0.8, 300);
                   double minHeight = 20;
-                  Size? size = widget.calculateSizeFunc?.call(
-                    minWidth,
-                    maxWidth,
-                    minHeight,
-                    maxHeight,
-                  );
+                  // Size? size = widget.calculateSizeFunc?.call(
+                  //   minWidth,
+                  //   maxWidth,
+                  //   minHeight,
+                  //   maxHeight,
+                  // );
 
                   if ((stateElement.snapshotWidth) != null &&
                       stateElement.snapshotHeight != null &&
@@ -411,13 +344,8 @@ class _TIMUIKitVideoElemState extends TIMUIKitState<TIMUIKitVideoElem> {
                           Row(
                             children: [
                               Expanded(
-                                  child: generateSnapshot(
-                                theme,
-                                size?.height ??
-                                    stateElement.snapshotHeight ??
-                                    170,
-                                size?.width ?? 170,
-                              ))
+                                  child: generateSnapshot(theme,
+                                      stateElement.snapshotHeight ?? 100))
                             ],
                           ),
                           if (widget.message.status !=

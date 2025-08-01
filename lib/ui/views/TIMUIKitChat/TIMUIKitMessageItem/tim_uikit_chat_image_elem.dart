@@ -482,8 +482,8 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
                     errorWidget: (context, error, stackTrace) => errorDisplay(
                       context,
                       theme,
-                      width: width,
-                      height: height,
+                      // width: width,
+                      // height: height,
                     ),
                     fit: BoxFit.contain,
                     cacheKey: smallImg?.uuid ?? originalImg!.uuid,
@@ -491,8 +491,8 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
                     placeholder: (context, url) => placeholderDisplay(
                       context,
                       theme,
-                      width: width,
-                      height: height,
+                      // width: width,
+                      // height: height,
                     ),
                     // Image(image: MemoryImage(kTransparentImage)),
                     //////////// 调整图片 placeholder ////////////
@@ -518,8 +518,8 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
               errorBuilder: (context, error, stackTrace) => errorDisplay(
                 context,
                 theme,
-                width: width,
-                height: height,
+                // width: width,
+                // height: height,
               ),
               //////////// 增加图片 errorBuilder ////////////
             ));
@@ -774,20 +774,20 @@ class _TIMUIKitImageElem extends TIMUIKitState<TIMUIKitImageElem> {
             0,
             maxHeight,
           );
-          if (size != null && size != Size.zero && size != Size.infinite) {
-            return SizedBox(
-              width: size.width,
-              height: size.height,
-              child: _renderImage(
-                heroTag,
-                theme,
-                originalImg: originalImg,
-                smallImg: smallImg,
-                height: size.height,
-                width: size.width,
-              ),
-            );
-          }
+          // if (size != null && size != Size.zero && size != Size.infinite) {
+          //   return SizedBox(
+          //     width: size.width,
+          //     height: size.height,
+          //     child: _renderImage(
+          //       heroTag,
+          //       theme,
+          //       originalImg: originalImg,
+          //       smallImg: smallImg,
+          //       height: size.height,
+          //       width: size.width,
+          //     ),
+          //   );
+          // }
 
           return ConstrainedBox(
             constraints: BoxConstraints(
