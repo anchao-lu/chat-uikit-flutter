@@ -482,7 +482,8 @@ class _TIMUIKitFileElemState extends TIMUIKitState<TIMUIKitFileElem> {
                                           maxLines:
                                               PlatformUtils().isDesktop ? 3 : 1,
                                           style: TextStyle(
-                                            color: theme.darkTextColor,
+                                            color: theme
+                                                .conversationItemTitleTextColor,
                                             fontSize: 16,
                                           ),
                                         );
@@ -494,7 +495,8 @@ class _TIMUIKitFileElemState extends TIMUIKitState<TIMUIKitFileElem> {
                                       showFileSize(fileSize),
                                       style: TextStyle(
                                           fontSize: 14,
-                                          color: theme.weakTextColor),
+                                          color: theme
+                                              .conversationItemTitleTextColor),
                                     )
                                 ],
                               )),
