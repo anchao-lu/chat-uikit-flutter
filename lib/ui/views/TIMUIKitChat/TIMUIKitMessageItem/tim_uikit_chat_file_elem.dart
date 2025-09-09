@@ -451,7 +451,7 @@ class _TIMUIKitFileElemState extends TIMUIKitState<TIMUIKitFileElem> {
                         value: (received == 100 ? 0 : received) / 100,
                         backgroundColor: received == 100
                             ? theme.weakBackgroundColor
-                            : Colors.white,
+                            :  : theme.chatMessageItemFromSelfBgColor,
                         valueColor: AlwaysStoppedAnimation(
                             theme.lightPrimaryMaterialColor.shade50),
                       ),
