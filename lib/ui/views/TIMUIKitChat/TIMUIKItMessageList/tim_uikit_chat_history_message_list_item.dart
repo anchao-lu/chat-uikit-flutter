@@ -829,6 +829,9 @@ class _TIMUIKItHistoryMessageListItemState
     bool? isFromWideTooltip,
     bool? isShowMoreSticker,
   ) {
+    if (!widget.messageCanLongPres!(widget.message)) {
+      return;
+    }
     if (tooltip != null && tooltip!.isOpen) {
       tooltip!.close();
       return;
