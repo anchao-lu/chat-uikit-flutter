@@ -47,7 +47,8 @@ dependencies:
   url_launcher: ^6.1.9
   shared_preferences: ^2.0.17
   wechat_camera_picker: ^4.2.0-dev.2
-  image_gallery_saver_plus: ^3.0.5
+  # image_gallery_saver_plus: ^3.0.5
+  image_gallery_saver_plus: ^4.0.1
   path_provider: ^2.0.8
   cached_network_image: ^3.3.0
   scroll_to_index: ^3.0.1
