@@ -1212,6 +1212,11 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
   sendForwardMessage({
     required List<V2TimConversation> conversationList,
   }) async {
+    ////////////////// 自定义参数 //////////////////
+    final tipContent =
+        (await chatConfig.forwardMsgTipContent?.call(conversationList)) ?? '';
+    ////////////////// 自定义参数 //////////////////
+
     final selectedMessages = getSelectedMessageList();
     for (var conversation in conversationList) {
       final convID = conversation.groupID ?? conversation.userID ?? "";
@@ -1235,7 +1240,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
               _notify();
             }
           }
-          await Future.delayed(Duration(milliseconds: 100), () {
+          await Future.delayed(const Duration(milliseconds: 100), () {
             _sendMessage(
               id: forwardMessageInfo.id!,
               convID: convID,
@@ -1248,6 +1253,18 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
           });
         }
       }
+
+      ////////////////// 自定义参数 //////////////////
+      if (tipContent.isNotEmpty) {
+        await Future.delayed(const Duration(milliseconds: 100), () {
+          sendTextMessage(
+            text: tipContent,
+            convID: convID,
+            convType: convType == 1 ? ConvType.c2c : ConvType.group,
+          );
+        });
+      }
+      ////////////////// 自定义参数 //////////////////
     }
   }
 
@@ -1258,6 +1275,11 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
     required List<String> abstractList,
     required BuildContext context,
   }) async {
+    ////////////////// 自定义参数 //////////////////
+    final tipContent =
+        (await chatConfig.forwardMsgTipContent?.call(conversationList)) ?? '';
+    ////////////////// 自定义参数 //////////////////
+
     final List<String> msgIDList = getSelectedMessageList()
         .map((e) => e.msgID ?? "")
         .where((element) => element != "")
@@ -1295,6 +1317,18 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
               convID,
               convType == 1 ? ConvType.c2c : ConvType.group),
         );
+
+        ////////////////// 自定义参数 //////////////////
+        if (tipContent.isNotEmpty) {
+          await Future.delayed(const Duration(milliseconds: 100), () {
+            sendTextMessage(
+              text: tipContent,
+              convID: convID,
+              convType: convType == 1 ? ConvType.c2c : ConvType.group,
+            );
+          });
+        }
+        ////////////////// 自定义参数 //////////////////
       }
     }
     return null;

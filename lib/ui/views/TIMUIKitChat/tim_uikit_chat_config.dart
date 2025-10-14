@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 
 import 'package:tencent_cloud_chat_sdk/enum/offlinePushInfo.dart';
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_conversation.dart';
 import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart'
     if (dart.library.html) 'package:tencent_cloud_chat_sdk/web/compatible_models/v2_tim_message.dart';
 import 'package:tencent_cloud_chat_uikit/business_logic/view_models/tui_chat_global_model.dart';
@@ -312,6 +313,7 @@ class TIMUIKitChatConfig {
   final bool judgeIsCurConversation;
   //  控制桌面端图片浏览方式属性
   final bool desktopDefaultBrowser;
+
   // 自定义图片浏览器
   final Function({
     required bool isNetworkImage,
@@ -323,7 +325,10 @@ class TIMUIKitChatConfig {
     String? groupID,
     String? isFrom,
   })? onUseCusImgBrowserFn;
-  ////////////////自定义入参 ////////////////
+
+  // 转发消息时的附带消息
+  final Future<String> Function(List<V2TimConversation?> selectedConvs)? forwardMsgTipContent;
+  //////////////// 自定义入参 ////////////////
 
   const TIMUIKitChatConfig({
     this.onTapLink,
@@ -387,6 +392,7 @@ class TIMUIKitChatConfig {
     this.judgeIsCurConversation = true,
     this.desktopDefaultBrowser = true,
     this.onUseCusImgBrowserFn,
+    this.forwardMsgTipContent,
     //////////////// 自定义入参 ////////////////
   });
 }

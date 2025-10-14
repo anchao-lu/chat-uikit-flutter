@@ -133,21 +133,21 @@ class MergerMessageScreenState extends TIMUIKitState<MergerMessageScreen> {
               scrollToIndex: () {},
               clearJump: () {});
         }
-        if (widget.messageItemBuilder?.textMessageItemBuilder != null) {
-          return widget.messageItemBuilder!.textMessageItemBuilder!(
-            message,
-            false,
-            () {},
-          )!;
-        }
-        return TIMUIKitTextElem(
-          chatModel: widget.model,
-          message: message,
-          isFromSelf: message.isSelf ?? true,
-          clearJump: () {},
-          isShowJump: false,
-          isShowMessageReaction: false,
-        );
+        //////////////// 自定义调整 ////////////////
+        return widget.messageItemBuilder!.textMessageItemBuilder?.call(
+              message,
+              false,
+              () {},
+            ) ??
+            TIMUIKitTextElem(
+              chatModel: widget.model,
+              message: message,
+              isFromSelf: message.isSelf ?? true,
+              clearJump: () {},
+              isShowJump: false,
+              isShowMessageReaction: false,
+            );
+      //////////////// 自定义调整 ////////////////
       case MessageElemType.V2TIM_ELEM_TYPE_FACE:
         if (widget.messageItemBuilder?.faceMessageItemBuilder != null) {
           return widget.messageItemBuilder!.faceMessageItemBuilder!(
