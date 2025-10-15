@@ -1387,14 +1387,17 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
           tools.setUserInfoForMessage(messageInfo, textMessageInfo.id!);
       messageInfoWithSender.status = MessageStatus.V2TIM_MSG_STATUS_SENDING;
       addSendingMessageID(messageInfo.id);
-      if (globalModel.getMessageListPosition(conversationID) !=
-          HistoryMessagePosition.notShowLatest) {
-        currentHistoryMsgList = [
-          messageInfoWithSender,
-          ...currentHistoryMsgList
-        ];
-        globalModel.setMessageList(conversationID, currentHistoryMsgList);
-        _notify();
+      // 如果转发的会话是当前会话，则直接添加到当前会话的消息列表中
+      if (convID == conversationID) {
+        if (globalModel.getMessageListPosition(conversationID) !=
+            HistoryMessagePosition.notShowLatest) {
+          currentHistoryMsgList = [
+            messageInfoWithSender,
+            ...currentHistoryMsgList
+          ];
+          globalModel.setMessageList(conversationID, currentHistoryMsgList);
+          _notify();
+        }
       }
 
       return _sendMessage(
