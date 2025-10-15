@@ -67,10 +67,10 @@ class _ForwardMessageScreenState extends TIMUIKitState<ForwardMessageScreen> {
   }
 
   handleForwardMessage() async {
-    var confirmResult = await _showConfirmForwardDialog(context);
-    if (confirmResult == null) {
-      return;
-    }
+    // var confirmResult = await _showConfirmForwardDialog(context);
+    // if (confirmResult == null) {
+    //   return;
+    // }
 
     if (widget.isMergerForward) {
       await widget.model.sendMergerMessage(
