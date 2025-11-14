@@ -704,7 +704,7 @@ class _MorePanelState extends TIMUIKitState<MorePanel> {
         return ResolutionPreset.ultraHigh;
       }
     } else {
-      return ResolutionPreset.veryHigh;
+      return ResolutionPreset.max;
     }
   }
 
