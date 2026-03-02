@@ -326,6 +326,9 @@ class TIMUIKitHistoryMessageListItem extends StatefulWidget {
 
   final bool isDesktop;
 
+  /// 添加一个文字条目消息点击事件
+  final void Function(V2TimMessage message)? onTextMessageItemClick;
+
   const TIMUIKitHistoryMessageListItem({
     Key? key,
     required this.message,
@@ -362,6 +365,7 @@ class TIMUIKitHistoryMessageListItem extends StatefulWidget {
     this.calculateVideoSizeFunc,
     this.messageCanLongPres,
     this.isDesktop = false,
+    this.onTextMessageItemClick,
     ////////////// 自定义入参 //////////////
   }) : super(key: key);
 
@@ -575,6 +579,7 @@ class _TIMUIKItHistoryMessageListItemState
               textPadding: widget.textPadding,
               isShowMessageReaction: widget.isUseMessageReaction,
               customEmojiStickerList: widget.customEmojiStickerList,
+              onTextMessageItemClick: widget.onTextMessageItemClick,
             );
       case MessageElemType.V2TIM_ELEM_TYPE_FACE:
         final customWidget = messageItemBuilder?.faceMessageItemBuilder != null

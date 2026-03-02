@@ -211,6 +211,9 @@ class TIMUIKitChat extends StatefulWidget {
   /// input background color
   final Color? inputFillColor;
 
+  /// 添加一个文字条目消息点击事件
+  final void Function(V2TimMessage message)? onTextMessageItemClick;
+
   TIMUIKitChat({
     Key? key,
     this.groupID,
@@ -259,6 +262,7 @@ class TIMUIKitChat extends StatefulWidget {
     this.chatBgImg,
     this.inputFillColor,
     this.inputBgColor,
+    this.onTextMessageItemClick,
     ////////////// 自定义入参 //////////////
   }) : super(key: key) {
     startTime = DateTime.now().millisecondsSinceEpoch;
@@ -599,6 +603,8 @@ class _TUIChatState extends TIMUIKitState<TIMUIKitChat> {
                                         widget.calculateImgSizeFunc,
                                     calculateVideoSizeFunc:
                                         widget.calculateVideoSizeFunc,
+                                    onTextMessageItemClick:
+                                        widget.onTextMessageItemClick,
                                     ////////////// 自定义参数 //////////////
                                     customMessageHoverBarOnDesktop:
                                         widget.customMessageHoverBarOnDesktop,

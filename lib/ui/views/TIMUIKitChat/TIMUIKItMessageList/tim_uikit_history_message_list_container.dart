@@ -111,6 +111,9 @@ class TIMUIKitHistoryMessageListContainer extends StatefulWidget {
 
   final bool isDesktop;
 
+  /// 添加一个文字条目消息点击事件
+  final void Function(V2TimMessage message)? onTextMessageItemClick;
+
   const TIMUIKitHistoryMessageListContainer({
     Key? key,
     this.itemBuilder,
@@ -142,6 +145,7 @@ class TIMUIKitHistoryMessageListContainer extends StatefulWidget {
     this.calculateImgSizeFunc,
     this.calculateVideoSizeFunc,
     this.isDesktop = false,
+    this.onTextMessageItemClick,
     ////////////// 自定义入参 //////////////
   }) : super(key: key);
 
@@ -213,6 +217,7 @@ class _TIMUIKitHistoryMessageListContainerState
               userAvatarImageBuilder: widget.userAvatarImageBuilder,
               calculateImgSizeFunc: widget.calculateImgSizeFunc,
               calculateVideoSizeFunc: widget.calculateVideoSizeFunc,
+              onTextMessageItemClick: widget.onTextMessageItemClick,
               ////////////// 自定义入参 //////////////
               customMessageHoverBarOnDesktop:
                   widget.customMessageHoverBarOnDesktop,

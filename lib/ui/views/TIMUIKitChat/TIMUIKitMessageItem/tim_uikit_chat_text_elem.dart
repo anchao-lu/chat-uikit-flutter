@@ -31,6 +31,8 @@ class TIMUIKitTextElem extends StatefulWidget {
   final bool? isShowMessageReaction;
   final List<CustomEmojiFaceData> customEmojiStickerList;
 
+  /// 添加一个文字条目消息点击事件
+  final void Function(V2TimMessage message)? onTextMessageItemClick;
   const TIMUIKitTextElem(
       {Key? key,
       required this.message,
@@ -43,6 +45,7 @@ class TIMUIKitTextElem extends StatefulWidget {
       this.backgroundColor,
       this.textPadding,
       required this.chatModel,
+      this.onTextMessageItemClick,
       this.customEmojiStickerList = const []})
       : super(key: key);
 
@@ -216,60 +219,66 @@ class _TIMUIKitTextElemState extends TIMUIKitState<TIMUIKitTextElem> {
         ? const Color.fromRGBO(245, 166, 35, 1)
         : (defaultStyle ?? widget.backgroundColor);
 
-    return Container(
-      padding: widget.textPadding ?? EdgeInsets.all(isDesktopScreen ? 12 : 10),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: widget.borderRadius ?? borderRadius,
-      ),
-      constraints:
-          BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // If the [elemType] is text message, it will not be null here.
-          // You can render the widget from extension directly, with a [TextStyle] optionally.
-          widget.chatModel.chatConfig.urlPreviewType != UrlPreviewType.none
-              ? textWithLink!(
-                  style: widget.fontStyle ??
-                      TextStyle(
-                          fontSize: isDesktopScreen ? 14 : 16,
-                          textBaseline: TextBaseline.ideographic,
-                          height: widget.chatModel.chatConfig.textHeight))
-              : ExtendedText(widget.message.textElem?.text ?? "",
-                  softWrap: true,
-                  style: widget.fontStyle ??
-                      TextStyle(
-                          fontSize: isDesktopScreen ? 14 : 16,
-                          height: widget.chatModel.chatConfig.textHeight),
-                  specialTextSpanBuilder: DefaultSpecialTextSpanBuilder(
-                    isUseQQPackage: widget.chatModel.chatConfig
-                            .stickerPanelConfig?.useQQStickerPackage ??
-                        true,
-                    isUseTencentCloudChatPackage: widget
-                            .chatModel
-                            .chatConfig
-                            .stickerPanelConfig
-                            ?.useTencentCloudChatStickerPackage ??
-                        true,
-                    isUseTencentCloudChatPackageOldKeys: widget
-                            .chatModel
-                            .chatConfig
-                            .stickerPanelConfig
-                            ?.useTencentCloudChatStickerPackageOldKeys ??
-                        false,
-                    customEmojiStickerList: widget.customEmojiStickerList,
-                    showAtBackground: true,
-                    checkHttpLink: true,
-                  )),
-          // If the link preview info is available, render the preview card.
-          if (_renderPreviewWidget() != null &&
-              widget.chatModel.chatConfig.urlPreviewType ==
-                  UrlPreviewType.previewCardAndHyperlink)
-            _renderPreviewWidget()!,
-          if (widget.isShowMessageReaction ?? true)
-            TIMUIKitMessageReactionShowPanel(message: widget.message)
-        ],
+    // 此处改动就增加一个GestureDetector控件点击事件
+    return GestureDetector(
+      onTap:(){
+        widget.onTextMessageItemClick?.call(widget.message);
+      },
+      child: Container(
+        padding: widget.textPadding ?? EdgeInsets.all(isDesktopScreen ? 12 : 10),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: widget.borderRadius ?? borderRadius,
+        ),
+        constraints:
+            BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // If the [elemType] is text message, it will not be null here.
+            // You can render the widget from extension directly, with a [TextStyle] optionally.
+            widget.chatModel.chatConfig.urlPreviewType != UrlPreviewType.none
+                ? textWithLink!(
+                    style: widget.fontStyle ??
+                        TextStyle(
+                            fontSize: isDesktopScreen ? 14 : 16,
+                            textBaseline: TextBaseline.ideographic,
+                            height: widget.chatModel.chatConfig.textHeight))
+                : ExtendedText(widget.message.textElem?.text ?? "",
+                    softWrap: true,
+                    style: widget.fontStyle ??
+                        TextStyle(
+                            fontSize: isDesktopScreen ? 14 : 16,
+                            height: widget.chatModel.chatConfig.textHeight),
+                    specialTextSpanBuilder: DefaultSpecialTextSpanBuilder(
+                      isUseQQPackage: widget.chatModel.chatConfig
+                              .stickerPanelConfig?.useQQStickerPackage ??
+                          true,
+                      isUseTencentCloudChatPackage: widget
+                              .chatModel
+                              .chatConfig
+                              .stickerPanelConfig
+                              ?.useTencentCloudChatStickerPackage ??
+                          true,
+                      isUseTencentCloudChatPackageOldKeys: widget
+                              .chatModel
+                              .chatConfig
+                              .stickerPanelConfig
+                              ?.useTencentCloudChatStickerPackageOldKeys ??
+                          false,
+                      customEmojiStickerList: widget.customEmojiStickerList,
+                      showAtBackground: true,
+                      checkHttpLink: true,
+                    )),
+            // If the link preview info is available, render the preview card.
+            if (_renderPreviewWidget() != null &&
+                widget.chatModel.chatConfig.urlPreviewType ==
+                    UrlPreviewType.previewCardAndHyperlink)
+              _renderPreviewWidget()!,
+            if (widget.isShowMessageReaction ?? true)
+              TIMUIKitMessageReactionShowPanel(message: widget.message)
+          ],
+        ),
       ),
     );
   }
