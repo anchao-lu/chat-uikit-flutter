@@ -212,7 +212,7 @@ class TIMUIKitChat extends StatefulWidget {
   final Color? inputFillColor;
 
   /// 添加一个文字条目消息点击事件
-  final void Function(V2TimMessage message)? onTextMessageItemClick;
+  final void Function(V2TimMessage message,String targetStr)? onTextMessageItemClick;
 
   TIMUIKitChat({
     Key? key,

@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:tencent_cloud_chat_sdk/models/v2_tim_message.dart';
 import 'package:tencent_cloud_chat_uikit/ui/utils/platform.dart';
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/gestures.dart';
@@ -97,10 +98,20 @@ class LinkText extends TIMStatelessWidget {
 
   final bool? isEnableTextSelection;
 
+  //// 康讯自定义添加方法 start
+  final Function(V2TimMessage message, String targetStr)?
+      onTextMessageItemClick;
+
+  final V2TimMessage? message;
+
+  //// 康讯自定义添加方法 end
+
   const LinkText(
       {Key? key,
       required this.messageText,
       this.onLinkTap,
+      this.onTextMessageItemClick,
+      this.message,
       this.isEnableTextSelection,
       this.style,
       this.isUseQQPackage = false,
@@ -151,6 +162,43 @@ class LinkText extends TIMStatelessWidget {
         );
       }
     }
+
+    //// 康讯 处理一串文本中包含连续7位数的数字时认为可能是电话号码的改动 start
+    /// 此处 7 为自己定义和微信7位数判为疑似电话号码保持一致，考虑到基本不动，在此处写死，需和主项目一致
+    // 创建匹配至少 minLength 个连续数字的正则
+    final regExp = RegExp(r'\d{' + 7.toString() + r',}');
+    // 提取所有匹配项
+    Iterable<RegExpMatch> numMatches = regExp.allMatches(text);
+
+    for (RegExpMatch match in numMatches) {
+      String c = text.substring(match.start, match.end);
+      if (match.start == index) {
+        index = match.end;
+      }
+      if (index < match.start) {
+        String a = text.substring(index, match.start);
+        index = match.end;
+        contentData += a;
+        _contentList.add(
+          TextSpan(text: a),
+        );
+      }
+
+      if (regExp.hasMatch(c)) {
+        contentData += HttpText.flag + c + HttpText.flag;
+        _contentList.add(TextSpan(
+          text: c,
+          style: TextStyle(color: LinkUtils.hexToColor("015fff")),
+        ));
+      } else {
+        contentData += c;
+        _contentList.add(
+          TextSpan(text: c, style: style ?? const TextStyle(fontSize: 16.0)),
+        );
+      }
+    }
+    //// 康讯 处理一串文本中包含连续7位数的数字时认为可能是电话号码的改动 end
+
     if (index < text.length) {
       String a = text.substring(index, text.length);
       contentData += a;
@@ -167,6 +215,23 @@ class LinkText extends TIMStatelessWidget {
     return ExtendedText(_getContentSpan(messageText, context), softWrap: true,
         onSpecialTextTap: (dynamic parameter) {
       if (parameter.toString().startsWith(HttpText.flag)) {
+        ////// 康讯 处理一串文本中包含连续7位数的数字时认为可能是电话号码的改动 start
+        String target = (parameter.toString()).replaceAll(HttpText.flag, '');
+        if (target.isNotEmpty) {
+          //  判断是纯数字字符串
+          // print(isPureInteger('012'));      // true（允许前导零）
+          // print(isPureInteger('12.3'));     // false
+          // print(isPureInteger('-5'));       // false
+          // print(isPureInteger(''));         // false
+          if (RegExp(r'^\d+$').hasMatch(target)) {
+            if (message != null) {
+              onTextMessageItemClick?.call(message!, target);
+              // 调用 onTextMessageItemClick 后就不调用 onLinkTap 了
+              return;
+            }
+          }
+        }
+        ////// 康讯 处理一串文本中包含连续7位数的数字时认为可能是电话号码的改动 end
         if (onLinkTap != null) {
           onLinkTap!((parameter.toString()).replaceAll(HttpText.flag, ''));
         } else {
