@@ -132,7 +132,7 @@ class TIMUIKitMergerElemState extends TIMUIKitState<TIMUIKitMergerElem> {
     return Container(
       constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * (isDesktopScreen ? 0.3 : 0.6)),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.chatMessageItemFromSelfBgColor,
         borderRadius: BorderRadius.only(
           topLeft: widget.isSelf ? const Radius.circular(10) : Radius.zero,
           bottomLeft: const Radius.circular(10),
