@@ -8,11 +8,13 @@ class KxChatSoundToWordBubble extends StatelessWidget {
     required this.bgColor,
     required this.editingController,
     required this.isConverting,
+    required this.myFocusNode,
   });
 
   final Color bgColor;
   final TextEditingController editingController;
   final bool isConverting;
+  final FocusNode myFocusNode;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +50,7 @@ class KxChatSoundToWordBubble extends StatelessWidget {
                       color: Colors.white, // 字体颜色为白色
                       fontSize: 16, // 字体大小 16
                     ),
+                    focusNode: myFocusNode,
                     cursorColor: Colors.white,
                     // 光标颜色为白色
                     controller: editingController,

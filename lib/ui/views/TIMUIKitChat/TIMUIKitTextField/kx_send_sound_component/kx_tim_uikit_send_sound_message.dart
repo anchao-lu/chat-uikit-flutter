@@ -95,6 +95,8 @@ class _KXSendSoundMessageState extends TIMUIKitState<KXSendSoundMessage> {
 
   double? audioLength;
 
+  final FocusNode myFocusNode = FocusNode();
+
   late final TextEditingController _soundToWordsController =
       TextEditingController();
 
@@ -106,100 +108,109 @@ class _KXSendSoundMessageState extends TIMUIKitState<KXSendSoundMessage> {
         return Material(
           color: Colors.transparent,
           type: MaterialType.canvas,
-          child: Stack(
-            children: [
-              Positioned(
-                top: 0,
-                left: 0,
-                child: Opacity(
-                  opacity: 0.8,
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
-                    decoration: const BoxDecoration(
-                      color: Color(0xff77797A),
-                      borderRadius: BorderRadius.all(Radius.circular(20.0)),
+          child: GestureDetector(
+            onTap: () {
+              //  收起键盘
+              // 当需要收起时
+              myFocusNode.unfocus();
+            },
+            child: Stack(
+              children: [
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  child: Opacity(
+                    opacity: 0.8,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      decoration: const BoxDecoration(
+                        color: Color(0xff77797A),
+                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                      ),
+                      child: Center(
+                          child: isShowSoundToWord
+                              ? KxSecondCenter(
+                                  editingController: _soundToWordsController,
+                                  isConverting: isConverting,
+                                  myFocusNode: myFocusNode,
+                                )
+                              : KxFirstCenter(
+                                  bgColor:
+                                      isCancelSend ? Colors.red : Colors.green,
+                                  content: isCancelSend
+                                      ? "松手 取消发送"
+                                      : _isSoundToWord
+                                          ? "松手 转文字"
+                                          : "松手 发送语音",
+                                )),
                     ),
-                    child: Center(
-                        child: isShowSoundToWord
-                            ? KxSecondCenter(
-                                editingController: _soundToWordsController,
-                                isConverting: isConverting,
-                              )
-                            : KxFirstCenter(
-                                bgColor:
-                                    isCancelSend ? Colors.red : Colors.green,
-                                content: isCancelSend
-                                    ? "松手 取消发送"
-                                    : _isSoundToWord
-                                        ? "松手 转文字"
-                                        : "松手 发送语音",
-                              )),
                   ),
                 ),
-              ),
-              if (isShowSoundToWord)
-                KxSecondBottomWidget(
-                  bottomHeight: bottomHeight,
-                  btnHeight: btnHeight,
-                  onCancelTap: () {
-                    _reSetValue();
-                    if (overlayEntry != null) {
-                      overlayEntry!.remove();
-                      overlayEntry = null;
-                    }
-                  },
-                  onSendSoundTap: () {
-                    if (audioPath != null && audioLength != null) {
-                      sendSound(
-                        path: audioPath!,
-                        duration: audioLength!.ceil(),
-                        model: chatModel,
-                      );
-                    }
-                    _reSetValue();
-                    if (overlayEntry != null) {
-                      overlayEntry!.remove();
-                      overlayEntry = null;
-                    }
-                  },
-                  onSendWordTap: () {
-                    if (audioPath != null && audioLength != null) {
-                      sendText(
-                          text: _soundToWordsController.text, model: chatModel);
-
+                if (isShowSoundToWord)
+                  KxSecondBottomWidget(
+                    bottomHeight: bottomHeight,
+                    btnHeight: btnHeight,
+                    onCancelTap: () {
+                      _reSetValue();
                       if (overlayEntry != null) {
                         overlayEntry!.remove();
                         overlayEntry = null;
                       }
-                    }
-                    _reSetValue();
-                    if (overlayEntry != null) {
-                      overlayEntry!.remove();
-                      overlayEntry = null;
-                    }
-                  },
-                )
-              else ...[
-                KxFirstBottomWidget(
-                  left: leftAndRight,
-                  bottomHeight: bottomHeight,
-                  btnHeight: btnHeight,
-                  isActive: isCancelSend,
-                  angle: -0.2,
-                  actionTxt: '取消',
-                  actionTip: '松手 取消',
-                ),
-                KxFirstBottomWidget(
-                  right: leftAndRight,
-                  bottomHeight: bottomHeight,
-                  btnHeight: btnHeight,
-                  isActive: _isSoundToWord,
-                  actionTxt: '滑到这里 转文字',
-                  actionTip: '松手 编辑文字',
-                ),
-              ]
-            ],
+                    },
+                    onSendSoundTap: () {
+                      if (audioPath != null && audioLength != null) {
+                        sendSound(
+                          path: audioPath!,
+                          duration: audioLength!.ceil(),
+                          model: chatModel,
+                        );
+                      }
+                      _reSetValue();
+                      if (overlayEntry != null) {
+                        overlayEntry!.remove();
+                        overlayEntry = null;
+                      }
+                    },
+                    onSendWordTap: () {
+                      if (audioPath != null && audioLength != null) {
+                        sendText(
+                            text: _soundToWordsController.text,
+                            model: chatModel);
+
+                        if (overlayEntry != null) {
+                          overlayEntry!.remove();
+                          overlayEntry = null;
+                        }
+                      }
+                      _reSetValue();
+                      if (overlayEntry != null) {
+                        overlayEntry!.remove();
+                        overlayEntry = null;
+                      }
+                    },
+                  )
+                else ...[
+                  KxFirstBottomWidget(
+                    left: leftAndRight,
+                    bottomHeight: bottomHeight,
+                    btnHeight: btnHeight,
+                    isActive: isCancelSend,
+                    angle: -0.2,
+                    actionTxt: '取消',
+                    actionTip: '松手 取消',
+                  ),
+                  KxFirstBottomWidget(
+                    right: leftAndRight,
+                    bottomHeight: bottomHeight,
+                    btnHeight: btnHeight,
+                    isActive: _isSoundToWord,
+                    actionTxt: '滑到这里 转文字',
+                    actionTip: '松手 编辑文字',
+                  ),
+                ]
+              ],
+            ),
           ),
         );
       });
@@ -505,7 +516,6 @@ class _KXSendSoundMessageState extends TIMUIKitState<KXSendSoundMessage> {
       _soundToWords = await model.chatConfig.onVoiceToWordByFile!.call(file);
 
       if (mounted) {
-
         setState(() {
           isConverting = false;
           _soundToWordsController.text = _soundToWords;
@@ -513,7 +523,6 @@ class _KXSendSoundMessageState extends TIMUIKitState<KXSendSoundMessage> {
         });
       }
     } catch (e) {
-
       isConverting = false;
       overlayEntry?.markNeedsBuild();
     }

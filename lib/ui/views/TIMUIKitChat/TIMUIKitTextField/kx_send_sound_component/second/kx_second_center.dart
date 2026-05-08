@@ -4,10 +4,14 @@ import 'kx_chat_sound_to_word_bubble.dart';
 
 class KxSecondCenter extends StatelessWidget {
   const KxSecondCenter(
-      {super.key, required this.editingController, required this.isConverting});
+      {super.key,
+      required this.editingController,
+      required this.isConverting,
+      required this.myFocusNode});
 
   final TextEditingController editingController;
   final bool isConverting;
+  final FocusNode myFocusNode;
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +23,7 @@ class KxSecondCenter extends StatelessWidget {
           bgColor: Colors.green,
           editingController: editingController,
           isConverting: isConverting,
+          myFocusNode: myFocusNode,
         ),
         const SizedBox(
           height: 5,
