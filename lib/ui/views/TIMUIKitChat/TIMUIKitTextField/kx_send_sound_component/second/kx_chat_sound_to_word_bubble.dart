@@ -52,9 +52,15 @@ class KxChatSoundToWordBubble extends StatelessWidget {
                     // 光标颜色为白色
                     controller: editingController,
                     autofocus: false,
-                    decoration: const InputDecoration(
-                      contentPadding:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 5),
+                      hintText:
+                          editingController.text.isEmpty ? "暂未识别到文字..." : null,
+                      hintStyle: const TextStyle(
+                        color: Colors.red, // 提示文字颜色
+                        fontSize: 16, // 字体大小
+                      ),
                     ),
                   )
           ],
