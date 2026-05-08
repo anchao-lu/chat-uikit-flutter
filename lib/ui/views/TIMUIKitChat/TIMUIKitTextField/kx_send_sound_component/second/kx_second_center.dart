@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'kx_chat_sound_to_word_bubble.dart';
 
 class KxSecondCenter extends StatelessWidget {
-  const KxSecondCenter({super.key, required this.editingController});
+  const KxSecondCenter(
+      {super.key, required this.editingController, required this.isConverting});
 
   final TextEditingController editingController;
+  final bool isConverting;
 
   @override
   Widget build(BuildContext context) {
@@ -16,6 +18,7 @@ class KxSecondCenter extends StatelessWidget {
         KxChatSoundToWordBubble(
           bgColor: Colors.green,
           editingController: editingController,
+          isConverting: isConverting,
         ),
         const SizedBox(
           height: 5,
@@ -23,10 +26,10 @@ class KxSecondCenter extends StatelessWidget {
         Container(
           margin: const EdgeInsets.only(right: 30),
           alignment: Alignment.centerRight,
-          child: const Text(
-            "点击气泡可编辑文字",
+          child: Text(
+            isConverting ? "正在识别文字..." : "点击气泡可编辑文字",
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 14,
             ),

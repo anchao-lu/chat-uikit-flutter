@@ -81,6 +81,9 @@ class _KXSendSoundMessageState extends TIMUIKitState<KXSendSoundMessage> {
   // 显示转文字的界面
   bool isShowSoundToWord = false;
 
+  /// 是否正在转化
+  bool isConverting = true;
+
   double btnHeight = 120;
   double bottomHeight = 200;
   double leftAndRight = -20;
@@ -121,6 +124,7 @@ class _KXSendSoundMessageState extends TIMUIKitState<KXSendSoundMessage> {
                         child: isShowSoundToWord
                             ? KxSecondCenter(
                                 editingController: _soundToWordsController,
+                                isConverting: isConverting,
                               )
                             : KxFirstCenter(
                                 bgColor:
@@ -486,6 +490,7 @@ class _KXSendSoundMessageState extends TIMUIKitState<KXSendSoundMessage> {
     isCancelSend = false;
     _isSoundToWord = false;
     isShowSoundToWord = false;
+    isConverting = true;
     audioPath = null;
     audioLength = null;
   }
@@ -498,11 +503,19 @@ class _KXSendSoundMessageState extends TIMUIKitState<KXSendSoundMessage> {
       audioLength = recordDuration;
       File file = File(audioPath!);
       _soundToWords = await model.chatConfig.onVoiceToWordByFile!.call(file);
+
       if (mounted) {
+
         setState(() {
+          isConverting = false;
           _soundToWordsController.text = _soundToWords;
+          overlayEntry?.markNeedsBuild();
         });
       }
-    } catch (e) {}
+    } catch (e) {
+
+      isConverting = false;
+      overlayEntry?.markNeedsBuild();
+    }
   }
 }

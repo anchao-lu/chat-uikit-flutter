@@ -7,10 +7,12 @@ class KxChatSoundToWordBubble extends StatelessWidget {
     super.key,
     required this.bgColor,
     required this.editingController,
+    required this.isConverting,
   });
 
   final Color bgColor;
   final TextEditingController editingController;
+  final bool isConverting;
 
   @override
   Widget build(BuildContext context) {
@@ -34,20 +36,27 @@ class KxChatSoundToWordBubble extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              style: const TextStyle(
-                color: Colors.white, // 字体颜色为白色
-                fontSize: 16, // 字体大小 16
-              ),
-              cursorColor: Colors.white,
-              // 光标颜色为白色
-              controller: editingController,
-              autofocus: false,
-              decoration: const InputDecoration(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-              ),
-            )
+            isConverting
+                ? const KxBarVisualizer(
+                    isRecording: true,
+                    amplitude: 0.5,
+                    color: Colors.white,
+                    height: 30.0,
+                  )
+                : TextField(
+                    style: const TextStyle(
+                      color: Colors.white, // 字体颜色为白色
+                      fontSize: 16, // 字体大小 16
+                    ),
+                    cursorColor: Colors.white,
+                    // 光标颜色为白色
+                    controller: editingController,
+                    autofocus: false,
+                    decoration: const InputDecoration(
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+                    ),
+                  )
           ],
         ),
       ),
