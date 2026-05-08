@@ -29,6 +29,8 @@ import 'package:tencent_cloud_chat_uikit/ui/views/TIMUIKitChat/TIMUIKitTextField
 import 'package:tencent_keyboard_visibility/tencent_keyboard_visibility.dart';
 import 'package:tencent_super_tooltip/tencent_super_tooltip.dart';
 
+import '../kx_send_sound_component/kx_tim_uikit_send_sound_message.dart';
+
 GlobalKey<_TIMUIKitTextFieldLayoutNarrowState> narrowTextFieldKey = GlobalKey();
 
 class TIMUIKitTextFieldLayoutNarrow extends StatefulWidget {
@@ -518,7 +520,7 @@ class _TIMUIKitTextFieldLayoutNarrowState
                       ),
                       Expanded(
                         child: showSendSoundText
-                            ? SendSoundMessage(
+                            ? KXSendSoundMessage(
                                 onDownBottom: widget.goDownBottom,
                                 conversationID: widget.conversationID,
                                 conversationType: widget.conversationType,

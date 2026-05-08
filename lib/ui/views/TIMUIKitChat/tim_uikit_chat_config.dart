@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 
 import 'package:tencent_cloud_chat_sdk/enum/offlinePushInfo.dart';
@@ -32,6 +34,8 @@ typedef ChatImgMorePres = void Function(V2TimMessage);
 
 ////  新增语音转文字回调 start
 typedef VoiceToWordFunction = Future<String> Function(V2TimMessage);
+
+typedef VoiceToWordByFileFunction = Future<String> Function(File);
 
 /// 新增语音转文字回调 更多 end
 
@@ -299,6 +303,7 @@ class TIMUIKitChatConfig {
 
   //新增语音转文字回调
   final VoiceToWordFunction? onVoiceToWord;
+  final VoiceToWordByFileFunction? onVoiceToWordByFile;
 
   // 因为部分视频格式官网不支持，加一个变量控制
   final bool useKangXunVideo;
@@ -311,6 +316,7 @@ class TIMUIKitChatConfig {
 
   //判断时候是当前会话
   final bool judgeIsCurConversation;
+
   //  控制桌面端图片浏览方式属性
   final bool desktopDefaultBrowser;
 
@@ -385,6 +391,7 @@ class TIMUIKitChatConfig {
     this.onImageViewPress,
     this.onImageMorePress,
     this.onVoiceToWord,
+    this.onVoiceToWordByFile,
     this.disableForwardConversions,
     this.useKangXunVideo = false,
     this.useMediaBrowser = false,
