@@ -14,6 +14,8 @@ import 'package:tencent_cloud_chat_uikit/ui/widgets/link_preview/common/utils.da
 import 'package:markdown/markdown.dart' as md;
 import 'package:tim_ui_kit_sticker_plugin/utils/tim_custom_face_data.dart';
 
+import 'kx_digit_block.dart';
+
 typedef ImageBuilder = Widget Function(
     Uri uri, String? imageDirectory, double? width, double? height);
 
@@ -165,12 +167,14 @@ class LinkText extends TIMStatelessWidget {
 
     //// 康讯 处理一串文本中包含连续7位数的数字时认为可能是电话号码的改动 start
     /// 此处 7 为自己定义和微信7位数判为疑似电话号码保持一致，考虑到基本不动，在此处写死，需和主项目一致
-    // 创建匹配至少 minLength 个连续数字的正则
-    final regExp = RegExp(r'\d{' + 7.toString() + r',}');
-    // 提取所有匹配项
-    Iterable<RegExpMatch> numMatches = regExp.allMatches(text);
+    ///
 
-    for (RegExpMatch match in numMatches) {
+    /// 此处需求改动，需要改为可以为不连续的7位数字 start
+    List<KxDigitBlock> numMatches = KxDigitBlock.extractDigitBlocks(text);
+
+    /// 此处需求改动，需要改为可以为不连续的7位数字 end
+
+    for (KxDigitBlock match in numMatches) {
       String c = text.substring(match.start, match.end);
       if (match.start == index) {
         index = match.end;
@@ -183,12 +187,20 @@ class LinkText extends TIMStatelessWidget {
           TextSpan(text: a),
         );
       }
-
-      if (regExp.hasMatch(c)) {
+      if (KxDigitBlock.isValidDigitBlock(c)) {
         contentData += HttpText.flag + c + HttpText.flag;
         _contentList.add(TextSpan(
-          text: c,
-          style: TextStyle(color: LinkUtils.hexToColor("015fff")),
+            text: c,
+            style: TextStyle(color: LinkUtils.hexToColor("015fff")),
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+                if (message != null) {
+                  onTextMessageItemClick?.call(message!, c);
+                  // 调用 onTextMessageItemClick 后就不调用 onLinkTap 了
+                  return;
+                }
+              }
+
         ));
       } else {
         contentData += c;
@@ -223,7 +235,7 @@ class LinkText extends TIMStatelessWidget {
           // print(isPureInteger('12.3'));     // false
           // print(isPureInteger('-5'));       // false
           // print(isPureInteger(''));         // false
-          if (RegExp(r'^\d+$').hasMatch(target)) {
+          if (KxDigitBlock.isValidDigitBlock(target)) {
             if (message != null) {
               onTextMessageItemClick?.call(message!, target);
               // 调用 onTextMessageItemClick 后就不调用 onLinkTap 了
