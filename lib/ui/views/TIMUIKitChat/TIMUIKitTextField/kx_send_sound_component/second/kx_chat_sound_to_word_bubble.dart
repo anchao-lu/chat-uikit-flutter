@@ -24,7 +24,7 @@ class KxChatSoundToWordBubble extends StatelessWidget {
         constraints: BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width * 0.9,
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 35),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 30),
         decoration: BoxDecoration(
           color: bgColor,
           boxShadow: const [
@@ -35,39 +35,35 @@ class KxChatSoundToWordBubble extends StatelessWidget {
             ),
           ],
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            isConverting
-                ? const KxBarVisualizer(
-                    isRecording: true,
-                    amplitude: 0.5,
-                    color: Colors.white,
-                    height: 30.0,
-                  )
-                : TextField(
-                    style: const TextStyle(
-                      color: Colors.white, // 字体颜色为白色
-                      fontSize: 16, // 字体大小 16
-                    ),
-                    focusNode: myFocusNode,
-                    cursorColor: Colors.white,
-                    // 光标颜色为白色
-                    controller: editingController,
-                    autofocus: false,
-                    decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 5),
-                      hintText:
-                          editingController.text.isEmpty ? "暂未识别到文字..." : null,
-                      hintStyle: const TextStyle(
-                        color: Colors.red, // 提示文字颜色
-                        fontSize: 16, // 字体大小
-                      ),
-                    ),
-                  )
-          ],
-        ),
+        child: isConverting
+            ? const KxBarVisualizer(
+                isRecording: true,
+                amplitude: 0.5,
+                color: Colors.white,
+                height: 30.0,
+              )
+            : TextField(
+                style: const TextStyle(
+                  color: Colors.white, // 字体颜色为白色
+                  fontSize: 18, // 字体大小 16
+                ),
+                maxLines: null,
+                focusNode: myFocusNode,
+                cursorColor: Colors.white,
+                // 光标颜色为白色
+                controller: editingController,
+                autofocus: false,
+                decoration: InputDecoration(
+                  contentPadding:
+                      const EdgeInsets.only(bottom: 10),
+                  hintText:
+                      editingController.text.isEmpty ? "暂未识别到文字..." : null,
+                  hintStyle: const TextStyle(
+                    color: Colors.red, // 提示文字颜色
+                    fontSize: 16, // 字体大小
+                  ),
+                ),
+              ),
       ),
     );
   }
