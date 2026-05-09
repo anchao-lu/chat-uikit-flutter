@@ -85,7 +85,7 @@ class _KXSendSoundMessageState extends TIMUIKitState<KXSendSoundMessage> {
   bool isConverting = true;
 
   double btnHeight = 120;
-  double bottomHeight = 200;
+  double bottomHeight = 140;
   double leftAndRight = -20;
 
   /// 语音转出来的文字
@@ -98,7 +98,7 @@ class _KXSendSoundMessageState extends TIMUIKitState<KXSendSoundMessage> {
   final FocusNode myFocusNode = FocusNode();
 
   late final TextEditingController _soundToWordsController =
-      TextEditingController();
+  TextEditingController();
 
   late TUIChatSeparateViewModel chatModel;
 
@@ -122,8 +122,14 @@ class _KXSendSoundMessageState extends TIMUIKitState<KXSendSoundMessage> {
                   child: Opacity(
                     opacity: 0.8,
                     child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery
+                          .of(context)
+                          .size
+                          .width,
+                      height: MediaQuery
+                          .of(context)
+                          .size
+                          .height,
                       decoration: const BoxDecoration(
                         color: Color(0xff77797A),
                         borderRadius: BorderRadius.all(Radius.circular(20.0)),
@@ -131,19 +137,19 @@ class _KXSendSoundMessageState extends TIMUIKitState<KXSendSoundMessage> {
                       child: Center(
                           child: isShowSoundToWord
                               ? KxSecondCenter(
-                                  editingController: _soundToWordsController,
-                                  isConverting: isConverting,
-                                  myFocusNode: myFocusNode,
-                                )
+                            editingController: _soundToWordsController,
+                            isConverting: isConverting,
+                            myFocusNode: myFocusNode,
+                          )
                               : KxFirstCenter(
-                                  bgColor:
-                                      isCancelSend ? Colors.red : Colors.green,
-                                  content: isCancelSend
-                                      ? "松手 取消发送"
-                                      : _isSoundToWord
-                                          ? "松手 转文字"
-                                          : "松手 发送语音",
-                                )),
+                            bgColor:
+                            isCancelSend ? Colors.red : Colors.green,
+                            content: isCancelSend
+                                ? "松手 取消发送"
+                                : _isSoundToWord
+                                ? "松手 转文字"
+                                : "松手 发送语音",
+                          )),
                     ),
                   ),
                 ),
@@ -190,25 +196,28 @@ class _KXSendSoundMessageState extends TIMUIKitState<KXSendSoundMessage> {
                       }
                     },
                   )
-                else ...[
-                  KxFirstBottomWidget(
-                    left: leftAndRight,
-                    bottomHeight: bottomHeight,
-                    btnHeight: btnHeight,
-                    isActive: isCancelSend,
-                    angle: -0.2,
-                    actionTxt: '取消',
-                    actionTip: '松手 取消',
-                  ),
-                  KxFirstBottomWidget(
-                    right: leftAndRight,
-                    bottomHeight: bottomHeight,
-                    btnHeight: btnHeight,
-                    isActive: _isSoundToWord,
-                    actionTxt: '滑到这里 转文字',
-                    actionTip: '松手 编辑文字',
-                  ),
-                ]
+                else
+                  ...[
+                    KxFirstBottomWidget(
+                      left: leftAndRight,
+                      bottomHeight: bottomHeight,
+                      btnHeight: btnHeight,
+                      isActive: isCancelSend,
+                      // angle: -0.2,
+                      angle: 0,
+                      actionTxt: '取消',
+                      actionTip: '松手 取消',
+                    ),
+                    KxFirstBottomWidget(
+                      right: leftAndRight,
+                      bottomHeight: bottomHeight,
+                      btnHeight: btnHeight,
+                      angle: 0,
+                      isActive: _isSoundToWord,
+                      actionTxt: '滑到这里 转文字',
+                      actionTip: '松手 编辑文字',
+                    ),
+                  ]
               ],
             ),
           ),
@@ -239,7 +248,10 @@ class _KXSendSoundMessageState extends TIMUIKitState<KXSendSoundMessage> {
       // 取消发送
       if (dx.abs() > 0 &&
           dx.abs() <
-              (MediaQuery.of(context).size.width / 2 -
+              (MediaQuery
+                  .of(context)
+                  .size
+                  .width / 2 -
                   leftAndRight.abs() -
                   leftAndRight.abs())) {
         if (mounted) {
@@ -249,7 +261,10 @@ class _KXSendSoundMessageState extends TIMUIKitState<KXSendSoundMessage> {
           });
         }
       } else if (dx.abs() >
-          (MediaQuery.of(context).size.width / 2 - leftAndRight.abs())) {
+          (MediaQuery
+              .of(context)
+              .size
+              .width / 2 - leftAndRight.abs())) {
         if (mounted) {
           setState(() {
             isCancelSend = false;
@@ -287,18 +302,27 @@ class _KXSendSoundMessageState extends TIMUIKitState<KXSendSoundMessage> {
       // 取消发送
       if (dx.abs() > 0 &&
           dx.abs() <
-              (MediaQuery.of(context).size.width / 2 -
+              (MediaQuery
+                  .of(context)
+                  .size
+                  .width / 2 -
                   leftAndRight.abs() -
                   leftAndRight.abs())) {
         isCancelSend = true;
       } else if (dx.abs() >
-          (MediaQuery.of(context).size.width / 2 - leftAndRight.abs())) {
+          (MediaQuery
+              .of(context)
+              .size
+              .width / 2 - leftAndRight.abs())) {
         _isSoundToWord = true;
       }
     }
 
     // Did not receive onStop from FlutterPluginRecord if the duration is too short.
-    if (DateTime.now().difference(startTime).inSeconds < 1) {
+    if (DateTime
+        .now()
+        .difference(startTime)
+        .inSeconds < 1) {
       isCancelSend = true;
       onTIMCallback(TIMCallback(
           type: TIMCallbackType.INFO,
@@ -434,7 +458,7 @@ class _KXSendSoundMessageState extends TIMUIKitState<KXSendSoundMessage> {
       }
     });
     final amplitudesResponseSubscription =
-        SoundPlayer.responseFromAmplitudeListener((recordResponse) {
+    SoundPlayer.responseFromAmplitudeListener((recordResponse) {
       setState(() {
         volume = double.parse(recordResponse.msg!) * 1.1;
         if (overlayEntry != null) {
@@ -451,7 +475,7 @@ class _KXSendSoundMessageState extends TIMUIKitState<KXSendSoundMessage> {
   Widget tuiBuild(BuildContext context, TUIKitBuildValue value) {
     final TUITheme theme = value.theme;
     final TUIChatSeparateViewModel model =
-        Provider.of<TUIChatSeparateViewModel>(context);
+    Provider.of<TUIChatSeparateViewModel>(context);
     chatModel = model;
     return GestureDetector(
       onTapDown: (detail) async {
@@ -507,8 +531,8 @@ class _KXSendSoundMessageState extends TIMUIKitState<KXSendSoundMessage> {
   }
 
   /// 语音转文字
-  Future<void> _convertSoundToWord(
-      String? soundPath, double? recordDuration) async {
+  Future<void> _convertSoundToWord(String? soundPath,
+      double? recordDuration) async {
     try {
       audioPath = soundPath;
       audioLength = recordDuration;
