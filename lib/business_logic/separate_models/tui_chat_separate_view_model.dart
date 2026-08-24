@@ -1214,7 +1214,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
   }) async {
     ////////////////// 自定义参数 //////////////////
     final (tipContent, isSend) =
-        (await chatConfig.forwardMsgTipContent?.call(conversationList)) ?? '';
+        (await chatConfig.forwardMsgTipContent?.call(conversationList)) ?? ('', true);
     if (!isSend) return;
     ////////////////// 自定义参数 //////////////////
 
@@ -1278,7 +1278,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
   }) async {
     ////////////////// 自定义参数 //////////////////
     final (tipContent, isSend) =
-        (await chatConfig.forwardMsgTipContent?.call(conversationList)) ?? '';
+        (await chatConfig.forwardMsgTipContent?.call(conversationList)) ?? ('', true);
     if (!isSend) return;
     ////////////////// 自定义参数 //////////////////
 
