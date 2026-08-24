@@ -1267,6 +1267,16 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
       }
       ////////////////// 自定义参数 //////////////////
     }
+
+    /////  新增消息转发成功提示
+    final CoreServicesImpl _coreServices = serviceLocator<CoreServicesImpl>();
+    _coreServices.callOnCallback(
+      TIMCallback(
+          type: TIMCallbackType.INFO,
+          infoRecommendText: "消息转发成功",
+          infoCode: 2000),
+    );
+    /////  新增消息转发成功提示
   }
 
   /// 合并转发
@@ -1333,6 +1343,16 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
         ////////////////// 自定义参数 //////////////////
       }
     }
+
+    /////  新增消息转发成功提示
+    final CoreServicesImpl _coreServices = serviceLocator<CoreServicesImpl>();
+    _coreServices.callOnCallback(
+      TIMCallback(
+          type: TIMCallbackType.INFO,
+          infoRecommendText: "消息转发成功",
+          infoCode: 2000),
+    );
+    /////  新增消息转发成功提示
     return null;
   }
 
