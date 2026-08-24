@@ -1213,8 +1213,9 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
     required List<V2TimConversation> conversationList,
   }) async {
     ////////////////// 自定义参数 //////////////////
-    final tipContent =
+    final (tipContent, isSend) =
         (await chatConfig.forwardMsgTipContent?.call(conversationList)) ?? '';
+    if (!isSend) return;
     ////////////////// 自定义参数 //////////////////
 
     final selectedMessages = getSelectedMessageList();
@@ -1276,8 +1277,9 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
     required BuildContext context,
   }) async {
     ////////////////// 自定义参数 //////////////////
-    final tipContent =
+    final (tipContent, isSend) =
         (await chatConfig.forwardMsgTipContent?.call(conversationList)) ?? '';
+    if (!isSend) return;
     ////////////////// 自定义参数 //////////////////
 
     final List<String> msgIDList = getSelectedMessageList()

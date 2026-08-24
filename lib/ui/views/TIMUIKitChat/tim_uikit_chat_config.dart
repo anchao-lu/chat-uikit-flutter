@@ -333,7 +333,7 @@ class TIMUIKitChatConfig {
   })? onUseCusImgBrowserFn;
 
   // 转发消息时的附带消息
-  final Future<String> Function(List<V2TimConversation?> selectedConvs)? forwardMsgTipContent;
+  final Future<(String, bool)> Function(List<V2TimConversation?> selectedConvs)? forwardMsgTipContent;
   //////////////// 自定义入参 ////////////////
 
   const TIMUIKitChatConfig({
