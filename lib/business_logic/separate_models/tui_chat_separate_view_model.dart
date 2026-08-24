@@ -1279,7 +1279,7 @@ class TUIChatSeparateViewModel extends ChangeNotifier {
     ////////////////// 自定义参数 //////////////////
     final (tipContent, isSend) =
         (await chatConfig.forwardMsgTipContent?.call(conversationList)) ?? ('', true);
-    if (!isSend) return;
+    if (!isSend) return null;
     ////////////////// 自定义参数 //////////////////
 
     final List<String> msgIDList = getSelectedMessageList()
